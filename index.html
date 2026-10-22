@@ -6,21 +6,11 @@
   <title>Desafío Tabla Periódica - Símbolos y Nombres</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
-    :root {
-      --background: #0f172a;
-      --card: #1e293b;
-      --foreground: #f8fafc;
-      --muted-foreground: #94a3b8;
-      --border: #334155;
-      --primary: #3b82f6;
-      --primary-foreground: #ffffff;
-      --accent: #10b981;
-    }
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     }
     .element-card-glow {
-      box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.4);
+      box-shadow: 0 0 35px -5px rgba(59, 130, 246, 0.45);
     }
     .pulse-correct {
       animation: correctPulse 0.4s ease-out;
@@ -30,150 +20,182 @@
     }
     @keyframes correctPulse {
       0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
+      50% { transform: scale(1.04); }
       100% { transform: scale(1); }
     }
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-6px); }
-      40%, 80% { transform: translateX(6px); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    /* Estilos dinámicos para modo proyector/pantalla grande */
+    .scale-large .element-main-box {
+      width: 15rem;
+      height: 18rem;
+    }
+    .scale-large .element-symbol-txt {
+      font-size: 5.5rem;
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center p-3 sm:p-6">
-  <div class="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-2 sm:p-6 transition-all duration-300">
+
+  <!-- Contenedor Principal Ampliado -->
+  <div id="game-container" class="w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col my-auto transition-all">
     
-    <!-- Encabezado -->
-    <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 px-5 py-4 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold text-xl shadow-inner">
+    <!-- Encabezado Amplio -->
+    <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-5 sm:px-8 py-4 sm:py-5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-extrabold text-2xl shadow-inner">
           ⚛️
         </div>
         <div>
-          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+          <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
             Desafío Tabla Periódica
           </h1>
-          <p class="text-xs text-slate-400">¿Conoces los símbolos y nombres químicos?</p>
+          <p class="text-xs sm:text-sm text-slate-400">¿Conoces los símbolos y nombres químicos de los elementos?</p>
         </div>
       </div>
 
-      <!-- Barra de navegación de pestañas -->
-      <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-medium">
-        <button id="tab-play-btn" onclick="switchTab('play')" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold shadow-sm transition">
-          🎮 Jugar
-        </button>
-        <button id="tab-explore-btn" onclick="switchTab('explore')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
-          📖 Explorar
+      <!-- Barra de navegación y controles de tamaño -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- Control de Tamaño de Interfaz -->
+        <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+          <span class="text-slate-400 px-2 font-medium hidden sm:inline">Vista:</span>
+          <button id="size-normal-btn" onclick="setSizeMode('normal')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 text-white font-semibold transition">
+            Normal
+          </button>
+          <button id="size-large-btn" onclick="setSizeMode('large')" class="px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
+            🔍 Grande / Proyector
+          </button>
+        </div>
+
+        <!-- Pestañas de modo -->
+        <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs sm:text-sm font-semibold">
+          <button id="tab-play-btn" onclick="switchTab('play')" class="px-3.5 py-1.5 rounded-lg bg-blue-600 text-white shadow-sm transition">
+            🎮 Jugar
+          </button>
+          <button id="tab-explore-btn" onclick="switchTab('explore')" class="px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
+            📖 Explorar
+          </button>
+        </div>
+
+        <!-- Botón Pantalla Completa -->
+        <button onclick="toggleFullscreen()" title="Pantalla completa" class="p-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-slate-300 hover:text-white transition">
+          ⛶
         </button>
       </div>
     </header>
 
     <!-- Panel de Juego -->
-    <main id="play-panel" class="p-4 sm:p-6 flex flex-col gap-5">
+    <main id="play-panel" class="p-5 sm:p-8 flex flex-col gap-6">
       
-      <!-- Controles y Marcador -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
-        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-2.5">
-          <span class="text-slate-400 block mb-0.5">Puntuación</span>
-          <span id="score-val" class="text-lg font-bold text-blue-400">0</span>
+      <!-- Marcadores Ampliados -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-sm">
+          <span class="text-slate-400 block text-xs sm:text-sm font-medium mb-1">Puntuación</span>
+          <span id="score-val" class="text-xl sm:text-3xl font-black text-blue-400">0</span>
         </div>
-        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-2.5">
-          <span class="text-slate-400 block mb-0.5">Racha 🔥</span>
-          <span id="streak-val" class="text-lg font-bold text-amber-400">0</span>
+        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-sm">
+          <span class="text-slate-400 block text-xs sm:text-sm font-medium mb-1">Racha Actual 🔥</span>
+          <span id="streak-val" class="text-xl sm:text-3xl font-black text-amber-400">0</span>
         </div>
-        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-2.5">
-          <span class="text-slate-400 block mb-0.5">Aciertos</span>
-          <span id="accuracy-val" class="text-lg font-bold text-emerald-400">0%</span>
+        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-sm">
+          <span class="text-slate-400 block text-xs sm:text-sm font-medium mb-1">Precisión</span>
+          <span id="accuracy-val" class="text-xl sm:text-3xl font-black text-emerald-400">0%</span>
         </div>
-        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-2.5">
-          <span class="text-slate-400 block mb-0.5">Récord</span>
-          <span id="best-streak-val" class="text-lg font-bold text-purple-400">0</span>
+        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-3 sm:p-4 shadow-sm">
+          <span class="text-slate-400 block text-xs sm:text-sm font-medium mb-1">Récord</span>
+          <span id="best-streak-val" class="text-xl sm:text-3xl font-black text-purple-400">0</span>
         </div>
       </div>
 
-      <!-- Selectores de Modo -->
-      <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-950/40 p-2 rounded-xl border border-slate-800/80 text-xs">
-        <div class="flex items-center gap-1.5 flex-wrap">
-          <span class="text-slate-400 font-medium mr-1">Modo:</span>
-          <button id="mode-sym-to-name" onclick="setGameMode('sym-to-name')" class="px-2.5 py-1 rounded-md bg-blue-600/30 border border-blue-500/40 text-blue-300 font-medium transition">
+      <!-- Selectores de Modo y Sonido -->
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80 text-xs sm:text-sm">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-slate-400 font-semibold mr-1">Modo de prueba:</span>
+          <button id="mode-sym-to-name" onclick="setGameMode('sym-to-name')" class="px-3.5 py-1.5 rounded-xl bg-blue-600/30 border border-blue-500/50 text-blue-300 font-bold transition">
             Símbolo ➔ Nombre
           </button>
-          <button id="mode-name-to-sym" onclick="setGameMode('name-to-sym')" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+          <button id="mode-name-to-sym" onclick="setGameMode('name-to-sym')" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
             Nombre ➔ Símbolo
           </button>
-          <button id="mode-mixed" onclick="setGameMode('mixed')" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
-            🎲 Mixto
+          <button id="mode-mixed" onclick="setGameMode('mixed')" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+            🎲 Desafío Mixto
           </button>
         </div>
         
-        <!-- Toggle de sonido -->
-        <button id="sound-btn" onclick="toggleSound()" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1">
+        <button id="sound-btn" onclick="toggleSound()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1.5 font-medium">
           <span id="sound-icon">🔊</span> Sonido
         </button>
       </div>
 
-      <!-- Tarjeta Principal de Pregunta / Elemento -->
-      <div id="question-card" class="bg-gradient-to-b from-slate-800/90 to-slate-900 border border-slate-700/80 rounded-2xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden element-card-glow transition-all">
-        <div id="category-badge" class="px-3 py-1 rounded-full text-[11px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-3">
-          No metal
+      <!-- Tarjeta Principal del Elemento Químico (Mucho más grande y visible) -->
+      <div id="question-card" class="bg-gradient-to-b from-slate-800/90 to-slate-900 border border-slate-700/80 rounded-3xl p-6 sm:p-8 flex flex-col items-center justify-center text-center relative overflow-hidden element-card-glow transition-all">
+        
+        <div id="category-badge" class="px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-4 shadow-sm">
+          No metales
         </div>
         
-        <p id="prompt-question" class="text-slate-300 text-sm font-medium mb-3">
+        <h2 id="prompt-question" class="text-slate-200 text-base sm:text-xl font-bold mb-5 max-w-xl">
           ¿Cuál es el nombre correspondiente a este símbolo?
-        </p>
+        </h2>
 
-        <!-- Element Box Visual -->
-        <div class="w-32 h-36 rounded-2xl bg-slate-950/90 border-2 border-blue-500/60 p-2.5 flex flex-col justify-between items-center shadow-lg relative my-1">
-          <div class="w-full flex justify-between items-center text-xs text-slate-400 font-mono px-1">
+        <!-- Ficha Química Central Prominente -->
+        <div class="element-main-box w-40 h-48 sm:w-52 sm:h-60 rounded-3xl bg-slate-950 border-2 border-blue-500/70 p-3 sm:p-4 flex flex-col justify-between items-center shadow-2xl relative my-2 transition-all">
+          <div class="w-full flex justify-between items-center text-xs sm:text-sm text-slate-400 font-mono font-bold px-1">
             <span id="atomic-number">1</span>
-            <span id="atomic-mass" class="text-[10px] text-slate-500">1.008</span>
+            <span id="atomic-mass" class="text-slate-500">1.008</span>
           </div>
-          <div id="element-display" class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 tracking-tight my-auto">
+          <div id="element-display" class="element-symbol-txt text-5xl sm:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 tracking-tight my-auto select-none transition-all">
             H
           </div>
-          <div id="element-subtext" class="text-[11px] text-slate-400 truncate max-w-full font-medium">
+          <div id="element-subtext" class="text-xs sm:text-sm font-bold text-slate-300 truncate max-w-full">
             Elemento #1
           </div>
         </div>
 
-        <p id="hint-text" class="text-xs text-slate-400 mt-3 italic min-h-[1.25rem]">
+        <!-- Pista Científica -->
+        <p id="hint-text" class="text-xs sm:text-sm text-slate-400 mt-4 italic max-w-lg min-h-[1.5rem]">
           El elemento más abundante del universo observable.
         </p>
       </div>
 
-      <!-- Opciones de Respuesta -->
-      <div id="options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        <!-- Generadas dinámicamente -->
+      <!-- Cuadrícula de Opciones de Respuesta Ampliadas -->
+      <div id="options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <!-- Generadas dinámicamente con tamaño generoso -->
       </div>
 
-      <!-- Mensaje de Feedback & Dato Curioso -->
-      <div id="feedback-box" class="hidden p-3.5 rounded-xl border text-xs flex items-start gap-2.5 transition">
-        <span id="feedback-icon" class="text-lg"></span>
-        <div class="flex-1">
-          <p id="feedback-title" class="font-bold text-sm mb-0.5"></p>
-          <p id="feedback-detail" class="text-slate-300 leading-relaxed"></p>
+      <!-- Cuadro de Retroalimentación y Botón Siguiente -->
+      <div id="feedback-box" class="hidden p-4 sm:p-5 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-4 transition shadow-lg">
+        <div class="flex items-start gap-3 flex-1">
+          <span id="feedback-icon" class="text-2xl sm:text-3xl"></span>
+          <div>
+            <p id="feedback-title" class="font-extrabold text-sm sm:text-base mb-1"></p>
+            <p id="feedback-detail" class="text-slate-300 text-xs sm:text-sm leading-relaxed"></p>
+          </div>
         </div>
-        <button onclick="nextQuestion()" class="self-center px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs shadow-md transition ml-2">
-          Siguiente ➔
+        <button onclick="nextQuestion()" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm sm:text-base shadow-lg transition flex items-center justify-center gap-2">
+          Siguiente Elemento ➔
         </button>
       </div>
     </main>
 
-    <!-- Panel de Exploración / Repaso -->
-    <section id="explore-panel" class="hidden p-4 sm:p-6 flex flex-col gap-4">
-      <div class="flex flex-col sm:flex-row gap-2">
+    <!-- Panel de Exploración / Repaso de la Tabla -->
+    <section id="explore-panel" class="hidden p-5 sm:p-8 flex flex-col gap-5">
+      <div class="flex flex-col sm:flex-row gap-3">
         <input 
           type="text" 
           id="search-input" 
-          placeholder="Buscar por nombre, símbolo o número..." 
+          placeholder="Buscar por nombre, símbolo químico o número atómico..." 
           oninput="filterElements()"
-          class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+          class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
         />
         <select 
           id="category-select" 
           onchange="filterElements()"
-          class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-blue-500">
-          <option value="all">Todas las familias</option>
+          class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-300 focus:outline-none focus:border-blue-500">
+          <option value="all">Todas las familias químicas</option>
           <option value="No metales">No metales</option>
           <option value="Gases nobles">Gases nobles</option>
           <option value="Metales alcalinos">Metales alcalinos</option>
@@ -186,26 +208,26 @@
         </select>
       </div>
 
-      <div class="text-xs text-slate-400 flex justify-between items-center">
-        <span id="elements-count">Mostrando elementos</span>
-        <span class="text-slate-500 text-[11px]">Haz clic en cualquier tarjeta para escuchar o repasar</span>
+      <div class="text-xs sm:text-sm text-slate-400 flex justify-between items-center">
+        <span id="elements-count" class="font-semibold">Mostrando elementos</span>
+        <span class="text-slate-500 text-xs">Haz clic en una tarjeta para escuchar el sonido</span>
       </div>
 
-      <!-- Lista de Elementos en Tarjetas -->
-      <div id="elements-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-[460px] overflow-y-auto pr-1">
+      <!-- Lista de Elementos en Tarjetas con Tamaño Amplio -->
+      <div id="elements-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[550px] overflow-y-auto pr-1">
         <!-- Insertadas por JS -->
       </div>
     </section>
 
     <!-- Pie de página -->
-    <footer class="bg-slate-950/80 border-t border-slate-800/80 px-5 py-3 text-center text-xs text-slate-500 flex justify-between items-center">
-      <span>Aprende química jugando 🧪</span>
-      <button onclick="resetGameStats()" class="hover:text-slate-300 underline transition">Reiniciar estadísticas</button>
+    <footer class="bg-slate-950/80 border-t border-slate-800 px-6 py-4 text-center text-xs sm:text-sm text-slate-500 flex flex-wrap justify-between items-center gap-2">
+      <span class="font-medium">Química interactiva para el aula 🧪</span>
+      <button onclick="resetGameStats()" class="hover:text-slate-300 underline transition font-medium">Reiniciar estadísticas</button>
     </footer>
   </div>
 
   <script>
-    // Base de datos de elementos químicos representativos de la Tabla Periódica
+    // Base de datos de elementos químicos representativos
     const ELEMENTS = [
       { z: 1, s: "H", n: "Hidrógeno", m: 1.008, c: "No metales", d: "El elemento más ligero y abundante del universo." },
       { z: 2, s: "He", n: "Helio", m: 4.0026, c: "Gases nobles", d: "Gas inerte descubierto en el espectro del Sol." },
@@ -267,7 +289,7 @@
     ];
 
     // Variables de Estado
-    let currentMode = 'sym-to-name'; // 'sym-to-name', 'name-to-sym', 'mixed'
+    let currentMode = 'sym-to-name';
     let currentElement = null;
     let currentType = 'sym-to-name';
     let score = 0;
@@ -278,7 +300,7 @@
     let isAnswered = false;
     let soundEnabled = true;
 
-    // Web Audio sintetizador para evitar librerías externas
+    // Web Audio sintetizador
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
 
@@ -296,16 +318,14 @@
         const now = audioCtx.currentTime;
 
         if (type === 'correct') {
-          // Tono armónico ascendente
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(440, now); // A4
-          osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
-          gain.gain.setValueAtTime(0.15, now);
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+          gain.gain.setValueAtTime(0.18, now);
           gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
           osc.start(now);
           osc.stop(now + 0.25);
         } else if (type === 'error') {
-          // Tono grave descendente
           osc.type = 'sawtooth';
           osc.frequency.setValueAtTime(180, now);
           osc.frequency.exponentialRampToValueAtTime(90, now + 0.25);
@@ -314,12 +334,11 @@
           osc.start(now);
           osc.stop(now + 0.3);
         } else if (type === 'streak') {
-          // Acorde alegre
           osc.type = 'triangle';
-          osc.frequency.setValueAtTime(523.25, now); // C5
-          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
-          osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
-          gain.gain.setValueAtTime(0.15, now);
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(659.25, now + 0.08);
+          osc.frequency.setValueAtTime(783.99, now + 0.16);
+          gain.gain.setValueAtTime(0.18, now);
           gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
           osc.start(now);
           osc.stop(now + 0.35);
@@ -335,30 +354,45 @@
       icon.textContent = soundEnabled ? '🔊' : '🔇';
     }
 
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    function setSizeMode(mode) {
+      const container = document.getElementById('game-container');
+      const normalBtn = document.getElementById('size-normal-btn');
+      const largeBtn = document.getElementById('size-large-btn');
+
+      if (mode === 'large') {
+        container.classList.add('scale-large');
+        container.classList.remove('max-w-4xl');
+        container.classList.add('max-w-6xl');
+        largeBtn.className = "px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-semibold transition";
+        normalBtn.className = "px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+      } else {
+        container.classList.remove('scale-large');
+        container.classList.remove('max-w-6xl');
+        container.classList.add('max-w-4xl');
+        normalBtn.className = "px-2.5 py-1.5 rounded-lg bg-slate-800 text-white font-semibold transition";
+        largeBtn.className = "px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+      }
+    }
+
     function setGameMode(mode) {
       currentMode = mode;
       ['sym-to-name', 'name-to-sym', 'mixed'].forEach(m => {
         const btn = document.getElementById('mode-' + m);
         if (m === mode) {
-          btn.className = "px-2.5 py-1 rounded-md bg-blue-600/30 border border-blue-500/40 text-blue-300 font-medium transition";
+          btn.className = "px-3.5 py-1.5 rounded-xl bg-blue-600/30 border border-blue-500/50 text-blue-300 font-bold transition";
         } else {
-          btn.className = "px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition";
+          btn.className = "px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition";
         }
       });
       generateQuestion();
-    }
-
-    function getCategoryColor(cat) {
-      switch(cat) {
-        case 'Gases nobles': return 'from-purple-500 to-indigo-500 text-purple-300 border-purple-500/40';
-        case 'Metales alcalinos': return 'from-red-500 to-orange-500 text-red-300 border-red-500/40';
-        case 'Alcalinotérreos': return 'from-amber-500 to-yellow-500 text-amber-300 border-amber-500/40';
-        case 'Metales de transición': return 'from-blue-500 to-cyan-500 text-blue-300 border-blue-500/40';
-        case 'Halógenos': return 'from-emerald-500 to-teal-500 text-emerald-300 border-emerald-500/40';
-        case 'Metaloides': return 'from-pink-500 to-rose-500 text-pink-300 border-pink-500/40';
-        case 'Lantánidos y Actínidos': return 'from-fuchsia-500 to-violet-500 text-fuchsia-300 border-fuchsia-500/40';
-        default: return 'from-teal-500 to-cyan-500 text-cyan-300 border-cyan-500/40';
-      }
     }
 
     function generateQuestion() {
@@ -368,18 +402,15 @@
       const qCard = document.getElementById('question-card');
       qCard.classList.remove('pulse-correct', 'shake-error');
 
-      // Seleccionar elemento objetivo al azar
       const randomIndex = Math.floor(Math.random() * ELEMENTS.length);
       currentElement = ELEMENTS[randomIndex];
 
-      // Determinar si es símbolo a nombre o nombre a símbolo
       if (currentMode === 'mixed') {
         currentType = Math.random() > 0.5 ? 'sym-to-name' : 'name-to-sym';
       } else {
         currentType = currentMode;
       }
 
-      // Actualizar información visual del elemento
       const atomicNumberEl = document.getElementById('atomic-number');
       const atomicMassEl = document.getElementById('atomic-mass');
       const elementDisplayEl = document.getElementById('element-display');
@@ -388,22 +419,21 @@
       const promptQuestion = document.getElementById('prompt-question');
       const hintText = document.getElementById('hint-text');
 
-      atomicNumberEl.textContent = currentElement.z;
-      atomicMassEl.textContent = currentElement.m ? currentElement.m.toFixed(2) : '-';
+      atomicNumberEl.textContent = `Z = ${currentElement.z}`;
+      atomicMassEl.textContent = currentElement.m ? `${currentElement.m.toFixed(2)} u` : '-';
       categoryBadge.textContent = currentElement.c;
-      hintText.textContent = `Pista: ${currentElement.d}`;
+      hintText.textContent = `💡 Pista: ${currentElement.d}`;
 
       if (currentType === 'sym-to-name') {
-        promptQuestion.innerHTML = `¿Cuál es el <strong>nombre</strong> del símbolo <span class="text-blue-400 font-bold">${currentElement.s}</span>?`;
+        promptQuestion.innerHTML = `¿Cuál es el <strong>nombre</strong> correspondiente al símbolo químico <span class="text-blue-400 font-extrabold text-lg sm:text-2xl">${currentElement.s}</span>?`;
         elementDisplayEl.textContent = currentElement.s;
-        elementSubtextEl.textContent = `Z = ${currentElement.z}`;
+        elementSubtextEl.textContent = `Número Atómico ${currentElement.z}`;
       } else {
-        promptQuestion.innerHTML = `¿Cuál es el <strong>símbolo químico</strong> de <span class="text-teal-300 font-bold">${currentElement.n}</span>?`;
+        promptQuestion.innerHTML = `¿Cuál es el <strong>símbolo químico</strong> del elemento <span class="text-teal-300 font-extrabold text-lg sm:text-2xl">${currentElement.n}</span>?`;
         elementDisplayEl.textContent = "?";
         elementSubtextEl.textContent = currentElement.n;
       }
 
-      // Generar 3 distractores aleatorios
       const options = [currentElement];
       while (options.length < 4) {
         const randOpt = ELEMENTS[Math.floor(Math.random() * ELEMENTS.length)];
@@ -412,22 +442,20 @@
         }
       }
 
-      // Mezclar opciones
       options.sort(() => Math.random() - 0.5);
 
-      // Renderizar botones
       const optionsGrid = document.getElementById('options-grid');
       optionsGrid.innerHTML = '';
 
       options.forEach(opt => {
         const btn = document.createElement('button');
         const textToDisplay = currentType === 'sym-to-name' ? opt.n : opt.s;
-        const subDisplay = currentType === 'sym-to-name' ? `(${opt.s})` : `(${opt.n})`;
+        const subDisplay = currentType === 'sym-to-name' ? `[ ${opt.s} ]` : `(${opt.n})`;
 
-        btn.className = "flex items-center justify-between p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 text-left hover:border-blue-500/50 hover:bg-slate-800/60 font-medium text-xs sm:text-sm text-slate-200 transition shadow-sm";
+        btn.className = "flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-slate-950/80 border-2 border-slate-800 text-left hover:border-blue-500 hover:bg-slate-800/80 font-bold text-base sm:text-xl text-slate-100 transition shadow-md active:scale-98";
         btn.innerHTML = `
-          <span class="font-semibold text-white">${textToDisplay}</span>
-          <span class="text-slate-500 text-xs">${subDisplay}</span>
+          <span class="text-white">${textToDisplay}</span>
+          <span class="text-slate-400 text-xs sm:text-sm font-mono font-medium">${subDisplay}</span>
         `;
 
         btn.onclick = () => handleAnswer(opt, btn);
@@ -447,16 +475,13 @@
       const feedbackDetail = document.getElementById('feedback-detail');
       const qCard = document.getElementById('question-card');
 
-      // Resaltar opciones correctas e incorrectas
       const buttons = document.querySelectorAll('#options-grid button');
       buttons.forEach(b => {
         const isThisCorrect = b.innerText.includes(currentType === 'sym-to-name' ? currentElement.n : currentElement.s);
         if (isThisCorrect) {
-          b.classList.remove('bg-slate-950/70', 'border-slate-800');
-          b.classList.add('bg-emerald-950/80', 'border-emerald-500', 'text-emerald-200');
+          b.className = "flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-emerald-950/90 border-2 border-emerald-500 text-emerald-200 font-bold text-base sm:text-xl shadow-lg";
         } else if (b === btnElement && !isCorrect) {
-          b.classList.remove('bg-slate-950/70', 'border-slate-800');
-          b.classList.add('bg-rose-950/80', 'border-rose-500', 'text-rose-200');
+          b.className = "flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-rose-950/90 border-2 border-rose-500 text-rose-200 font-bold text-base sm:text-xl shadow-lg";
         }
         b.disabled = true;
       });
@@ -464,25 +489,25 @@
       if (isCorrect) {
         totalCorrect++;
         streak++;
-        score += 10 + Math.min(streak * 2, 20);
+        score += 10 + Math.min(streak * 2, 25);
         if (streak > bestStreak) bestStreak = streak;
 
         qCard.classList.add('pulse-correct');
         playSound(streak >= 3 ? 'streak' : 'correct');
 
-        feedbackBox.className = "p-3.5 rounded-xl border bg-emerald-950/50 border-emerald-500/40 text-emerald-200 flex items-start gap-2.5 transition";
+        feedbackBox.className = "p-4 sm:p-5 rounded-2xl border bg-emerald-950/60 border-emerald-500/50 text-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4 transition shadow-xl";
         feedbackIcon.textContent = "✅";
-        feedbackTitle.textContent = `¡Correcto! ${currentElement.n} (${currentElement.s})`;
-        feedbackDetail.textContent = `Número atómico ${currentElement.z}. ${currentElement.d}`;
+        feedbackTitle.textContent = `¡Respuesta Correcta! ${currentElement.n} (${currentElement.s})`;
+        feedbackDetail.textContent = `Número atómico Z = ${currentElement.z}. ${currentElement.d}`;
       } else {
         streak = 0;
         qCard.classList.add('shake-error');
         playSound('error');
 
-        feedbackBox.className = "p-3.5 rounded-xl border bg-rose-950/50 border-rose-500/40 text-rose-200 flex items-start gap-2.5 transition";
+        feedbackBox.className = "p-4 sm:p-5 rounded-2xl border bg-rose-950/60 border-rose-500/50 text-rose-200 flex flex-col sm:flex-row items-center justify-between gap-4 transition shadow-xl";
         feedbackIcon.textContent = "❌";
-        feedbackTitle.textContent = `¡Ups! Era ${currentElement.n} (${currentElement.s})`;
-        feedbackDetail.textContent = `Seleccionaste ${selectedOpt.n} (${selectedOpt.s}). ${currentElement.d}`;
+        feedbackTitle.textContent = `¡Incorrecto! La respuesta correcta era ${currentElement.n} (${currentElement.s})`;
+        feedbackDetail.textContent = `Elegiste ${selectedOpt.n} (${selectedOpt.s}). ${currentElement.d}`;
       }
 
       feedbackBox.classList.remove('hidden');
@@ -519,13 +544,13 @@
       if (tab === 'play') {
         playPanel.classList.remove('hidden');
         explorePanel.classList.add('hidden');
-        playBtn.className = "px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold shadow-sm transition";
-        exploreBtn.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+        playBtn.className = "px-3.5 py-1.5 rounded-lg bg-blue-600 text-white shadow-sm transition";
+        exploreBtn.className = "px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
       } else {
         playPanel.classList.add('hidden');
         explorePanel.classList.remove('hidden');
-        exploreBtn.className = "px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold shadow-sm transition";
-        playBtn.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+        exploreBtn.className = "px-3.5 py-1.5 rounded-lg bg-blue-600 text-white shadow-sm transition";
+        playBtn.className = "px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
         renderExploreElements();
       }
     }
@@ -553,17 +578,17 @@
 
       filtered.forEach(el => {
         const card = document.createElement('div');
-        card.className = "bg-slate-950/80 border border-slate-800 hover:border-blue-500/60 rounded-xl p-3 flex flex-col justify-between transition cursor-pointer hover:bg-slate-900 group";
+        card.className = "bg-slate-950/80 border border-slate-800 hover:border-blue-500 rounded-2xl p-4 flex flex-col justify-between transition cursor-pointer hover:bg-slate-900 group shadow-sm";
         card.innerHTML = `
-          <div class="flex justify-between items-center text-[10px] text-slate-400">
-            <span class="font-mono">#${el.z}</span>
-            <span class="text-slate-500 truncate max-w-[65px]">${el.c}</span>
+          <div class="flex justify-between items-center text-xs text-slate-400">
+            <span class="font-mono font-bold">#${el.z}</span>
+            <span class="text-slate-500 truncate max-w-[80px] font-medium">${el.c}</span>
           </div>
-          <div class="my-1.5 flex items-baseline gap-1.5">
-            <span class="text-xl font-black text-blue-400 group-hover:text-cyan-300 transition">${el.s}</span>
-            <span class="text-xs font-semibold text-slate-200 truncate">${el.n}</span>
+          <div class="my-2 flex items-baseline gap-2">
+            <span class="text-3xl font-black text-blue-400 group-hover:text-cyan-300 transition">${el.s}</span>
+            <span class="text-sm sm:text-base font-bold text-slate-200 truncate">${el.n}</span>
           </div>
-          <p class="text-[10px] text-slate-400 line-clamp-2 leading-snug">${el.d}</p>
+          <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">${el.d}</p>
         `;
         card.onclick = () => {
           playSound('correct');
@@ -572,7 +597,6 @@
       });
     }
 
-    // Inicializar juego al cargar
     window.addEventListener('DOMContentLoaded', () => {
       generateQuestion();
     });
