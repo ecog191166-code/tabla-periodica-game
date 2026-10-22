@@ -4,17 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#0f172a">
-  <title>Desafío Tabla Periódica - Símbolos y Nombres</title>
+  <title>Desafío Tabla Periódica - Evaluación Panamá</title>
   
   <!-- Metadatos para compartir por WhatsApp / Redes Sociales -->
   <meta property="og:title" content="Desafío Tabla Periódica ⚛️">
-  <meta property="og:description" content="Juego interactivo de química: Adivina los símbolos y nombres de la tabla periódica.">
+  <meta property="og:description" content="Juego interactivo de química con sistema de evaluación (Escala 1.0 a 5.0 de Panamá).">
   <meta property="og:type" content="website">
 
   <!-- CDN oficial y público de Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Estilos base y de respaldo garantizados (funcionan incluso sin CDN o sin conexión) -->
+  <!-- Estilos base y animaciones -->
   <style>
     * {
       box-sizing: border-box;
@@ -51,36 +51,35 @@
       40%, 80% { transform: translateX(8px); }
     }
     .scale-large .element-main-box {
-      width: 15rem;
-      height: 18rem;
+      width: 16rem;
+      height: 19rem;
     }
     .scale-large .element-symbol-txt {
-      font-size: 5.5rem;
+      font-size: 6rem;
     }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start p-2 sm:p-6 transition-all duration-300">
 
-  <!-- Contenedor Principal Adaptable a Celulares y Computadoras -->
-  <div id="game-container" class="w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col my-auto transition-all">
+  <!-- Contenedor Principal Adaptable -->
+  <div id="game-container" class="w-full max-w-5xl bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col my-auto transition-all">
     
     <!-- Encabezado -->
     <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-4 sm:px-8 py-3.5 sm:py-5 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-extrabold text-xl sm:text-2xl shadow-inner">
+        <div class="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-extrabold text-2xl shadow-inner">
           ⚛️
         </div>
         <div>
           <h1 class="text-lg sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
             Desafío Tabla Periódica
           </h1>
-          <p class="text-xs sm:text-sm text-slate-400">¿Conoces los símbolos y nombres químicos?</p>
+          <p class="text-xs sm:text-sm text-slate-400">Evaluación oficial: 1 punto por acierto | Escala 1.0 a 5.0 🇵🇦</p>
         </div>
       </div>
 
       <!-- Barra de navegación y controles de tamaño -->
       <div class="flex items-center gap-2 flex-wrap">
-        <!-- Control de Tamaño de Interfaz -->
         <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
           <button id="size-normal-btn" onclick="setSizeMode('normal')" class="px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-semibold transition">
             Normal
@@ -90,17 +89,15 @@
           </button>
         </div>
 
-        <!-- Pestañas de modo -->
         <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs sm:text-sm font-semibold">
           <button id="tab-play-btn" onclick="switchTab('play')" class="px-3.5 py-1.5 rounded-lg bg-blue-600 text-white shadow-sm transition">
-            🎮 Jugar
+            🎮 Desafío
           </button>
           <button id="tab-explore-btn" onclick="switchTab('explore')" class="px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
             📖 Explorar
           </button>
         </div>
 
-        <!-- Botón Pantalla Completa -->
         <button onclick="toggleFullscreen()" title="Pantalla completa" class="p-2 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl text-slate-300 hover:text-white transition">
           ⛶
         </button>
@@ -110,38 +107,64 @@
     <!-- Panel de Juego -->
     <main id="play-panel" class="p-4 sm:p-8 flex flex-col gap-5 sm:gap-6">
       
-      <!-- Marcadores -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-center">
-        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-2.5 sm:p-4 shadow-sm">
-          <span class="text-slate-400 block text-xs sm:text-sm font-medium mb-1">Puntuación</span>
+      <!-- Marcadores con Sistema de Evaluación de Panamá -->
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 sm:gap-3 text-center">
+        <!-- 1. Puntuación (1 punto por acierto) -->
+        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-3 shadow-sm">
+          <span class="text-slate-400 block text-xs sm:text-sm font-semibold mb-1">Puntuación</span>
           <span id="score-val" class="text-xl sm:text-3xl font-black text-blue-400">0</span>
+          <span class="text-[11px] text-slate-500 block mt-0.5">1 pto / acierto</span>
         </div>
-        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-2.5 sm:p-4 shadow-sm">
-          <span class="text-slate-400 block text-xs sm:text-sm font-medium mb-1">Racha 🔥</span>
+
+        <!-- 2. Aciertos -->
+        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-3 shadow-sm">
+          <span class="text-slate-400 block text-xs sm:text-sm font-semibold mb-1">Aciertos ✅</span>
+          <span id="correct-val" class="text-xl sm:text-3xl font-black text-emerald-400">0</span>
+          <span id="progress-val" class="text-[11px] text-slate-500 block mt-0.5">Meta: 50</span>
+        </div>
+
+        <!-- 3. Desaciertos -->
+        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-3 shadow-sm">
+          <span class="text-slate-400 block text-xs sm:text-sm font-semibold mb-1">Desaciertos ❌</span>
+          <span id="incorrect-val" class="text-xl sm:text-3xl font-black text-rose-400">0</span>
+          <span id="accuracy-val" class="text-[11px] text-slate-500 block mt-0.5">0% éxito</span>
+        </div>
+
+        <!-- 4. Racha actual -->
+        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-3 shadow-sm">
+          <span class="text-slate-400 block text-xs sm:text-sm font-semibold mb-1">Racha 🔥</span>
           <span id="streak-val" class="text-xl sm:text-3xl font-black text-amber-400">0</span>
+          <span id="best-streak-val" class="text-[11px] text-slate-500 block mt-0.5">Récord: 0</span>
         </div>
-        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-2.5 sm:p-4 shadow-sm">
-          <span class="text-slate-400 block text-xs sm:text-sm font-medium mb-1">Precisión</span>
-          <span id="accuracy-val" class="text-xl sm:text-3xl font-black text-emerald-400">0%</span>
-        </div>
-        <div class="bg-slate-950/70 border border-slate-800 rounded-2xl p-2.5 sm:p-4 shadow-sm">
-          <span class="text-slate-400 block text-xs sm:text-sm font-medium mb-1">Récord</span>
-          <span id="best-streak-val" class="text-xl sm:text-3xl font-black text-purple-400">0</span>
+
+        <!-- 5. Evaluación de Panamá (Aciertos/50 * 4 + 1) -->
+        <div class="col-span-2 sm:col-span-1 bg-gradient-to-b from-slate-950 to-blue-950/40 border-2 border-blue-500/50 rounded-2xl p-3 shadow-md flex flex-col justify-between">
+          <div>
+            <span class="text-blue-300 block text-xs sm:text-sm font-bold flex items-center justify-center gap-1">
+              🇵🇦 Evaluación
+            </span>
+            <span id="grade-val" class="text-2xl sm:text-4xl font-black text-amber-400 tracking-tight my-0.5 block">
+              1.0
+            </span>
+          </div>
+          <span id="grade-badge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 self-center">
+            Escala: 1.0 - 5.0
+          </span>
         </div>
       </div>
 
       <!-- Selectores de Modo y Sonido -->
       <div class="flex flex-wrap items-center justify-between gap-2.5 bg-slate-950/60 p-2.5 sm:p-3 rounded-2xl border border-slate-800/80 text-xs sm:text-sm">
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="text-slate-400 font-semibold mr-1">Modo:</span>
-          <button id="mode-sym-to-name" onclick="setGameMode('sym-to-name')" class="px-3 py-1.5 rounded-xl bg-blue-600/30 border border-blue-500/50 text-blue-300 font-bold transition">
+          <span class="text-slate-400 font-semibold mr-1">Modalidad:</span>
+          <button id="mode-sym-to-name" onclick="setGameMode('sym-to-name')" class="px-3.5 py-1.5 rounded-xl bg-blue-600/30 border border-blue-500/50 text-blue-300 font-bold transition">
             Símbolo ➔ Nombre
           </button>
-          <button id="mode-name-to-sym" onclick="setGameMode('name-to-sym')" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+          <button id="mode-name-to-sym" onclick="setGameMode('name-to-sym')" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
             Nombre ➔ Símbolo
           </button>
-          <button id="mode-mixed" onclick="setGameMode('mixed')" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
-            🎲 Mixto
+          <button id="mode-mixed" onclick="setGameMode('mixed')" class="px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+            🎲 Desafío Mixto
           </button>
         </div>
         
@@ -150,40 +173,51 @@
         </button>
       </div>
 
-      <!-- Ficha Química Central -->
+      <!-- Ficha Química Central (Con textos más grandes para Z, masa y pista) -->
       <div id="question-card" class="bg-gradient-to-b from-slate-800/90 to-slate-900 border border-slate-700/80 rounded-3xl p-5 sm:p-8 flex flex-col items-center justify-center text-center relative overflow-hidden element-card-glow transition-all">
         
-        <div id="category-badge" class="px-4 py-1 rounded-full text-xs sm:text-sm font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-3 shadow-sm">
+        <div id="category-badge" class="px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-3 shadow-sm">
           No metales
         </div>
         
-        <h2 id="prompt-question" class="text-slate-200 text-base sm:text-xl font-bold mb-4 max-w-xl">
+        <h2 id="prompt-question" class="text-slate-100 text-base sm:text-2xl font-bold mb-4 max-w-2xl leading-snug">
           ¿Cuál es el nombre correspondiente a este símbolo?
         </h2>
 
-        <!-- Ficha de Elemento -->
-        <div class="element-main-box w-36 h-44 sm:w-52 sm:h-60 rounded-3xl bg-slate-950 border-2 border-blue-500/70 p-3 sm:p-4 flex flex-col justify-between items-center shadow-2xl relative my-2 transition-all">
-          <div class="w-full flex justify-between items-center text-xs sm:text-sm text-slate-400 font-mono font-bold px-1">
-            <span id="atomic-number">Z = 1</span>
-            <span id="atomic-mass" class="text-slate-500">1.008 u</span>
+        <!-- Ficha de Elemento con Z= y Masa Atómica GRANDES -->
+        <div class="element-main-box w-40 h-48 sm:w-56 sm:h-64 rounded-3xl bg-slate-950 border-2 border-blue-500/70 p-4 sm:p-5 flex flex-col justify-between items-center shadow-2xl relative my-2 transition-all">
+          <div class="w-full flex justify-between items-center px-1">
+            <!-- Z= Número atómico más grande -->
+            <span id="atomic-number" class="text-base sm:text-xl font-mono font-black text-cyan-400">
+              Z = 1
+            </span>
+            <!-- Masa atómica más grande -->
+            <span id="atomic-mass" class="text-sm sm:text-lg font-mono font-bold text-slate-300">
+              1.008 u
+            </span>
           </div>
-          <div id="element-display" class="element-symbol-txt text-5xl sm:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 tracking-tight my-auto select-none transition-all">
+
+          <!-- Símbolo grande -->
+          <div id="element-display" class="element-symbol-txt text-6xl sm:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 tracking-tight my-auto select-none transition-all">
             H
           </div>
-          <div id="element-subtext" class="text-xs sm:text-sm font-bold text-slate-300 truncate max-w-full">
-            Hidrógeno
+
+          <div id="element-subtext" class="text-xs sm:text-sm font-bold text-slate-400 truncate max-w-full">
+            Ficha Química
           </div>
         </div>
 
-        <!-- Pista -->
-        <p id="hint-text" class="text-xs sm:text-sm text-slate-400 mt-3 sm:mt-4 italic max-w-lg min-h-[1.5rem]">
-          El elemento más abundante del universo observable.
-        </p>
+        <!-- Pista Científica Más Grande y Destacada -->
+        <div class="mt-4 p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 border border-slate-800 max-w-2xl w-full text-center shadow-inner">
+          <p id="hint-text" class="text-sm sm:text-base md:text-lg font-medium text-slate-200 leading-relaxed">
+            💡 <strong class="text-blue-400">Pista:</strong> El elemento más abundante del universo observable.
+          </p>
+        </div>
       </div>
 
-      <!-- Opciones de Respuesta -->
+      <!-- Opciones de Respuesta SIN AYUDA (Solo el nombre o solo el símbolo) -->
       <div id="options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-        <!-- Generadas por JavaScript -->
+        <!-- Generadas por JavaScript limpias, sin la respuesta entre paréntesis -->
       </div>
 
       <!-- Mensaje de Feedback -->
@@ -196,7 +230,7 @@
           </div>
         </div>
         <button onclick="nextQuestion()" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm sm:text-base shadow-lg transition flex items-center justify-center gap-2">
-          Siguiente Elemento ➔
+          Siguiente Pregunta ➔
         </button>
       </div>
     </main>
@@ -240,8 +274,8 @@
 
     <!-- Pie de página -->
     <footer class="bg-slate-950/80 border-t border-slate-800 px-5 py-3.5 text-center text-xs sm:text-sm text-slate-500 flex flex-wrap justify-between items-center gap-2">
-      <span class="font-medium">Química interactiva para el aula 🧪</span>
-      <button onclick="resetGameStats()" class="hover:text-slate-300 underline transition font-medium">Reiniciar marcador</button>
+      <span class="font-medium">Fórmula de calificación: <span class="text-blue-400 font-mono font-bold">Nota = (Aciertos / 50 * 4) + 1</span> (Panamá 🇵🇦)</span>
+      <button onclick="resetGameStats()" class="hover:text-slate-300 underline transition font-medium">Reiniciar evaluación</button>
     </footer>
   </div>
 
@@ -307,18 +341,19 @@
       { z: 94, s: "Pu", n: "Plutonio", m: 244, c: "Lantánidos y Actínidos", d: "Elemento artificial fisionable nombrado por el planeta enano Plutón." }
     ];
 
+    // Variables de Estado
     let currentMode = 'sym-to-name';
     let currentElement = null;
     let currentType = 'sym-to-name';
-    let score = 0;
-    let streak = 0;
-    let bestStreak = 0;
-    let totalAnswered = 0;
-    let totalCorrect = 0;
+    let score = 0; // 1 punto por acierto
+    let totalCorrect = 0; // Aciertos
+    let totalIncorrect = 0; // Desaciertos
+    let streak = 0; // Racha actual
+    let bestStreak = 0; // Racha récord
     let isAnswered = false;
     let soundEnabled = true;
 
-    // Web Audio sintetizador compatible con navegadores móviles
+    // Web Audio sintetizador
     let audioCtx = null;
 
     function playSound(type) {
@@ -362,9 +397,7 @@
           osc.start(now);
           osc.stop(now + 0.35);
         }
-      } catch (e) {
-        // Silencioso si el navegador bloquea audio
-      }
+      } catch (e) {}
     }
 
     function toggleSound() {
@@ -393,14 +426,14 @@
 
       if (mode === 'large') {
         container.classList.add('scale-large');
-        container.classList.remove('max-w-4xl');
-        container.classList.add('max-w-6xl');
+        container.classList.remove('max-w-5xl');
+        container.classList.add('max-w-7xl');
         if (largeBtn) largeBtn.className = "px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-semibold transition";
         if (normalBtn) normalBtn.className = "px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
       } else {
         container.classList.remove('scale-large');
-        container.classList.remove('max-w-6xl');
-        container.classList.add('max-w-4xl');
+        container.classList.remove('max-w-7xl');
+        container.classList.add('max-w-5xl');
         if (normalBtn) normalBtn.className = "px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-semibold transition";
         if (largeBtn) largeBtn.className = "px-2.5 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
       }
@@ -412,9 +445,9 @@
         const btn = document.getElementById('mode-' + m);
         if (!btn) return;
         if (m === mode) {
-          btn.className = "px-3 py-1.5 rounded-xl bg-blue-600/30 border border-blue-500/50 text-blue-300 font-bold transition";
+          btn.className = "px-3.5 py-1.5 rounded-xl bg-blue-600/30 border border-blue-500/50 text-blue-300 font-bold transition";
         } else {
-          btn.className = "px-3 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition";
+          btn.className = "px-3.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition";
         }
       });
       generateQuestion();
@@ -445,21 +478,29 @@
       const promptQuestion = document.getElementById('prompt-question');
       const hintText = document.getElementById('hint-text');
 
+      // Textos más grandes para Z y Masa Atómica
       if (atomicNumberEl) atomicNumberEl.textContent = `Z = ${currentElement.z}`;
       if (atomicMassEl) atomicMassEl.textContent = currentElement.m ? `${currentElement.m.toFixed(2)} u` : '-';
       if (categoryBadge) categoryBadge.textContent = currentElement.c;
-      if (hintText) hintText.textContent = `💡 Pista: ${currentElement.d}`;
+      if (hintText) {
+        hintText.innerHTML = `💡 <strong class="text-blue-400">Pista:</strong> ${currentElement.d}`;
+      }
 
       if (currentType === 'sym-to-name') {
-        if (promptQuestion) promptQuestion.innerHTML = `¿Cuál es el <strong>nombre</strong> correspondiente al símbolo químico <span class="text-blue-400 font-extrabold text-lg sm:text-2xl">${currentElement.s}</span>?`;
+        if (promptQuestion) {
+          promptQuestion.innerHTML = `¿Cuál es el <strong>nombre</strong> correspondiente al símbolo químico <span class="text-blue-400 font-black text-2xl sm:text-3xl">${currentElement.s}</span>?`;
+        }
         if (elementDisplayEl) elementDisplayEl.textContent = currentElement.s;
-        if (elementSubtextEl) elementSubtextEl.textContent = `Número Atómico ${currentElement.z}`;
+        if (elementSubtextEl) elementSubtextEl.textContent = `Elemento Químico Z=${currentElement.z}`;
       } else {
-        if (promptQuestion) promptQuestion.innerHTML = `¿Cuál es el <strong>símbolo químico</strong> del elemento <span class="text-teal-300 font-extrabold text-lg sm:text-2xl">${currentElement.n}</span>?`;
+        if (promptQuestion) {
+          promptQuestion.innerHTML = `¿Cuál es el <strong>símbolo químico</strong> del elemento <span class="text-teal-300 font-black text-2xl sm:text-3xl">${currentElement.n}</span>?`;
+        }
         if (elementDisplayEl) elementDisplayEl.textContent = "?";
         if (elementSubtextEl) elementSubtextEl.textContent = currentElement.n;
       }
 
+      // Opciones de respuesta
       const options = [currentElement];
       while (options.length < 4) {
         const randOpt = ELEMENTS[Math.floor(Math.random() * ELEMENTS.length)];
@@ -474,16 +515,16 @@
       if (!optionsGrid) return;
       optionsGrid.innerHTML = '';
 
+      // Crear botones LIMPIOS (SIN AYUDA ENTRE PARÉNTESIS)
       options.forEach(opt => {
         const btn = document.createElement('button');
+        // Si la pregunta pide nombre, el botón SOLO muestra el nombre (ej. Carbono)
+        // Si la pregunta pide símbolo, el botón SOLO muestra el símbolo (ej. C)
         const textToDisplay = currentType === 'sym-to-name' ? opt.n : opt.s;
-        const subDisplay = currentType === 'sym-to-name' ? `[ ${opt.s} ]` : `(${opt.n})`;
 
-        btn.className = "flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-slate-950/80 border-2 border-slate-800 text-left hover:border-blue-500 hover:bg-slate-800/80 font-bold text-base sm:text-xl text-slate-100 transition shadow-md active:scale-95";
-        btn.innerHTML = `
-          <span class="text-white">${textToDisplay}</span>
-          <span class="text-slate-400 text-xs sm:text-sm font-mono font-medium">${subDisplay}</span>
-        `;
+        btn.className = "flex items-center justify-center p-4 sm:p-5 rounded-2xl bg-slate-950/80 border-2 border-slate-800 text-center hover:border-blue-500 hover:bg-slate-800/80 font-bold text-lg sm:text-2xl text-slate-100 transition shadow-md active:scale-95";
+        btn.textContent = textToDisplay;
+        btn.dataset.z = opt.z;
 
         btn.onclick = () => handleAnswer(opt, btn);
         optionsGrid.appendChild(btn);
@@ -494,7 +535,6 @@
       if (isAnswered) return;
       isAnswered = true;
 
-      totalAnswered++;
       const isCorrect = selectedOpt.z === currentElement.z;
       const feedbackBox = document.getElementById('feedback-box');
       const feedbackIcon = document.getElementById('feedback-icon');
@@ -502,21 +542,21 @@
       const feedbackDetail = document.getElementById('feedback-detail');
       const qCard = document.getElementById('question-card');
 
+      // Resaltar opciones usando data-z seguro
       const buttons = document.querySelectorAll('#options-grid button');
       buttons.forEach(b => {
-        const isThisCorrect = b.innerText.includes(currentType === 'sym-to-name' ? currentElement.n : currentElement.s);
-        if (isThisCorrect) {
-          b.className = "flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-emerald-950/90 border-2 border-emerald-500 text-emerald-200 font-bold text-base sm:text-xl shadow-lg";
+        if (parseInt(b.dataset.z) === currentElement.z) {
+          b.className = "flex items-center justify-center p-4 sm:p-5 rounded-2xl bg-emerald-950/90 border-2 border-emerald-500 text-emerald-200 font-extrabold text-lg sm:text-2xl shadow-lg";
         } else if (b === btnElement && !isCorrect) {
-          b.className = "flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-rose-950/90 border-2 border-rose-500 text-rose-200 font-bold text-base sm:text-xl shadow-lg";
+          b.className = "flex items-center justify-center p-4 sm:p-5 rounded-2xl bg-rose-950/90 border-2 border-rose-500 text-rose-200 font-extrabold text-lg sm:text-2xl shadow-lg";
         }
         b.disabled = true;
       });
 
       if (isCorrect) {
         totalCorrect++;
+        score = totalCorrect; // 1 punto por acierto
         streak++;
-        score += 10 + Math.min(streak * 2, 25);
         if (streak > bestStreak) bestStreak = streak;
 
         if (qCard) qCard.classList.add('pulse-correct');
@@ -525,10 +565,11 @@
         if (feedbackBox) {
           feedbackBox.className = "p-4 sm:p-5 rounded-2xl border bg-emerald-950/60 border-emerald-500/50 text-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4 transition shadow-xl";
           if (feedbackIcon) feedbackIcon.textContent = "✅";
-          if (feedbackTitle) feedbackTitle.textContent = `¡Respuesta Correcta! ${currentElement.n} (${currentElement.s})`;
-          if (feedbackDetail) feedbackDetail.textContent = `Número atómico Z = ${currentElement.z}. ${currentElement.d}`;
+          if (feedbackTitle) feedbackTitle.textContent = `¡Excelente! +1 punto: ${currentElement.n} (${currentElement.s})`;
+          if (feedbackDetail) feedbackDetail.textContent = `Número atómico Z = ${currentElement.z}, Masa = ${currentElement.m} u. ${currentElement.d}`;
         }
       } else {
+        totalIncorrect++;
         streak = 0;
         if (qCard) qCard.classList.add('shake-error');
         playSound('error');
@@ -536,7 +577,7 @@
         if (feedbackBox) {
           feedbackBox.className = "p-4 sm:p-5 rounded-2xl border bg-rose-950/60 border-rose-500/50 text-rose-200 flex flex-col sm:flex-row items-center justify-between gap-4 transition shadow-xl";
           if (feedbackIcon) feedbackIcon.textContent = "❌";
-          if (feedbackTitle) feedbackTitle.textContent = `¡Incorrecto! La respuesta correcta era ${currentElement.n} (${currentElement.s})`;
+          if (feedbackTitle) feedbackTitle.textContent = `¡Desacierto! La respuesta correcta era ${currentElement.n} (${currentElement.s})`;
           if (feedbackDetail) feedbackDetail.textContent = `Elegiste ${selectedOpt.n} (${selectedOpt.s}). ${currentElement.d}`;
         }
       }
@@ -549,24 +590,66 @@
       generateQuestion();
     }
 
+    // Actualización de marcadores y cálculo de Nota Panamá: (Aciertos/50 * 4 + 1)
     function updateStats() {
       const sVal = document.getElementById('score-val');
+      const cVal = document.getElementById('correct-val');
+      const iVal = document.getElementById('incorrect-val');
       const stVal = document.getElementById('streak-val');
       const bVal = document.getElementById('best-streak-val');
       const aVal = document.getElementById('accuracy-val');
+      const pVal = document.getElementById('progress-val');
+      const gVal = document.getElementById('grade-val');
+      const gBadge = document.getElementById('grade-badge');
 
-      if (sVal) sVal.textContent = score;
+      // Puntos = 1 por acierto
+      if (sVal) sVal.textContent = totalCorrect;
+      if (cVal) cVal.textContent = totalCorrect;
+      if (iVal) iVal.textContent = totalIncorrect;
       if (stVal) stVal.textContent = streak;
-      if (bVal) bVal.textContent = bestStreak;
-      const acc = totalAnswered === 0 ? 0 : Math.round((totalCorrect / totalAnswered) * 100);
-      if (aVal) aVal.textContent = `${acc}%`;
+      if (bVal) bVal.textContent = `Récord: ${bestStreak}`;
+
+      const totalRespuestas = totalCorrect + totalIncorrect;
+      const acc = totalRespuestas === 0 ? 0 : Math.round((totalCorrect / totalRespuestas) * 100);
+      if (aVal) aVal.textContent = `${acc}% éxito`;
+      if (pVal) pVal.textContent = `${totalCorrect} / 50 preguntas`;
+
+      // Fórmula oficial Panamá: (Aciertos / 50 * 4) + 1
+      let nota = ((totalCorrect / 50) * 4) + 1;
+      if (nota > 5.0) nota = 5.0; // Máxima calificación 5.0
+      const notaFormateada = nota.toFixed(1);
+
+      if (gVal) {
+        gVal.textContent = notaFormateada;
+        // Colorear nota según estándar panameño: >= 3.0 aprobado
+        if (nota >= 4.5) {
+          gVal.className = "text-2xl sm:text-4xl font-black text-emerald-400 tracking-tight my-0.5 block";
+        } else if (nota >= 3.0) {
+          gVal.className = "text-2xl sm:text-4xl font-black text-blue-400 tracking-tight my-0.5 block";
+        } else {
+          gVal.className = "text-2xl sm:text-4xl font-black text-amber-400 tracking-tight my-0.5 block";
+        }
+      }
+
+      if (gBadge) {
+        if (totalCorrect >= 50) {
+          gBadge.textContent = "🏆 ¡Excelente (5.0)!";
+          gBadge.className = "px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 self-center";
+        } else if (nota >= 3.0) {
+          gBadge.textContent = "Aprobado (≥ 3.0)";
+          gBadge.className = "px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 self-center";
+        } else {
+          gBadge.textContent = "Mínimo: 3.0";
+          gBadge.className = "px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 self-center";
+        }
+      }
     }
 
     function resetGameStats() {
       score = 0;
-      streak = 0;
-      totalAnswered = 0;
       totalCorrect = 0;
+      totalIncorrect = 0;
+      streak = 0;
       updateStats();
       generateQuestion();
     }
@@ -621,7 +704,7 @@
         card.className = "bg-slate-950/80 border border-slate-800 hover:border-blue-500 rounded-2xl p-4 flex flex-col justify-between transition cursor-pointer hover:bg-slate-900 group shadow-sm";
         card.innerHTML = `
           <div class="flex justify-between items-center text-xs text-slate-400">
-            <span class="font-mono font-bold">#${el.z}</span>
+            <span class="font-mono font-bold text-cyan-400">#${el.z}</span>
             <span class="text-slate-500 truncate max-w-[80px] font-medium">${el.c}</span>
           </div>
           <div class="my-2 flex items-baseline gap-2">
@@ -637,11 +720,15 @@
       });
     }
 
-    // Inicialización inmediata y garantizada
+    // Inicialización inmediata
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', generateQuestion);
+      document.addEventListener('DOMContentLoaded', () => {
+        generateQuestion();
+        updateStats();
+      });
     } else {
       generateQuestion();
+      updateStats();
     }
   </script>
 </body>
