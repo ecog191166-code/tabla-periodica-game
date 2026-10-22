@@ -65,7 +65,7 @@
           <h1 class="text-sm sm:text-base font-bold tracking-tight text-white leading-tight">
             Desafío Tabla Periódica
           </h1>
-          <p class="text-[11px] sm:text-xs text-slate-400">Escala 1.0 a 5.0 (Panamá 🇵🇦)</p>
+          <p class="text-[11px] sm:text-xs text-slate-400">Química Interactiva</p>
         </div>
       </div>
 
@@ -110,21 +110,21 @@
 
         <!-- 4. Nota Panamá -->
         <div class="bg-gradient-to-b from-blue-950/50 to-slate-950 border border-blue-500/50 rounded-xl p-1.5 sm:p-2.5 flex flex-col justify-center">
-          <span class="text-blue-300 block text-[10px] sm:text-xs font-bold">🇵🇦 Nota (1.0 - 5.0)</span>
+          <span class="text-blue-300 block text-[10px] sm:text-xs font-bold">🇵🇦 Nota</span>
           <span id="grade-val" class="text-sm sm:text-xl font-black text-amber-400">1.0</span>
         </div>
       </div>
 
       <!-- Selectores de Modo y Sonido -->
-      <div class="flex items-center justify-between gap-2 bg-slate-950/60 px-2.5 py-1.5 rounded-xl border border-slate-800/80 text-xs">
-        <div class="flex items-center gap-1.5">
-          <button id="mode-sym-to-name" onclick="setGameMode('sym-to-name')" class="px-2.5 py-1 rounded-lg bg-blue-600/30 border border-blue-500/50 text-blue-300 font-bold transition text-[11px] sm:text-xs">
+      <div class="flex items-center justify-between gap-1.5 bg-slate-950/60 px-2 py-1.5 rounded-xl border border-slate-800/80 text-xs">
+        <div class="flex items-center gap-1 sm:gap-1.5 flex-wrap">
+          <button id="mode-sym-to-name" onclick="setGameMode('sym-to-name')" class="px-2 sm:px-2.5 py-1 rounded-lg bg-blue-600/30 border border-blue-500/50 text-blue-300 font-bold transition text-[11px] sm:text-xs">
             Símbolo ➔ Nombre
           </button>
-          <button id="mode-name-to-sym" onclick="setGameMode('name-to-sym')" class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-[11px] sm:text-xs">
+          <button id="mode-name-to-sym" onclick="setGameMode('name-to-sym')" class="px-2 sm:px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-[11px] sm:text-xs">
             Nombre ➔ Símbolo
           </button>
-          <button id="mode-mixed" onclick="setGameMode('mixed')" class="px-2 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-[11px] sm:text-xs hidden sm:inline-block">
+          <button id="mode-mixed" onclick="setGameMode('mixed')" class="px-2 sm:px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-[11px] sm:text-xs">
             🎲 Mixto
           </button>
         </div>
@@ -232,7 +232,7 @@
 
     <!-- Pie de página Compacto -->
     <footer class="bg-slate-950/80 border-t border-slate-800 px-4 py-2.5 text-center text-[11px] sm:text-xs text-slate-500 flex justify-between items-center gap-2">
-      <span>Nota = (Aciertos/50 * 4) + 1 🇵🇦</span>
+      <span>Desafío Tabla Periódica ⚛️</span>
       <button onclick="resetGameStats()" class="hover:text-slate-300 underline transition">Reiniciar</button>
     </footer>
   </div>
