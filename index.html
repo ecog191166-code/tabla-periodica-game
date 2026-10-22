@@ -88,36 +88,30 @@
     <!-- Panel de Juego -->
     <main id="play-panel" class="p-3 sm:p-5 flex flex-col gap-3 sm:gap-4">
       
-      <!-- Marcadores de Evaluación (5 campos equilibrados) -->
-      <div class="grid grid-cols-5 gap-1.5 sm:gap-2 text-center">
+      <!-- Marcadores de Evaluación (4 campos limpios y simétricos) -->
+      <div class="grid grid-cols-4 gap-1.5 sm:gap-2.5 text-center">
         <!-- 1. Puntos -->
-        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-1.5 sm:p-2">
-          <span class="text-slate-400 block text-[10px] sm:text-xs">Puntos</span>
-          <span id="score-val" class="text-sm sm:text-lg font-black text-blue-400">0</span>
+        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-1.5 sm:p-2.5">
+          <span class="text-slate-400 block text-[10px] sm:text-xs font-medium">Puntos</span>
+          <span id="score-val" class="text-sm sm:text-xl font-black text-blue-400">0</span>
         </div>
 
         <!-- 2. Aciertos -->
-        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-1.5 sm:p-2">
-          <span class="text-slate-400 block text-[10px] sm:text-xs">Aciertos</span>
-          <span id="correct-val" class="text-sm sm:text-lg font-black text-emerald-400">0</span>
+        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-1.5 sm:p-2.5">
+          <span class="text-slate-400 block text-[10px] sm:text-xs font-medium">Aciertos ✅</span>
+          <span id="correct-val" class="text-sm sm:text-xl font-black text-emerald-400">0</span>
         </div>
 
         <!-- 3. Desaciertos -->
-        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-1.5 sm:p-2">
-          <span class="text-slate-400 block text-[10px] sm:text-xs">Desaciertos</span>
-          <span id="incorrect-val" class="text-sm sm:text-lg font-black text-rose-400">0</span>
+        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-1.5 sm:p-2.5">
+          <span class="text-slate-400 block text-[10px] sm:text-xs font-medium">Desaciertos ❌</span>
+          <span id="incorrect-val" class="text-sm sm:text-xl font-black text-rose-400">0</span>
         </div>
 
-        <!-- 4. Racha -->
-        <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-1.5 sm:p-2">
-          <span class="text-slate-400 block text-[10px] sm:text-xs">Racha 🔥</span>
-          <span id="streak-val" class="text-sm sm:text-lg font-black text-amber-400">0</span>
-        </div>
-
-        <!-- 5. Nota Panamá -->
-        <div class="bg-gradient-to-b from-blue-950/50 to-slate-950 border border-blue-500/50 rounded-xl p-1.5 sm:p-2 flex flex-col justify-center">
-          <span class="text-blue-300 block text-[10px] sm:text-xs font-bold">🇵🇦 Nota</span>
-          <span id="grade-val" class="text-sm sm:text-lg font-black text-amber-400">1.0</span>
+        <!-- 4. Nota Panamá -->
+        <div class="bg-gradient-to-b from-blue-950/50 to-slate-950 border border-blue-500/50 rounded-xl p-1.5 sm:p-2.5 flex flex-col justify-center">
+          <span class="text-blue-300 block text-[10px] sm:text-xs font-bold">🇵🇦 Nota (1.0 - 5.0)</span>
+          <span id="grade-val" class="text-sm sm:text-xl font-black text-amber-400">1.0</span>
         </div>
       </div>
 
@@ -487,10 +481,9 @@
       if (isCorrect) {
         totalCorrect++;
         score = totalCorrect;
-        streak++;
 
         if (qCard) qCard.classList.add('pulse-correct');
-        playSound(streak >= 3 ? 'streak' : 'correct');
+        playSound('correct');
 
         if (feedbackBox) {
           feedbackBox.className = "p-2.5 sm:p-3 rounded-xl border bg-emerald-950/60 border-emerald-500/50 text-emerald-200 flex items-center justify-between gap-3 transition shadow";
@@ -500,7 +493,6 @@
         }
       } else {
         totalIncorrect++;
-        streak = 0;
         if (qCard) qCard.classList.add('shake-error');
         playSound('error');
 
@@ -524,13 +516,11 @@
       const sVal = document.getElementById('score-val');
       const cVal = document.getElementById('correct-val');
       const iVal = document.getElementById('incorrect-val');
-      const stVal = document.getElementById('streak-val');
       const gVal = document.getElementById('grade-val');
 
       if (sVal) sVal.textContent = totalCorrect;
       if (cVal) cVal.textContent = totalCorrect;
       if (iVal) iVal.textContent = totalIncorrect;
-      if (stVal) stVal.textContent = streak;
 
       // Fórmula oficial Panamá: (Aciertos / 50 * 4) + 1
       let nota = ((totalCorrect / 50) * 4) + 1;
@@ -540,9 +530,9 @@
       if (gVal) {
         gVal.textContent = notaFormateada;
         if (nota >= 3.0) {
-          gVal.className = "text-sm sm:text-lg font-black text-emerald-400";
+          gVal.className = "text-sm sm:text-xl font-black text-emerald-400";
         } else {
-          gVal.className = "text-sm sm:text-lg font-black text-amber-400";
+          gVal.className = "text-sm sm:text-xl font-black text-amber-400";
         }
       }
     }
@@ -551,7 +541,6 @@
       score = 0;
       totalCorrect = 0;
       totalIncorrect = 0;
-      streak = 0;
       updateStats();
       generateQuestion();
     }
