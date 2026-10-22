@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desafío Tabla Periódica - Símbolos y Nombres</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    :root {
+      --background: #0f172a;
+      --card: #1e293b;
+      --foreground: #f8fafc;
+      --muted-foreground: #94a3b8;
+      --border: #334155;
+      --primary: #3b82f6;
+      --primary-foreground: #ffffff;
+      --accent: #10b981;
+    }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    .element-card-glow {
+      box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.4);
+    }
+    .pulse-correct {
+      animation: correctPulse 0.4s ease-out;
+    }
+    .shake-error {
+      animation: shake 0.4s ease-in-out;
+    }
+    @keyframes correctPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-6px); }
+      40%, 80% { transform: translateX(6px); }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center p-3 sm:p-6">
+  <div class="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+    
+    <!-- Encabezado -->
+    <header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold text-xl shadow-inner">
+          ⚛️
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+            Desafío Tabla Periódica
+          </h1>
+          <p class="text-xs text-slate-400">¿Conoces los símbolos y nombres químicos?</p>
+        </div>
+      </div>
+
+      <!-- Barra de navegación de pestañas -->
+      <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-medium">
+        <button id="tab-play-btn" onclick="switchTab('play')" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold shadow-sm transition">
+          🎮 Jugar
+        </button>
+        <button id="tab-explore-btn" onclick="switchTab('explore')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">
+          📖 Explorar
+        </button>
+      </div>
+    </header>
+
+    <!-- Panel de Juego -->
+    <main id="play-panel" class="p-4 sm:p-6 flex flex-col gap-5">
+      
+      <!-- Controles y Marcador -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-2.5">
+          <span class="text-slate-400 block mb-0.5">Puntuación</span>
+          <span id="score-val" class="text-lg font-bold text-blue-400">0</span>
+        </div>
+        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-2.5">
+          <span class="text-slate-400 block mb-0.5">Racha 🔥</span>
+          <span id="streak-val" class="text-lg font-bold text-amber-400">0</span>
+        </div>
+        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-2.5">
+          <span class="text-slate-400 block mb-0.5">Aciertos</span>
+          <span id="accuracy-val" class="text-lg font-bold text-emerald-400">0%</span>
+        </div>
+        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-2.5">
+          <span class="text-slate-400 block mb-0.5">Récord</span>
+          <span id="best-streak-val" class="text-lg font-bold text-purple-400">0</span>
+        </div>
+      </div>
+
+      <!-- Selectores de Modo -->
+      <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-950/40 p-2 rounded-xl border border-slate-800/80 text-xs">
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span class="text-slate-400 font-medium mr-1">Modo:</span>
+          <button id="mode-sym-to-name" onclick="setGameMode('sym-to-name')" class="px-2.5 py-1 rounded-md bg-blue-600/30 border border-blue-500/40 text-blue-300 font-medium transition">
+            Símbolo ➔ Nombre
+          </button>
+          <button id="mode-name-to-sym" onclick="setGameMode('name-to-sym')" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+            Nombre ➔ Símbolo
+          </button>
+          <button id="mode-mixed" onclick="setGameMode('mixed')" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition">
+            🎲 Mixto
+          </button>
+        </div>
+        
+        <!-- Toggle de sonido -->
+        <button id="sound-btn" onclick="toggleSound()" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1">
+          <span id="sound-icon">🔊</span> Sonido
+        </button>
+      </div>
+
+      <!-- Tarjeta Principal de Pregunta / Elemento -->
+      <div id="question-card" class="bg-gradient-to-b from-slate-800/90 to-slate-900 border border-slate-700/80 rounded-2xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden element-card-glow transition-all">
+        <div id="category-badge" class="px-3 py-1 rounded-full text-[11px] font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-3">
+          No metal
+        </div>
+        
+        <p id="prompt-question" class="text-slate-300 text-sm font-medium mb-3">
+          ¿Cuál es el nombre correspondiente a este símbolo?
+        </p>
+
+        <!-- Element Box Visual -->
+        <div class="w-32 h-36 rounded-2xl bg-slate-950/90 border-2 border-blue-500/60 p-2.5 flex flex-col justify-between items-center shadow-lg relative my-1">
+          <div class="w-full flex justify-between items-center text-xs text-slate-400 font-mono px-1">
+            <span id="atomic-number">1</span>
+            <span id="atomic-mass" class="text-[10px] text-slate-500">1.008</span>
+          </div>
+          <div id="element-display" class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 tracking-tight my-auto">
+            H
+          </div>
+          <div id="element-subtext" class="text-[11px] text-slate-400 truncate max-w-full font-medium">
+            Elemento #1
+          </div>
+        </div>
+
+        <p id="hint-text" class="text-xs text-slate-400 mt-3 italic min-h-[1.25rem]">
+          El elemento más abundante del universo observable.
+        </p>
+      </div>
+
+      <!-- Opciones de Respuesta -->
+      <div id="options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <!-- Generadas dinámicamente -->
+      </div>
+
+      <!-- Mensaje de Feedback & Dato Curioso -->
+      <div id="feedback-box" class="hidden p-3.5 rounded-xl border text-xs flex items-start gap-2.5 transition">
+        <span id="feedback-icon" class="text-lg"></span>
+        <div class="flex-1">
+          <p id="feedback-title" class="font-bold text-sm mb-0.5"></p>
+          <p id="feedback-detail" class="text-slate-300 leading-relaxed"></p>
+        </div>
+        <button onclick="nextQuestion()" class="self-center px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs shadow-md transition ml-2">
+          Siguiente ➔
+        </button>
+      </div>
+    </main>
+
+    <!-- Panel de Exploración / Repaso -->
+    <section id="explore-panel" class="hidden p-4 sm:p-6 flex flex-col gap-4">
+      <div class="flex flex-col sm:flex-row gap-2">
+        <input 
+          type="text" 
+          id="search-input" 
+          placeholder="Buscar por nombre, símbolo o número..." 
+          oninput="filterElements()"
+          class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+        />
+        <select 
+          id="category-select" 
+          onchange="filterElements()"
+          class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-blue-500">
+          <option value="all">Todas las familias</option>
+          <option value="No metales">No metales</option>
+          <option value="Gases nobles">Gases nobles</option>
+          <option value="Metales alcalinos">Metales alcalinos</option>
+          <option value="Alcalinotérreos">Alcalinotérreos</option>
+          <option value="Metales de transición">Metales de transición</option>
+          <option value="Lantánidos y Actínidos">Lantánidos y Actínidos</option>
+          <option value="Metaloides">Metaloides</option>
+          <option value="Otros metales">Otros metales</option>
+          <option value="Halógenos">Halógenos</option>
+        </select>
+      </div>
+
+      <div class="text-xs text-slate-400 flex justify-between items-center">
+        <span id="elements-count">Mostrando elementos</span>
+        <span class="text-slate-500 text-[11px]">Haz clic en cualquier tarjeta para escuchar o repasar</span>
+      </div>
+
+      <!-- Lista de Elementos en Tarjetas -->
+      <div id="elements-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-[460px] overflow-y-auto pr-1">
+        <!-- Insertadas por JS -->
+      </div>
+    </section>
+
+    <!-- Pie de página -->
+    <footer class="bg-slate-950/80 border-t border-slate-800/80 px-5 py-3 text-center text-xs text-slate-500 flex justify-between items-center">
+      <span>Aprende química jugando 🧪</span>
+      <button onclick="resetGameStats()" class="hover:text-slate-300 underline transition">Reiniciar estadísticas</button>
+    </footer>
+  </div>
+
+  <script>
+    // Base de datos de elementos químicos representativos de la Tabla Periódica
+    const ELEMENTS = [
+      { z: 1, s: "H", n: "Hidrógeno", m: 1.008, c: "No metales", d: "El elemento más ligero y abundante del universo." },
+      { z: 2, s: "He", n: "Helio", m: 4.0026, c: "Gases nobles", d: "Gas inerte descubierto en el espectro del Sol." },
+      { z: 3, s: "Li", n: "Litio", m: 6.94, c: "Metales alcalinos", d: "El metal sólido menos denso, vital en baterías modernas." },
+      { z: 4, s: "Be", n: "Berilio", m: 9.0122, c: "Alcalinotérreos", d: "Metal ligero y resistente usado en aeroespacial y esmeraldas." },
+      { z: 5, s: "B", n: "Boro", m: 10.81, c: "Metaloides", d: "Metaloide esencial en vidrios térmicos como el Pyrex." },
+      { z: 6, s: "C", n: "Carbono", m: 12.011, c: "No metales", d: "Base de la química orgánica y de toda la vida conocida." },
+      { z: 7, s: "N", n: "Nitrógeno", m: 14.007, c: "No metales", d: "Constituye aproximadamente el 78% del aire terrestre." },
+      { z: 8, s: "O", n: "Oxígeno", m: 15.999, c: "No metales", d: "Fundamental para la respiración aeróbica y la combustión." },
+      { z: 9, s: "F", n: "Flúor", m: 18.998, c: "Halógenos", d: "El elemento más reactivo y electronegativo de la tabla." },
+      { z: 10, s: "Ne", n: "Neón", m: 20.180, c: "Gases nobles", d: "Brilla con un resplandor naranja-rojizo en tubos de descarga." },
+      { z: 11, s: "Na", n: "Sodio", m: 22.990, c: "Metales alcalinos", d: "Del latín 'Natrium'. Con cloro forma la sal de mesa (NaCl)." },
+      { z: 12, s: "Mg", n: "Magnesio", m: 24.305, c: "Alcalinotérreos", d: "Átomo central de la molécula de clorofila en plantas." },
+      { z: 13, s: "Al", n: "Aluminio", m: 26.982, c: "Otros metales", d: "El metal más abundante en la corteza terrestre." },
+      { z: 14, s: "Si", n: "Silicio", m: 28.085, c: "Metaloides", d: "Pilar de los semiconductores, microchips y la electrónica." },
+      { z: 15, s: "P", n: "Fósforo", m: 30.974, c: "No metales", d: "Descubierto en la orina; forma la estructura del ADN y ATP." },
+      { z: 16, s: "S", n: "Azufre", m: 32.06, c: "No metales", d: "Mineral amarillo conocido desde la antigüedad, de olor volcánico." },
+      { z: 17, s: "Cl", n: "Cloro", m: 35.45, c: "Halógenos", d: "Gas amarillo verdoso usado para purificar y desinfectar agua." },
+      { z: 18, s: "Ar", n: "Argón", m: 39.948, c: "Gases nobles", d: "Su nombre significa 'inactivo' o 'perezoso' en griego." },
+      { z: 19, s: "K", n: "Potasio", m: 39.098, c: "Metales alcalinos", d: "Del latín 'Kalium'. Esencial para la transmisión nerviosa." },
+      { z: 20, s: "Ca", n: "Calcio", m: 40.078, c: "Alcalinotérreos", d: "Componente esencial de los huesos, dientes y conchas." },
+      { z: 21, s: "Sc", n: "Escandio", m: 44.956, c: "Metales de transición", d: "Nombrado en honor a Escandinavia." },
+      { z: 22, s: "Ti", n: "Titanio", m: 47.867, c: "Metales de transición", d: "Fuerte como el acero pero 45% más liviano; biocompatible." },
+      { z: 23, s: "V", n: "Vanadio", m: 50.942, c: "Metales de transición", d: "Llamado así por Vanadis, diosa nórdica de la belleza." },
+      { z: 24, s: "Cr", n: "Cromo", m: 51.996, c: "Metales de transición", d: "Aporta brillo al acero inoxidable y color a los rubíes." },
+      { z: 25, s: "Mn", n: "Manganeso", m: 54.938, c: "Metales de transición", d: "Vital para la fotosíntesis y la producción de aceros fuertes." },
+      { z: 26, s: "Fe", n: "Hierro", m: 55.845, c: "Metales de transición", d: "Del latín 'Ferrum'. Núcleo transportador de oxígeno en la hemoglobina." },
+      { z: 27, s: "Co", n: "Cobalto", m: 58.933, c: "Metales de transición", d: "Famoso por sus intensos pigmentos azules y en la vitamina B12." },
+      { z: 28, s: "Ni", n: "Níquel", m: 58.693, c: "Metales de transición", d: "Metal resistente a la corrosión presente en monedas e imanes." },
+      { z: 29, s: "Cu", n: "Cobre", m: 63.546, c: "Metales de transición", d: "Del latín 'Cuprum' (Chipre). Gran conductor eléctrico y térmico." },
+      { z: 30, s: "Zn", n: "Cinc", m: 65.38, c: "Metales de transición", d: "Esencial en el sistema inmune humano y galvanizado de metales." },
+      { z: 31, s: "Ga", n: "Galio", m: 69.723, c: "Otros metales", d: "Metal insólito que se derrite en la palma de la mano (29.7 °C)." },
+      { z: 32, s: "Ge", n: "Germanio", m: 72.630, c: "Metaloides", d: "Clave en fibras ópticas y células fotovoltaicas." },
+      { z: 33, s: "As", n: "Arsénico", m: 74.922, c: "Metaloides", d: "Históricamente conocido como el 'veneno de reyes'." },
+      { z: 34, s: "Se", n: "Selenio", m: 78.971, c: "No metales", d: "Nombrado en honor a la Luna (Selene); fotoconductor." },
+      { z: 35, s: "Br", n: "Bromo", m: 79.904, c: "Halógenos", d: "El único no metal líquido a temperatura ambiente." },
+      { z: 36, s: "Kr", n: "Kriptón", m: 83.798, c: "Gases nobles", d: "Utilizado en iluminación de pistas de aterrizaje y flashes." },
+      { z: 37, s: "Rb", n: "Rubidio", m: 85.468, c: "Metales alcalinos", d: "Arde espontáneamente al aire con una llama violeta rojiza." },
+      { z: 38, s: "Sr", n: "Estroncio", m: 87.62, c: "Alcalinotérreos", d: "Da el color rojo escarlata vibrante a los fuegos artificiales." },
+      { z: 46, s: "Pd", n: "Paladio", m: 106.42, c: "Metales de transición", d: "Metal precioso que absorbe hasta 900 veces su volumen de hidrógeno." },
+      { z: 47, s: "Ag", n: "Plata", m: 107.87, c: "Metales de transición", d: "Del latín 'Argentum'. El mejor conductor eléctrico y térmico de todos." },
+      { z: 48, s: "Cd", n: "Cadmio", m: 112.41, c: "Metales de transición", d: "Metal pesado utilizado en pigmentos y baterías recargables NiCd." },
+      { z: 50, s: "Sn", n: "Estaño", m: 118.71, c: "Otros metales", d: "Del latín 'Stannum'. Mezclado con cobre crea el bronce." },
+      { z: 51, s: "Sb", n: "Antimonio", m: 121.76, c: "Metaloides", d: "Del latín 'Stibium'. Conocido por expandirse al congelarse." },
+      { z: 53, s: "I", n: "Yodo", m: 126.90, c: "Halógenos", d: "Sustancia púrpura esencial para la glándula tiroides." },
+      { z: 54, s: "Xe", n: "Xenón", m: 131.29, c: "Gases nobles", d: "Usado en faros de alta potencia y propulsión iónica espacial." },
+      { z: 55, s: "Cs", n: "Cesio", m: 132.91, c: "Metales alcalinos", d: "Sus transiciones atómicas definen la duración exacta de 1 segundo." },
+      { z: 56, s: "Ba", n: "Bario", m: 137.33, c: "Alcalinotérreos", d: "Da el color verde a la pirotecnia y contrasta radiografías digestivas." },
+      { z: 74, s: "W", n: "Wolframio", m: 183.84, c: "Metales de transición", d: "También llamado Tungsteno. Posee el punto de fusión más alto (3422 °C)." },
+      { z: 78, s: "Pt", n: "Platino", m: 195.08, c: "Metales de transición", d: "Metal noble muy resistente, utilizado en convertidores catalíticos y joyería." },
+      { z: 79, s: "Au", n: "Oro", m: 196.97, c: "Metales de transición", d: "Del latín 'Aurum'. Maleable hasta obtener láminas de pocos átomos." },
+      { z: 80, s: "Hg", n: "Mercurio", m: 200.59, c: "Metales de transición", d: "Del latín 'Hydrargyrum' (plata líquida). Único metal líquido común." },
+      { z: 82, s: "Pb", n: "Plomo", m: 207.2, c: "Otros metales", d: "Del latín 'Plumbum'. Muy denso, usado como blindaje contra radiación." },
+      { z: 83, s: "Bi", n: "Bismuto", m: 208.98, c: "Otros metales", d: "Famoso por sus cristales geométricos irisados tipo arcoíris." },
+      { z: 86, s: "Rn", n: "Radón", m: 222, c: "Gases nobles", d: "Gas noble radiactivo natural que emana de rocas y suelos." },
+      { z: 88, s: "Ra", n: "Radio", m: 226, c: "Alcalinotérreos", d: "Descubierto por Marie y Pierre Curie; intensamente radiactivo." },
+      { z: 92, s: "U", n: "Uranio", m: 238.03, c: "Lantánidos y Actínidos", d: "Combustible principal en reactores nucleares de fisión." },
+      { z: 94, s: "Pu", n: "Plutonio", m: 244, c: "Lantánidos y Actínidos", d: "Elemento artificial fisionable nombrado por el planeta enano Plutón." }
+    ];
+
+    // Variables de Estado
+    let currentMode = 'sym-to-name'; // 'sym-to-name', 'name-to-sym', 'mixed'
+    let currentElement = null;
+    let currentType = 'sym-to-name';
+    let score = 0;
+    let streak = 0;
+    let bestStreak = 0;
+    let totalAnswered = 0;
+    let totalCorrect = 0;
+    let isAnswered = false;
+    let soundEnabled = true;
+
+    // Web Audio sintetizador para evitar librerías externas
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+
+        if (type === 'correct') {
+          // Tono armónico ascendente
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, now); // A4
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'error') {
+          // Tono grave descendente
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(180, now);
+          osc.frequency.exponentialRampToValueAtTime(90, now + 0.25);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'streak') {
+          // Acorde alegre
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+          osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        }
+      } catch (e) {
+        console.warn('Audio no disponible', e);
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('sound-icon');
+      icon.textContent = soundEnabled ? '🔊' : '🔇';
+    }
+
+    function setGameMode(mode) {
+      currentMode = mode;
+      ['sym-to-name', 'name-to-sym', 'mixed'].forEach(m => {
+        const btn = document.getElementById('mode-' + m);
+        if (m === mode) {
+          btn.className = "px-2.5 py-1 rounded-md bg-blue-600/30 border border-blue-500/40 text-blue-300 font-medium transition";
+        } else {
+          btn.className = "px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition";
+        }
+      });
+      generateQuestion();
+    }
+
+    function getCategoryColor(cat) {
+      switch(cat) {
+        case 'Gases nobles': return 'from-purple-500 to-indigo-500 text-purple-300 border-purple-500/40';
+        case 'Metales alcalinos': return 'from-red-500 to-orange-500 text-red-300 border-red-500/40';
+        case 'Alcalinotérreos': return 'from-amber-500 to-yellow-500 text-amber-300 border-amber-500/40';
+        case 'Metales de transición': return 'from-blue-500 to-cyan-500 text-blue-300 border-blue-500/40';
+        case 'Halógenos': return 'from-emerald-500 to-teal-500 text-emerald-300 border-emerald-500/40';
+        case 'Metaloides': return 'from-pink-500 to-rose-500 text-pink-300 border-pink-500/40';
+        case 'Lantánidos y Actínidos': return 'from-fuchsia-500 to-violet-500 text-fuchsia-300 border-fuchsia-500/40';
+        default: return 'from-teal-500 to-cyan-500 text-cyan-300 border-cyan-500/40';
+      }
+    }
+
+    function generateQuestion() {
+      isAnswered = false;
+      document.getElementById('feedback-box').classList.add('hidden');
+      
+      const qCard = document.getElementById('question-card');
+      qCard.classList.remove('pulse-correct', 'shake-error');
+
+      // Seleccionar elemento objetivo al azar
+      const randomIndex = Math.floor(Math.random() * ELEMENTS.length);
+      currentElement = ELEMENTS[randomIndex];
+
+      // Determinar si es símbolo a nombre o nombre a símbolo
+      if (currentMode === 'mixed') {
+        currentType = Math.random() > 0.5 ? 'sym-to-name' : 'name-to-sym';
+      } else {
+        currentType = currentMode;
+      }
+
+      // Actualizar información visual del elemento
+      const atomicNumberEl = document.getElementById('atomic-number');
+      const atomicMassEl = document.getElementById('atomic-mass');
+      const elementDisplayEl = document.getElementById('element-display');
+      const elementSubtextEl = document.getElementById('element-subtext');
+      const categoryBadge = document.getElementById('category-badge');
+      const promptQuestion = document.getElementById('prompt-question');
+      const hintText = document.getElementById('hint-text');
+
+      atomicNumberEl.textContent = currentElement.z;
+      atomicMassEl.textContent = currentElement.m ? currentElement.m.toFixed(2) : '-';
+      categoryBadge.textContent = currentElement.c;
+      hintText.textContent = `Pista: ${currentElement.d}`;
+
+      if (currentType === 'sym-to-name') {
+        promptQuestion.innerHTML = `¿Cuál es el <strong>nombre</strong> del símbolo <span class="text-blue-400 font-bold">${currentElement.s}</span>?`;
+        elementDisplayEl.textContent = currentElement.s;
+        elementSubtextEl.textContent = `Z = ${currentElement.z}`;
+      } else {
+        promptQuestion.innerHTML = `¿Cuál es el <strong>símbolo químico</strong> de <span class="text-teal-300 font-bold">${currentElement.n}</span>?`;
+        elementDisplayEl.textContent = "?";
+        elementSubtextEl.textContent = currentElement.n;
+      }
+
+      // Generar 3 distractores aleatorios
+      const options = [currentElement];
+      while (options.length < 4) {
+        const randOpt = ELEMENTS[Math.floor(Math.random() * ELEMENTS.length)];
+        if (!options.some(o => o.z === randOpt.z)) {
+          options.push(randOpt);
+        }
+      }
+
+      // Mezclar opciones
+      options.sort(() => Math.random() - 0.5);
+
+      // Renderizar botones
+      const optionsGrid = document.getElementById('options-grid');
+      optionsGrid.innerHTML = '';
+
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        const textToDisplay = currentType === 'sym-to-name' ? opt.n : opt.s;
+        const subDisplay = currentType === 'sym-to-name' ? `(${opt.s})` : `(${opt.n})`;
+
+        btn.className = "flex items-center justify-between p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 text-left hover:border-blue-500/50 hover:bg-slate-800/60 font-medium text-xs sm:text-sm text-slate-200 transition shadow-sm";
+        btn.innerHTML = `
+          <span class="font-semibold text-white">${textToDisplay}</span>
+          <span class="text-slate-500 text-xs">${subDisplay}</span>
+        `;
+
+        btn.onclick = () => handleAnswer(opt, btn);
+        optionsGrid.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(selectedOpt, btnElement) {
+      if (isAnswered) return;
+      isAnswered = true;
+
+      totalAnswered++;
+      const isCorrect = selectedOpt.z === currentElement.z;
+      const feedbackBox = document.getElementById('feedback-box');
+      const feedbackIcon = document.getElementById('feedback-icon');
+      const feedbackTitle = document.getElementById('feedback-title');
+      const feedbackDetail = document.getElementById('feedback-detail');
+      const qCard = document.getElementById('question-card');
+
+      // Resaltar opciones correctas e incorrectas
+      const buttons = document.querySelectorAll('#options-grid button');
+      buttons.forEach(b => {
+        const isThisCorrect = b.innerText.includes(currentType === 'sym-to-name' ? currentElement.n : currentElement.s);
+        if (isThisCorrect) {
+          b.classList.remove('bg-slate-950/70', 'border-slate-800');
+          b.classList.add('bg-emerald-950/80', 'border-emerald-500', 'text-emerald-200');
+        } else if (b === btnElement && !isCorrect) {
+          b.classList.remove('bg-slate-950/70', 'border-slate-800');
+          b.classList.add('bg-rose-950/80', 'border-rose-500', 'text-rose-200');
+        }
+        b.disabled = true;
+      });
+
+      if (isCorrect) {
+        totalCorrect++;
+        streak++;
+        score += 10 + Math.min(streak * 2, 20);
+        if (streak > bestStreak) bestStreak = streak;
+
+        qCard.classList.add('pulse-correct');
+        playSound(streak >= 3 ? 'streak' : 'correct');
+
+        feedbackBox.className = "p-3.5 rounded-xl border bg-emerald-950/50 border-emerald-500/40 text-emerald-200 flex items-start gap-2.5 transition";
+        feedbackIcon.textContent = "✅";
+        feedbackTitle.textContent = `¡Correcto! ${currentElement.n} (${currentElement.s})`;
+        feedbackDetail.textContent = `Número atómico ${currentElement.z}. ${currentElement.d}`;
+      } else {
+        streak = 0;
+        qCard.classList.add('shake-error');
+        playSound('error');
+
+        feedbackBox.className = "p-3.5 rounded-xl border bg-rose-950/50 border-rose-500/40 text-rose-200 flex items-start gap-2.5 transition";
+        feedbackIcon.textContent = "❌";
+        feedbackTitle.textContent = `¡Ups! Era ${currentElement.n} (${currentElement.s})`;
+        feedbackDetail.textContent = `Seleccionaste ${selectedOpt.n} (${selectedOpt.s}). ${currentElement.d}`;
+      }
+
+      feedbackBox.classList.remove('hidden');
+      updateStats();
+    }
+
+    function nextQuestion() {
+      generateQuestion();
+    }
+
+    function updateStats() {
+      document.getElementById('score-val').textContent = score;
+      document.getElementById('streak-val').textContent = streak;
+      document.getElementById('best-streak-val').textContent = bestStreak;
+      const acc = totalAnswered === 0 ? 0 : Math.round((totalCorrect / totalAnswered) * 100);
+      document.getElementById('accuracy-val').textContent = `${acc}%`;
+    }
+
+    function resetGameStats() {
+      score = 0;
+      streak = 0;
+      totalAnswered = 0;
+      totalCorrect = 0;
+      updateStats();
+      generateQuestion();
+    }
+
+    function switchTab(tab) {
+      const playPanel = document.getElementById('play-panel');
+      const explorePanel = document.getElementById('explore-panel');
+      const playBtn = document.getElementById('tab-play-btn');
+      const exploreBtn = document.getElementById('tab-explore-btn');
+
+      if (tab === 'play') {
+        playPanel.classList.remove('hidden');
+        explorePanel.classList.add('hidden');
+        playBtn.className = "px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold shadow-sm transition";
+        exploreBtn.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+      } else {
+        playPanel.classList.add('hidden');
+        explorePanel.classList.remove('hidden');
+        exploreBtn.className = "px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold shadow-sm transition";
+        playBtn.className = "px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition";
+        renderExploreElements();
+      }
+    }
+
+    function renderExploreElements() {
+      filterElements();
+    }
+
+    function filterElements() {
+      const query = document.getElementById('search-input').value.toLowerCase().trim();
+      const cat = document.getElementById('category-select').value;
+      const grid = document.getElementById('elements-grid');
+      const countEl = document.getElementById('elements-count');
+
+      const filtered = ELEMENTS.filter(el => {
+        const matchesQuery = el.n.toLowerCase().includes(query) || 
+                             el.s.toLowerCase().includes(query) || 
+                             el.z.toString() === query;
+        const matchesCat = cat === 'all' || el.c === cat;
+        return matchesQuery && matchesCat;
+      });
+
+      countEl.textContent = `Mostrando ${filtered.length} de ${ELEMENTS.length} elementos`;
+      grid.innerHTML = '';
+
+      filtered.forEach(el => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-950/80 border border-slate-800 hover:border-blue-500/60 rounded-xl p-3 flex flex-col justify-between transition cursor-pointer hover:bg-slate-900 group";
+        card.innerHTML = `
+          <div class="flex justify-between items-center text-[10px] text-slate-400">
+            <span class="font-mono">#${el.z}</span>
+            <span class="text-slate-500 truncate max-w-[65px]">${el.c}</span>
+          </div>
+          <div class="my-1.5 flex items-baseline gap-1.5">
+            <span class="text-xl font-black text-blue-400 group-hover:text-cyan-300 transition">${el.s}</span>
+            <span class="text-xs font-semibold text-slate-200 truncate">${el.n}</span>
+          </div>
+          <p class="text-[10px] text-slate-400 line-clamp-2 leading-snug">${el.d}</p>
+        `;
+        card.onclick = () => {
+          playSound('correct');
+        };
+        grid.appendChild(card);
+      });
+    }
+
+    // Inicializar juego al cargar
+    window.addEventListener('DOMContentLoaded', () => {
+      generateQuestion();
+    });
+  </script>
+</body>
+</html>
