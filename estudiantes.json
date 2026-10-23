@@ -1,0 +1,282 @@
+[
+  {
+    "id": 1,
+    "group": "Grupo 1",
+    "name": "Susan Hadassa Arauz Chen",
+    "username": "susan.arauz",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 2,
+    "group": "Grupo 1",
+    "name": "Joseph Ameth Caballero del Cid",
+    "username": "joseph.caballero",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 3,
+    "group": "Grupo 1",
+    "name": "Didier Samir Castillo Samudio",
+    "username": "didier.castillo",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 4,
+    "group": "Grupo 1",
+    "name": "Caleb Aaron Castrellon Serrano",
+    "username": "caleb.castrellon",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 5,
+    "group": "Grupo 1",
+    "name": "Vega Amelie Flores Carrillo",
+    "username": "vega.flores",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 6,
+    "group": "Grupo 1",
+    "name": "Adjani Nicol Gonzalez Monthier",
+    "username": "adjani.gonzalez",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 7,
+    "group": "Grupo 1",
+    "name": "Rachell Aneth Gonzalez Quintero",
+    "username": "rachell.gonzalez",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 8,
+    "group": "Grupo 1",
+    "name": "Darielys Ibeth Gonzalez Rios",
+    "username": "darielys.gonzalez",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 9,
+    "group": "Grupo 1",
+    "name": "Natalia Alexandra Lizondro Guerra",
+    "username": "natalia.lizondro",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 10,
+    "group": "Grupo 1",
+    "name": "Daniel Arturo Miranda Velasquez",
+    "username": "daniel.miranda",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 11,
+    "group": "Grupo 1",
+    "name": "Luis Felipe Pitti",
+    "username": "luis.pitti",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 12,
+    "group": "Grupo 1",
+    "name": "Kiani Tatyana Polanco Lopez",
+    "username": "kiani.polanco",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 13,
+    "group": "Grupo 1",
+    "name": "Andres Alejandro Sanchez",
+    "username": "andres.sanchez",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 14,
+    "group": "Grupo 1",
+    "name": "Hiday Josabia Serracin Serrano",
+    "username": "hiday.serracin",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 15,
+    "group": "Grupo 1",
+    "name": "Ana Sofía Velasquez Santander",
+    "username": "ana.velasquez",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 16,
+    "group": "Grupo 1",
+    "name": "Gabriel Stephen Villarreal Aguirre",
+    "username": "gabriel.villarreal",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 17,
+    "group": "Grupo 1",
+    "name": "Diego Alejandro Vejerano Rovira",
+    "username": "diego.vejerano",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 18,
+    "group": "Grupo 1",
+    "name": "Walter Daniel Williams Estribi",
+    "username": "walter.williams",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 19,
+    "group": "Grupo 2",
+    "name": "Juan Jose Atencio",
+    "username": "juan.atencio",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 20,
+    "group": "Grupo 2",
+    "name": "Ana Gabriela Caballero Velasquez",
+    "username": "ana.caballero",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 21,
+    "group": "Grupo 2",
+    "name": "Alan Enrique Giron Santos",
+    "username": "alan.giron",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 22,
+    "group": "Grupo 2",
+    "name": "Juan Sebastian Guerra",
+    "username": "juan.guerra",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 23,
+    "group": "Grupo 2",
+    "name": "Ricardo André Lay Quiel",
+    "username": "ricardo.lay",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 24,
+    "group": "Grupo 2",
+    "name": "Sarah Cristine Laws Gutierrez",
+    "username": "sarah.laws",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 25,
+    "group": "Grupo 2",
+    "name": "Solangel Rebeca Mendez Rios",
+    "username": "solangel.mendez",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 26,
+    "group": "Grupo 2",
+    "name": "Danna Yineth Morales",
+    "username": "danna.morales",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 27,
+    "group": "Grupo 2",
+    "name": "Kenneth Xavier Moreno Gonzalez",
+    "username": "kenneth.moreno",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 28,
+    "group": "Grupo 2",
+    "name": "Farid Yussef Nader Duarte",
+    "username": "farid.nader",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 29,
+    "group": "Grupo 2",
+    "name": "Ashley Jordana Rivera Yanguez",
+    "username": "ashley.rivera",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 30,
+    "group": "Grupo 2",
+    "name": "Ruth Lisbeth Rodriguez Mendoza",
+    "username": "ruth.rodriguez",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 31,
+    "group": "Grupo 2",
+    "name": "Layla Esther Rojas Fuentes",
+    "username": "layla.rojas",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 32,
+    "group": "Grupo 2",
+    "name": "Juliette Elena Santamaria Pitti",
+    "username": "juliette.santamaria",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 33,
+    "group": "Grupo 2",
+    "name": "Alejandra Sofia Vega Pitti",
+    "username": "alejandra.vega",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 34,
+    "group": "Grupo 2",
+    "name": "Miguel David Zapata Barrera",
+    "username": "miguel.zapata",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  },
+  {
+    "id": 35,
+    "group": "Grupo 2",
+    "name": "Felix David Zurdo Abrego",
+    "username": "felix.zurdo",
+    "tempPassword": "Quimica2026",
+    "mustChangePassword": true
+  }
+]
