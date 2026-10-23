@@ -26,6 +26,16 @@
       box-sizing: border-box;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    input, textarea, select, .selectable-text {
+      -webkit-user-select: auto !important;
+      -moz-user-select: auto !important;
+      -ms-user-select: auto !important;
+      user-select: auto !important;
     }
     body {
       margin: 0;
@@ -99,9 +109,12 @@
       </div>
     </header>
 
-    <!-- Barra de Progreso de 50 Ítems -->
-    <div id="progress-container" class="bg-slate-950 border-b border-slate-800 px-3.5 sm:px-5 py-2 flex items-center justify-between gap-3 text-xs">
-      <span id="item-counter" class="font-bold text-blue-400 whitespace-nowrap">Ítem 1 de 50</span>
+    <!-- Barra de Progreso de 50 Ítems con Cronómetro Anti-IA -->
+    <div id="progress-container" class="bg-slate-950 border-b border-slate-800 px-3.5 sm:px-5 py-2 flex items-center justify-between gap-2.5 text-xs">
+      <div class="flex items-center gap-2">
+        <span id="item-counter" class="font-bold text-blue-400 whitespace-nowrap">Ítem 1 de 50</span>
+        <span id="item-timer" class="px-2 py-0.5 rounded-full font-mono text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">⏱️ <span id="timer-val">20</span>s</span>
+      </div>
       <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex-1">
         <div id="progress-bar" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-full transition-all duration-300" style="width: 2%;"></div>
       </div>
@@ -639,65 +652,178 @@
     </div>
   </div>
 
+  <!-- Modal Ficha de Características del Elemento (Repaso) -->
+  <div id="element-detail-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative flex flex-col gap-3">
+      <button onclick="closeElementDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      
+      <!-- Cabecera de Elemento -->
+      <div class="flex items-center gap-3">
+        <div id="modal-elem-box" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-blue-600/20 border-2 border-blue-500/50 flex flex-col items-center justify-center shadow-inner">
+          <span id="modal-elem-z" class="text-[10px] font-mono text-cyan-400 font-bold self-start pl-2">#1</span>
+          <span id="modal-elem-symbol" class="text-2xl sm:text-3xl font-black text-white leading-none">H</span>
+          <span id="modal-elem-mass" class="text-[9px] font-mono text-slate-400">1.008 u</span>
+        </div>
+        <div class="flex-1">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <span id="modal-elem-category" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">No metales</span>
+            <span id="modal-elem-state" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300">Gas</span>
+          </div>
+          <h3 id="modal-elem-name" class="text-lg sm:text-xl font-black text-white mt-1 leading-tight">Hidrógeno</h3>
+          <p id="modal-elem-period-group" class="text-xs text-cyan-300 font-medium">Periodo 1 · Grupo 1</p>
+        </div>
+      </div>
+
+      <!-- Sección de Características y Propiedades -->
+      <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-3 text-xs space-y-2">
+        <div>
+          <span class="text-amber-400 font-bold block text-[11px] mb-0.5">💡 Características y Propiedades Oficiales:</span>
+          <p id="modal-elem-desc" class="text-slate-300 leading-relaxed text-[11px] sm:text-xs">El elemento más ligero y abundante del cosmos...</p>
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80 text-[11px]">
+          <div>
+            <span class="text-slate-500 block">Número Atómico (Z):</span>
+            <strong id="modal-elem-z-detail" class="text-white font-mono">1 protones</strong>
+          </div>
+          <div>
+            <span class="text-slate-500 block">Masa Atómica:</span>
+            <strong id="modal-elem-m-detail" class="text-white font-mono">1.008 u</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acciones: Pronunciar y Cerrar -->
+      <div class="flex items-center gap-2 pt-1">
+        <button onclick="speakCurrentElement()" class="flex-1 py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow active:scale-95">
+          <span>🔊</span> Escuchar Pronunciación
+        </button>
+        <button onclick="closeElementDetailModal()" class="py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const ELEMENTS = [
-      { z: 1, s: "H", n: "Hidrógeno", m: 1.008, c: "No metales", d: "El más ligero y abundante del universo." },
-      { z: 2, s: "He", n: "Helio", m: 4.0026, c: "Gases nobles", d: "Gas inerte descubierto en el espectro del Sol." },
-      { z: 3, s: "Li", n: "Litio", m: 6.94, c: "Metales alcalinos", d: "Metal ultraligero clave en baterías modernas." },
-      { z: 4, s: "Be", n: "Berilio", m: 9.0122, c: "Alcalinotérreos", d: "Metal resistente usado en esmeraldas." },
-      { z: 5, s: "B", n: "Boro", m: 10.81, c: "Metaloides", d: "Esencial en vidrios térmicos como Pyrex." },
-      { z: 6, s: "C", n: "Carbono", m: 12.011, c: "No metales", d: "Base de la química orgánica viva." },
-      { z: 7, s: "N", n: "Nitrógeno", m: 14.007, c: "No metales", d: "Constituye el 78% del aire terrestre." },
-      { z: 8, s: "O", n: "Oxígeno", m: 15.999, c: "No metales", d: "Fundamental para la respiración y combustión." },
-      { z: 9, s: "F", n: "Flúor", m: 18.998, c: "Halógenos", d: "El elemento más electronegativo." },
-      { z: 10, s: "Ne", n: "Neón", m: 20.180, c: "Gases nobles", d: "Brilla con color naranja-rojizo en tubos." },
-      { z: 11, s: "Na", n: "Sodio", m: 22.990, c: "Metales alcalinos", d: "Del latín Natrium; forma la sal común." },
-      { z: 12, s: "Mg", n: "Magnesio", m: 24.305, c: "Alcalinotérreos", d: "Átomo central de la clorofila vegetal." },
-      { z: 13, s: "Al", n: "Aluminio", m: 26.982, c: "Otros metales", d: "El metal más abundante en la corteza." },
-      { z: 14, s: "Si", n: "Silicio", m: 28.085, c: "Metaloides", d: "Pilar de la electrónica y microchips." },
-      { z: 15, s: "P", n: "Fósforo", m: 30.974, c: "No metales", d: "Presente en el ADN y moléculas de ATP." },
-      { z: 16, s: "S", n: "Azufre", m: 32.06, c: "No metales", d: "Mineral amarillo de olor volcánico." },
-      { z: 17, s: "Cl", n: "Cloro", m: 35.45, c: "Halógenos", d: "Desinfectante y purificador de agua." },
-      { z: 18, s: "Ar", n: "Argón", m: 39.948, c: "Gases nobles", d: "Gas inerte usado en soldadura y bombillas." },
-      { z: 19, s: "K", n: "Potasio", m: 39.098, c: "Metales alcalinos", d: "Del latín Kalium; vital para los nervios." },
-      { z: 20, s: "Ca", n: "Calcio", m: 40.078, c: "Alcalinotérreos", d: "Componente esencial de huesos y dientes." },
-      { z: 21, s: "Sc", n: "Escandio", m: 44.956, c: "Metales de transición", d: "Nombrado en honor a Escandinavia." },
-      { z: 22, s: "Ti", n: "Titanio", m: 47.867, c: "Metales de transición", d: "Fuerte como el acero pero 45% más liviano." },
-      { z: 23, s: "V", n: "Vanadio", m: 50.942, c: "Metales de transición", d: "Aporta gran tenacidad a las aleaciones." },
-      { z: 24, s: "Cr", n: "Cromo", m: 51.996, c: "Metales de transición", d: "Aporta brillo y resistencia al acero." },
-      { z: 25, s: "Mn", n: "Manganeso", m: 54.938, c: "Metales de transición", d: "Vital para fotosíntesis y aceros duros." },
-      { z: 26, s: "Fe", n: "Hierro", m: 55.845, c: "Metales de transición", d: "Del latín Ferrum; transporta O2 en sangre." },
-      { z: 27, s: "Co", n: "Cobalto", m: 58.933, c: "Metales de transición", d: "Presente en la vitamina B12 y pigmentos." },
-      { z: 28, s: "Ni", n: "Níquel", m: 58.693, c: "Metales de transición", d: "Resistente a corrosión; usado en monedas." },
-      { z: 29, s: "Cu", n: "Cobre", m: 63.546, c: "Metales de transición", d: "Del latín Cuprum; excelente conductor." },
-      { z: 30, s: "Zn", n: "Cinc", m: 65.38, c: "Metales de transición", d: "Esencial en inmunidad y galvanizado." },
-      { z: 31, s: "Ga", n: "Galio", m: 69.723, c: "Otros metales", d: "Se derrite en la palma de la mano (29.7°C)." },
-      { z: 32, s: "Ge", n: "Germanio", m: 72.630, c: "Metaloides", d: "Clave en fibras ópticas y fotovoltaica." },
-      { z: 33, s: "As", n: "Arsénico", m: 74.922, c: "Metaloides", d: "Metaloide tóxico de uso histórico." },
-      { z: 34, s: "Se", n: "Selenio", m: 78.971, c: "No metales", d: "Nombrado en honor a la Luna (Selene)." },
-      { z: 35, s: "Br", n: "Bromo", m: 79.904, c: "Halógenos", d: "Único no metal líquido a temp. ambiente." },
-      { z: 36, s: "Kr", n: "Kriptón", m: 83.798, c: "Gases nobles", d: "Usado en flashes e iluminación de pistas." },
-      { z: 37, s: "Rb", n: "Rubidio", m: 85.468, c: "Metales alcalinos", d: "Arde espontáneamente con llama violeta." },
-      { z: 38, s: "Sr", n: "Estroncio", m: 87.62, c: "Alcalinotérreos", d: "Da color rojo a los fuegos artificiales." },
-      { z: 46, s: "Pd", n: "Paladio", m: 106.42, c: "Metales de transición", d: "Metal noble usado en catalizadores." },
-      { z: 47, s: "Ag", n: "Plata", m: 107.87, c: "Metales de transición", d: "Del latín Argentum; máxima conductividad." },
-      { z: 48, s: "Cd", n: "Cadmio", m: 112.41, c: "Metales de transición", d: "Metal pesado de baterías recargables." },
-      { z: 50, s: "Sn", n: "Estaño", m: 118.71, c: "Otros metales", d: "Del latín Stannum; base del bronce." },
-      { z: 51, s: "Sb", n: "Antimonio", m: 121.76, c: "Metaloides", d: "Del latín Stibium; se expande al enfriar." },
-      { z: 53, s: "I", n: "Yodo", m: 126.90, c: "Halógenos", d: "Esencial para el tiroides y antiséptico." },
-      { z: 54, s: "Xe", n: "Xenón", m: 131.29, c: "Gases nobles", d: "Usado en faros potentes y propulsión espacial." },
-      { z: 55, s: "Cs", n: "Cesio", m: 132.91, c: "Metales alcalinos", d: "Define la duración exacta de 1 segundo." },
-      { z: 56, s: "Ba", n: "Bario", m: 137.33, c: "Alcalinotérreos", d: "Da color verde en pirotecnia y radiografías." },
-      { z: 74, s: "W", n: "Wolframio", m: 183.84, c: "Metales de transición", d: "Punto de fusión más alto de todos (3422°C)." },
-      { z: 78, s: "Pt", n: "Platino", m: 195.08, c: "Metales de transición", d: "Metal noble denso e inalterable." },
-      { z: 79, s: "Au", n: "Oro", m: 196.97, c: "Metales de transición", d: "Del latín Aurum; no se oxida jamás." },
-      { z: 80, s: "Hg", n: "Mercurio", m: 200.59, c: "Metales de transición", d: "Del latín Hydrargyrum; único metal líquido común." },
-      { z: 82, s: "Pb", n: "Plomo", m: 207.2, c: "Otros metales", d: "Del latín Plumbum; bloquea radiación." },
-      { z: 83, s: "Bi", n: "Bismuto", m: 208.98, c: "Otros metales", d: "Famoso por cristales irisados geométricos." },
-      { z: 86, s: "Rn", n: "Radón", m: 222, c: "Gases nobles", d: "Gas radiactivo natural emanado del suelo." },
-      { z: 88, s: "Ra", n: "Radio", m: 226, c: "Alcalinotérreos", d: "Descubierto por Marie Curie; muy radiactivo." },
-      { z: 92, s: "U", n: "Uranio", m: 238.03, c: "Lantánidos y Actínidos", d: "Combustible en reactores nucleares." },
-      { z: 94, s: "Pu", n: "Plutonio", m: 244, c: "Lantánidos y Actínidos", d: "Elemento artificial fisionable clave." }
+      { z: 1, s: "H", n: "Hidrógeno", m: 1.008, c: "No metales", p: 1, g: 1, st: "Gas", d: "El elemento más ligero y abundante del cosmos; combustible nuclear primario de las estrellas." },
+      { z: 2, s: "He", n: "Helio", m: 4.0026, c: "Gases nobles", p: 1, g: 18, st: "Gas", d: "Gas inerte descubierto en el espectro del Sol; no arde, vital en refrigeración criogénica." },
+      { z: 3, s: "Li", n: "Litio", m: 6.94, c: "Metales alcalinos", p: 2, g: 1, st: "Sólido", d: "Metal alcalino ultraligero; corazón de las baterías recargables y tratamientos bipolares." },
+      { z: 4, s: "Be", n: "Berilio", m: 9.0122, c: "Alcalinotérreos", p: 2, g: 2, st: "Sólido", d: "Metal rígido y elástico de baja densidad; componente estructural de las esmeraldas y espejos espaciales." },
+      { z: 5, s: "B", n: "Boro", m: 10.81, c: "Metaloides", p: 2, g: 13, st: "Sólido", d: "Metaloide semiconductor; esencial para vidrios térmicos borosilicatados (Pyrex) y fibra de vidrio." },
+      { z: 6, s: "C", n: "Carbono", m: 12.011, c: "No metales", p: 2, g: 14, st: "Sólido", d: "Pilar fundamental de la vida y de la química orgánica; forma grafito, diamante y grafeno." },
+      { z: 7, s: "N", n: "Nitrógeno", m: 14.007, c: "No metales", p: 2, g: 15, st: "Gas", d: "Constituye el 78% del aire terrestre; elemento constitutivo de aminoácidos, proteínas y ADN." },
+      { z: 8, s: "O", n: "Oxígeno", m: 15.999, c: "No metales", p: 2, g: 16, st: "Gas", d: "Esencial para la respiración de seres vivos aeróbicos, la combustión y la capa de ozono (O3)." },
+      { z: 9, s: "F", n: "Flúor", m: 18.998, c: "Halógenos", p: 2, g: 17, st: "Gas", d: "El elemento químicamente más reactivo y electronegativo; usado en pastas dentales y teflón." },
+      { z: 10, s: "Ne", n: "Neón", m: 20.180, c: "Gases nobles", p: 2, g: 18, st: "Gas", d: "Gas inerte brillante; emite un fulgor naranja-rojizo característico en tubos de descarga eléctrica." },
+      { z: 11, s: "Na", n: "Sodio", m: 22.990, c: "Metales alcalinos", p: 3, g: 1, st: "Sólido", d: "Del latín Natrium; metal blanco plateado muy reactivo con agua; parte de la sal de mesa (NaCl)." },
+      { z: 12, s: "Mg", n: "Magnesio", m: 24.305, c: "Alcalinotérreos", p: 3, g: 2, st: "Sólido", d: "Átomo central de la molécula de clorofila vegetal; aleaciones metálicas ultralivianas." },
+      { z: 13, s: "Al", n: "Aluminio", m: 26.982, c: "Otros metales", p: 3, g: 13, st: "Sólido", d: "El metal más abundante en la corteza terrestre; liviano, dúctil, resistente a corrosión y reciclable." },
+      { z: 14, s: "Si", n: "Silicio", m: 28.085, c: "Metaloides", p: 3, g: 14, st: "Sólido", d: "Metaloide semiconductor rey de la era digital; base de todos los microprocesadores y obleas de silicio." },
+      { z: 15, s: "P", n: "Fósforo", m: 30.974, c: "No metales", p: 3, g: 15, st: "Sólido", d: "Elemento vital de la molécula energética ATP, del ADN y fosfatos para fertilizantes agrícolas." },
+      { z: 16, s: "S", n: "Azufre", m: 32.06, c: "No metales", p: 3, g: 16, st: "Sólido", d: "No metal amarillo limón de origen volcánico; fundamental en ácido sulfúrico y puentes disulfuro proteicos." },
+      { z: 17, s: "Cl", n: "Cloro", m: 35.45, c: "Halógenos", p: 3, g: 17, st: "Gas", d: "Halógeno gas amarillo verdoso; agente purificador de agua potable mundial y blanqueador." },
+      { z: 18, s: "Ar", n: "Argón", m: 39.948, c: "Gases nobles", p: 3, g: 18, st: "Gas", d: "El gas noble más abundante en el aire (0.93%); protege soldaduras industriales y bombillas incandescentes." },
+      { z: 19, s: "K", n: "Potasio", m: 39.098, c: "Metales alcalinos", p: 4, g: 1, st: "Sólido", d: "Del latín Kalium; catión intracelular indispensable para impulsos nerviosos y contracción muscular." },
+      { z: 20, s: "Ca", n: "Calcio", m: 40.078, c: "Alcalinotérreos", p: 4, g: 2, st: "Sólido", d: "Elemento estructural de huesos, dientes, conchas marinas, caliza y cemento de construcción." },
+      { z: 21, s: "Sc", n: "Escandio", m: 44.956, c: "Metales de transición", p: 4, g: 3, st: "Sólido", d: "Metal de transición liviano; aleado con aluminio en cuadros de bicicletas profesionales y aviación." },
+      { z: 22, s: "Ti", n: "Titanio", m: 47.867, c: "Metales de transición", p: 4, g: 4, st: "Sólido", d: "Tan resistente como el acero pero 45% más liviano; biocompatible en prótesis óseas e implantes dentales." },
+      { z: 23, s: "V", n: "Vanadio", m: 50.942, c: "Metales de transición", p: 4, g: 5, st: "Sólido", d: "Añadido en pequeñas cantidades al acero para producir llaves, herramientas y blindajes de gran tenacidad." },
+      { z: 24, s: "Cr", n: "Cromo", m: 51.996, c: "Metales de transición", p: 4, g: 6, st: "Sólido", d: "Aporta un acabado metálico reflectante y confiere al acero inoxidable su resistencia a la herrumbre." },
+      { z: 25, s: "Mn", n: "Manganeso", m: 54.938, c: "Metales de transición", p: 4, g: 7, st: "Sólido", d: "Desoxidante indispensable en siderurgia y componente activo en pilas alcalinas estándar." },
+      { z: 26, s: "Fe", n: "Hierro", m: 55.845, c: "Metales de transición", p: 4, g: 8, st: "Sólido", d: "Del latín Ferrum; metal rey de la civilización y átomo portador de oxígeno en la hemoglobina sanguínea." },
+      { z: 27, s: "Co", n: "Cobalto", m: 58.933, c: "Metales de transición", p: 4, g: 9, st: "Sólido", d: "Núcleo de la vitamina B12 (cobalamina); imanes permanentes alnico y pigmentos azules cerámicos." },
+      { z: 28, s: "Ni", n: "Níquel", m: 58.693, c: "Metales de transición", p: 4, g: 10, st: "Sólido", d: "Resistente a la corrosión química y altas temperaturas; usado en monedas y baterías recargables." },
+      { z: 29, s: "Cu", n: "Cobre", m: 63.546, c: "Metales de transición", p: 4, g: 11, st: "Sólido", d: "Del latín Cuprum; excepcional conductor eléctrico y térmico, base de aleaciones como bronce y latón." },
+      { z: 30, s: "Zn", n: "Cinc", m: 65.38, c: "Metales de transición", p: 4, g: 12, st: "Sólido", d: "Protege al hierro de la oxidación mediante galvanizado; oligoelemento clave para el sistema inmune." },
+      { z: 31, s: "Ga", n: "Galio", m: 69.723, c: "Otros metales", p: 4, g: 13, st: "Sólido", d: "Metal que se funde en la mano a 29.7°C; componente clave de semiconductores de arseniuro de galio (LEDs)." },
+      { z: 32, s: "Ge", n: "Germanio", m: 72.630, c: "Metaloides", p: 4, g: 14, st: "Sólido", d: "Semiconductor con el que se fabricó el primer transistor de la historia; vital en óptica infrarroja." },
+      { z: 33, s: "As", n: "Arsénico", m: 74.922, c: "Metaloides", p: 4, g: 15, st: "Sólido", d: "Metaloide célebre por su toxicidad histórica; usado como dopante en circuitos integrados modernos." },
+      { z: 34, s: "Se", n: "Selenio", m: 78.971, c: "No metales", p: 4, g: 16, st: "Sólido", d: "Nombrado por la diosa griega de la Luna; conduce mejor la electricidad cuando le incide la luz." },
+      { z: 35, s: "Br", n: "Bromo", m: 79.904, c: "Halógenos", p: 4, g: 17, st: "Líquido", d: "Del griego brōmos (hedor); único elemento no metálico que se encuentra en estado líquido a temperatura ambiente." },
+      { z: 36, s: "Kr", n: "Kriptón", m: 83.798, c: "Gases nobles", p: 4, g: 18, st: "Gas", d: "Gas noble que produce luz blanca brillante en destellos de alta velocidad y balizas de pistas aéreas." },
+      { z: 37, s: "Rb", n: "Rubidio", m: 85.468, c: "Metales alcalinos", p: 5, g: 1, st: "Sólido", d: "Metal alcalino blando muy reactivo que arde espontáneamente con llama violeta al contacto con el aire." },
+      { z: 38, s: "Sr", n: "Estroncio", m: 87.62, c: "Alcalinotérreos", p: 5, g: 2, st: "Sólido", d: "Genera el llamativo color rojo carmesí brillante en bengalas de emergencia y espectáculos pirotécnicos." },
+      { z: 39, s: "Y", n: "Itrio", m: 88.906, c: "Metales de transición", p: 5, g: 3, st: "Sólido", d: "Empleado en fósforos rojos de pantallas, láseres YAG y cerámicas superconductoras YBCO." },
+      { z: 40, s: "Zr", n: "Circonio", m: 91.224, c: "Metales de transición", p: 5, g: 4, st: "Sólido", d: "Baja absorción de neutrones térmicos; recubrimiento principal de barras de combustible nuclear y circonitas." },
+      { z: 41, s: "Nb", n: "Niobio", m: 92.906, c: "Metales de transición", p: 5, g: 5, st: "Sólido", d: "Metal superconductor a bajas temperaturas empleado en los electroimanes de resonancia magnética." },
+      { z: 42, s: "Mo", n: "Molibdeno", m: 95.95, c: "Metales de transición", p: 5, g: 6, st: "Sólido", d: "Punto de fusión extremadamente elevado (2623°C); vital en aceros resistentes a altas presiones y enzimas." },
+      { z: 43, s: "Tc", n: "Tecnecio", m: 98, c: "Metales de transición", p: 5, g: 7, st: "Sintético", d: "El primer elemento obtenido artificialmente; su isótopo Tc-99m es el radiotrazador médico más usado." },
+      { z: 44, s: "Ru", n: "Rutenio", m: 101.07, c: "Metales de transición", p: 5, g: 8, st: "Sólido", d: "Metal raro del grupo del platino que endurece contactos eléctricos y cataliza reacciones químicas." },
+      { z: 45, s: "Rh", n: "Rodio", m: 102.91, c: "Metales de transición", p: 5, g: 9, st: "Sólido", d: "Uno de los metales preciosos más cotizados del mundo; catalizador supremo de óxidos de nitrógeno en autos." },
+      { z: 46, s: "Pd", n: "Paladio", m: 106.42, c: "Metales de transición", p: 5, g: 10, st: "Sólido", d: "Metal noble capaz de absorber hasta 900 veces su propio volumen en gas hidrógeno molecular." },
+      { z: 47, s: "Ag", n: "Plata", m: 107.87, c: "Metales de transición", p: 5, g: 11, st: "Sólido", d: "Del latín Argentum; ostenta la conductividad eléctrica, térmica y reflectividad óptica más alta de los elementos." },
+      { z: 48, s: "Cd", n: "Cadmio", m: 112.41, c: "Metales de transición", p: 5, g: 12, st: "Sólido", d: "Metal pesado empleado en baterías recargables Ni-Cd y pigmentos amarillos de gran durabilidad." },
+      { z: 49, s: "In", n: "Indio", m: 114.82, c: "Otros metales", p: 5, g: 13, st: "Sólido", d: "Metal blando clave en la película transparente conductora ITO que hace funcionar las pantallas táctiles de celulares." },
+      { z: 50, s: "Sn", n: "Estaño", m: 118.71, c: "Otros metales", p: 5, g: 14, st: "Sólido", d: "Del latín Stannum; fundacional en la Edad del Bronce y aleación estándar de soldadura para electrónica." },
+      { z: 51, s: "Sb", n: "Antimonio", m: 121.76, c: "Metaloides", p: 5, g: 15, st: "Sólido", d: "Del latín Stibium; propiedad poco común de expandirse al enfriarse, clave en tipografías y retardantes de fuego." },
+      { z: 52, s: "Te", n: "Telurio", m: 127.60, c: "Metaloides", p: 5, g: 16, st: "Sólido", d: "Nombrado en honor a la Tierra (Tellus); componente de discos regrabables y paneles solares delgados." },
+      { z: 53, s: "I", n: "Yodo", m: 126.90, c: "Halógenos", p: 5, g: 17, st: "Sólido", d: "Sólido púrpura que sublima en vapor violeta; nutriente indispensable para las hormonas de la tiroides." },
+      { z: 54, s: "Xe", n: "Xenón", m: 131.29, c: "Gases nobles", p: 5, g: 18, st: "Gas", d: "Gas noble pesado usado en faros de descarga de alta intensidad y como propelente en motores iónicos espaciales." },
+      { z: 55, s: "Cs", n: "Cesio", m: 132.91, c: "Metales alcalinos", p: 6, g: 1, st: "Sólido", d: "La frecuencia exacta de 9,192,631,770 ciclos de su átomo define la duración de un segundo en el Sistema Internacional." },
+      { z: 56, s: "Ba", n: "Bario", m: 137.33, c: "Alcalinotérreos", p: 6, g: 2, st: "Sólido", d: "Produce el color verde brillante en fuegos artificiales y su sulfato se bebe como contraste radiológico digestivo." },
+      { z: 57, s: "La", n: "Lantano", m: 138.91, c: "Lantánidos", p: 6, g: 3, st: "Sólido", d: "Da nombre a la serie de los lantánidos; componente óptico de lentes telescópicas y baterías híbridas." },
+      { z: 58, s: "Ce", n: "Cerio", m: 140.12, c: "Lantánidos", p: 6, g: 3, st: "Sólido", d: "El lantánido más abundante; forma la aleación pirofórica que produce chispas en piedras de encendedores." },
+      { z: 59, s: "Pr", n: "Praseodimio", m: 140.91, c: "Lantánidos", p: 6, g: 3, st: "Sólido", d: "Proporciona un color amarillo-verdoso singular al vidrio de soldador y compone imanes potentes." },
+      { z: 60, s: "Nd", n: "Neodimio", m: 144.24, c: "Lantánidos", p: 6, g: 3, st: "Sólido", d: "Famoso por formar los imanes permanentes más potentes conocidos (NdFeB), vitales en audífonos y motores eólicos." },
+      { z: 61, s: "Pm", n: "Prometio", m: 145, c: "Lantánidos", p: 6, g: 3, st: "Sintético", d: "Lantánido intensamente radiactivo sin isótopos estables en la naturaleza; usado en pinturas fosforescentes y micromarcadores." },
+      { z: 62, s: "Sm", n: "Samario", m: 150.36, c: "Lantánidos", p: 6, g: 3, st: "Sólido", d: "Imanes de samario-cobalto capaces de resistir altas temperaturas extremas sin desmagnetizarse." },
+      { z: 63, s: "Eu", n: "Europio", m: 151.96, c: "Lantánidos", p: 6, g: 3, st: "Sólido", d: "Elemento fosforescente rojo brillante utilizado como elemento antifraude en las marcas de agua de billetes." },
+      { z: 64, s: "Gd", n: "Gadolinio", m: 157.25, c: "Lantánidos", p: 6, g: 3, st: "Sólido", d: "Propiedades paramagnéticas excepcionales; principal agente inyectable de contraste para resonancias magnéticas." },
+      { z: 65, s: "Tb", n: "Terbio", m: 158.93, c: "Lantánidos", p: 6, g: 3, st: "Sólido", d: "Fósforo emisor de luz verde en pantallas de televisión y en sensores de sonar naval Terfenol-D." },
+      { z: 66, s: "Dy", n: "Disprosio", m: 162.50, c: "Lantánidos", p: 6, g: 3, st: "Sólido", d: "Del griego dysprositos (difícil de aislar); estabiliza los imanes de neodimio en motores de vehículos eléctricos." },
+      { z: 67, s: "Ho", n: "Holmio", m: 164.93, c: "Lantánidos", p: 6, g: 3, st: "Sólido", d: "Posee el momento magnético intrínseco más alto de todos los elementos; empleado en láseres médicos de urología." },
+      { z: 68, s: "Er", n: "Erbio", m: 167.26, c: "Lantánidos", p: 6, g: 3, st: "Sólido", d: "Sus iones dopan los amplificadores ópticos EDFA en las líneas transoceánicas submarinas de internet." },
+      { z: 69, s: "Tm", n: "Tulio", m: 168.93, c: "Lantánidos", p: 6, g: 3, st: "Sólido", d: "El lantánido natural más escaso tras el prometio; emite rayos X al bombardearse para radiografías portátiles." },
+      { z: 70, s: "Yb", n: "Iterbio", m: 173.05, c: "Lantánidos", p: 6, g: 3, st: "Sólido", d: "Fuente clave para la nueva generación de relojes atómicos ópticos y láseres de corte de alta precisión." },
+      { z: 71, s: "Lu", n: "Lutecio", m: 174.97, c: "Lantánidos", p: 6, g: 3, st: "Sólido", d: "Último de los lantánidos y el más pesado; empleado como detector de centelleo en tomografías PET médicas." },
+      { z: 72, s: "Hf", n: "Hafnio", m: 178.49, c: "Metales de transición", p: 6, g: 4, st: "Sólido", d: "Excelente absorbedor neutrónico para barras de control nuclear de submarinos y dieléctrico de transistores." },
+      { z: 73, s: "Ta", n: "Tántalo", m: 180.95, c: "Metales de transición", p: 6, g: 5, st: "Sólido", d: "Extraído del mineral coltán; imprescindible para miniaturizar condensadores en smartphones y computadoras." },
+      { z: 74, s: "W", n: "Wolframio", m: 183.84, c: "Metales de transición", p: 6, g: 6, st: "Sólido", d: "El metal con el mayor punto de fusión de toda la tabla periódica (3422°C); filamentos y brocas duras." },
+      { z: 75, s: "Re", n: "Renio", m: 186.21, c: "Metales de transición", p: 6, g: 7, st: "Sólido", d: "Metal ultra denso con altísima resistencia térmica; indispensable en las palas de turbinas de motores a reacción." },
+      { z: 76, s: "Os", n: "Osmio", m: 190.23, c: "Metales de transición", p: 6, g: 8, st: "Sólido", d: "El elemento natural con mayor densidad conocido (22.59 g/cm³); aleaciones duras de estilográficas y pivotes." },
+      { z: 77, s: "Ir", n: "Iridio", m: 192.22, c: "Metales de transición", p: 6, g: 9, st: "Sólido", d: "El metal más resistente a la corrosión ácida; capa geológica global famosa que evidencia el meteorito de los dinosaurios." },
+      { z: 78, s: "Pt", n: "Platino", m: 195.08, c: "Metales de transición", p: 6, g: 10, st: "Sólido", d: "Metal noble inalterable usado en convertidores catalíticos de automóviles, joyería de lujo y quimioterapia oncológica." },
+      { z: 79, s: "Au", n: "Oro", m: 196.97, c: "Metales de transición", p: 6, g: 11, st: "Sólido", d: "Del latín Aurum; el metal más maleable y químicamente noble; no se oxida y protege contactos electrónicos espaciales." },
+      { z: 80, s: "Hg", n: "Mercurio", m: 200.59, c: "Metales de transición", p: 6, g: 12, st: "Líquido", d: "Del latín Hydrargyrum; único metal puro común que permanece líquido a temperatura ambiente normal." },
+      { z: 81, s: "Tl", n: "Talio", m: 204.38, c: "Otros metales", p: 6, g: 13, st: "Sólido", d: "Metal pesado blando sumamente tóxico; históricamente apodado el veneno del envenenador." },
+      { z: 82, s: "Pb", n: "Plomo", m: 207.2, c: "Otros metales", p: 6, g: 14, st: "Sólido", d: "Del latín Plumbum; metal pesado densísimo que bloquea eficazmente los rayos X y la radiación gamma." },
+      { z: 83, s: "Bi", n: "Bismuto", m: 208.98, c: "Otros metales", p: 6, g: 15, st: "Sólido", d: "Metal diamagnético que cristaliza en increíbles escalones iridiscentes geométricos; base del subsalicilato gástrico." },
+      { z: 84, s: "Po", n: "Polonio", m: 209, c: "Otros metales", p: 6, g: 16, st: "Sólido", d: "Descubierto por Marie y Pierre Curie en honor a su tierra natal; emisor alfa altamente radiactivo y peligroso." },
+      { z: 85, s: "At", n: "Ástato", m: 210, c: "Halógenos", p: 6, g: 17, st: "Sólido", d: "El elemento natural más raro de la corteza de la Tierra (menos de 25 gramos en todo el planeta simultáneamente)." },
+      { z: 86, s: "Rn", n: "Radón", m: 222, c: "Gases nobles", p: 6, g: 18, st: "Gas", d: "Gas noble radiactivo incoloro e inodoro liberado naturalmente por la desintegración del uranio en suelos graníticos." },
+      { z: 87, s: "Fr", n: "Francio", m: 223, c: "Metales alcalinos", p: 7, g: 1, st: "Sólido", d: "El metal alcalino más pesado y reactivo; extraordinariamente inestable, con vida media de apenas 22 minutos." },
+      { z: 88, s: "Ra", n: "Radio", m: 226, c: "Alcalinotérreos", p: 7, g: 2, st: "Sólido", d: "Aislado por Marie Curie a partir de la pechblenda; emite un brillo radioluminiscente azulado en la oscuridad." },
+      { z: 89, s: "Ac", n: "Actinio", m: 227, c: "Actínidos", p: 7, g: 3, st: "Sólido", d: "Encabeza la serie de los actínidos; emite luz azul tenue debido a que ioniza intensamente el aire circundante." },
+      { z: 90, s: "Th", n: "Torio", m: 232.04, c: "Actínidos", p: 7, g: 3, st: "Sólido", d: "Metal radiactivo más abundante que el uranio; gran promesa como combustible para reactores de sales fundidas." },
+      { z: 91, s: "Pa", n: "Protactinio", m: 231.04, c: "Actínidos", p: 7, g: 3, st: "Sólido", d: "Intermedio radiactivo sumamente tóxico y escaso que precede al actinio en la cadena de decaimiento del uranio." },
+      { z: 92, s: "U", n: "Uranio", m: 238.03, c: "Actínidos", p: 7, g: 3, st: "Sólido", d: "El elemento primordial más pesado de la naturaleza; combustible base de centrales nucleares de fisión." },
+      { z: 93, s: "Np", n: "Neptunio", m: 237, c: "Actínidos", p: 7, g: 3, st: "Sintético", d: "El primer elemento transuránico sintetizado artificialmente, nombrado en honor al planeta Neptuno." },
+      { z: 94, s: "Pu", n: "Plutonio", m: 244, c: "Actínidos", p: 7, g: 3, st: "Sintético", d: "Elemento artificial fisionable clave; alimenta generadores termoeléctricos RTG en sondas espaciales lejanas como Voyager." },
+      { z: 95, s: "Am", n: "Americio", m: 243, c: "Actínidos", p: 7, g: 3, st: "Sintético", d: "Elemento sintético radiactivo ampliamente utilizado en las cámaras de ionización de detectores de humo hogareños." },
+      { z: 96, s: "Cm", n: "Curio", m: 247, c: "Actínidos", p: 7, g: 3, st: "Sintético", d: "Nombrado en tributo a Marie y Pierre Curie; fuente de calor radioisotópico compacta para instrumental espacial." },
+      { z: 97, s: "Bk", n: "Berkelio", m: 247, c: "Actínidos", p: 7, g: 3, st: "Sintético", d: "Sintetizado en 1949 en el Laboratorio Nacional Lawrence Berkeley de California bombardeando americio." },
+      { z: 98, s: "Cf", n: "Californio", m: 251, c: "Actínidos", p: 7, g: 3, st: "Sintético", d: "Potente emisor portátil de neutrones utilizado para encender reactores nucleares y detectar petróleo en pozos." },
+      { z: 99, s: "Es", n: "Einstenio", m: 252, c: "Actínidos", p: 7, g: 3, st: "Sintético", d: "Identificado en los restos de la primera detonación termonuclear de bomba de hidrógeno (Ivy Mike) en 1952." },
+      { z: 100, s: "Fm", n: "Fermio", m: 257, c: "Actínidos", p: 7, g: 3, st: "Sintético", d: "Nombrado en honor a Enrico Fermi; es el elemento más pesado que puede sintetizarse por captura neutrónica." },
+      { z: 101, s: "Md", n: "Mendelevio", m: 258, c: "Actínidos", p: 7, g: 3, st: "Sintético", d: "Nombrado en honor al científico ruso Dmitri Mendeléyev, creador de la tabla periódica de los elementos." },
+      { z: 102, s: "No", n: "Nobelio", m: 259, c: "Actínidos", p: 7, g: 3, st: "Sintético", d: "Nombrado en honor a Alfred Nobel, el inventor sueco de la dinamita y fundador de los prestigiosos Premios Nobel." },
+      { z: 103, s: "Lr", n: "Laurencio", m: 266, c: "Actínidos", p: 7, g: 3, st: "Sintético", d: "Último de los actínidos; nombrado en memoria de Ernest Lawrence, creador del acelerador de partículas ciclotrón." },
+      { z: 104, s: "Rf", n: "Rutherfordio", m: 267, c: "Metales de transición", p: 7, g: 4, st: "Sintético", d: "Primer elemento superpesado transactínido; nombrado en homenaje al físico nuclear Ernest Rutherford." },
+      { z: 105, s: "Db", n: "Dubnio", m: 268, c: "Metales de transición", p: 7, g: 5, st: "Sintético", d: "Sintetizado en el Instituto Conjunto para la Investigación Nuclear en Dubná, cerca de Moscú (Rusia)." },
+      { z: 106, s: "Sg", n: "Seaborgio", m: 269, c: "Metales de transición", p: 7, g: 6, st: "Sintético", d: "Nombrado en honor a Glenn T. Seaborg mientras aún vivía, reconociendo su descubrimiento de múltiples transuránicos." },
+      { z: 107, s: "Bh", n: "Bohrio", m: 270, c: "Metales de transición", p: 7, g: 7, st: "Sintético", d: "Nombrado en memoria de Niels Bohr por sus fundamentales aportes al entendimiento de la estructura atómica." },
+      { z: 108, s: "Hs", n: "Hasio", m: 269, c: "Metales de transición", p: 7, g: 8, st: "Sintético", d: "Nombrado a partir de Hassia, nombre en latín del estado alemán de Hesse donde se sintetizó en el GSI Darmstadt." },
+      { z: 109, s: "Mt", n: "Meitnerio", m: 278, c: "Metales de transición", p: 7, g: 9, st: "Sintético", d: "Nombrado en honor a la física Lise Meitner, codescubridora pionera del fenómeno de la fisión nuclear." },
+      { z: 110, s: "Ds", n: "Darmstatio", m: 281, c: "Metales de transición", p: 7, g: 10, st: "Sintético", d: "Elemento superpesado sintetizado en Darmstadt (Alemania) haciendo colisionar iones de plomo y níquel." },
+      { z: 111, s: "Rg", n: "Roentgenio", m: 282, c: "Metales de transición", p: 7, g: 11, st: "Sintético", d: "Nombrado en honor al físico Wilhelm Röntgen, descubridor de los rayos X y primer Nobel de Física." },
+      { z: 112, s: "Cn", n: "Copernicio", m: 285, c: "Metales de transición", p: 7, g: 12, st: "Sintético", d: "Nombrado por Nicolás Copérnico; sus efectos relativistas predicen que se comporte como un gas noble o líquido." },
+      { z: 113, s: "Nh", n: "Nihonio", m: 286, c: "Otros metales", p: 7, g: 13, st: "Sintético", d: "Primer elemento descubierto en Asia por el centro RIKEN (Japón - Nihon); aprobado oficialmente por IUPAC en 2016." },
+      { z: 114, s: "Fl", n: "Flerovio", m: 289, c: "Otros metales", p: 7, g: 14, st: "Sintético", d: "Elemento superpesado nombrado por el Laboratorio Flerov de Reacciones Nucleares; predice alta estabilidad nuclear." },
+      { z: 115, s: "Mc", n: "Moscovio", m: 290, c: "Otros metales", p: 7, g: 15, st: "Sintético", d: "Elemento superpesado sintético nombrado en honor a la región de Moscú; vida media fraccionaria de segundo." },
+      { z: 116, s: "Lv", n: "Livermorio", m: 293, c: "Otros metales", p: 7, g: 16, st: "Sintético", d: "Nombrado en homenaje a la ciudad de Livermore y al Laboratorio Nacional Lawrence Livermore de California." },
+      { z: 117, s: "Ts", n: "Tenesino", m: 294, c: "Halógenos", p: 7, g: 17, st: "Sintético", d: "El segundo elemento más pesado sintetizado; halógeno nombrado en honor al estado estadounidense de Tennessee." },
+      { z: 118, s: "Og", n: "Oganesón", m: 294, c: "Gases nobles", p: 7, g: 18, st: "Sintético", d: "El elemento 118 y el más pesado de la tabla periódica; nombrado en honor al físico nuclear vivo Yuri Oganessian." }
     ];
 
     const TOTAL_ITEMS = 50;
@@ -835,13 +961,54 @@
       }
     }
 
+    let questionTimerInterval = null;
+    let questionSecondsLeft = 20;
+
+    function startQuestionTimer() {
+      stopQuestionTimer();
+      questionSecondsLeft = 20;
+      updateTimerDisplay();
+
+      questionTimerInterval = setInterval(() => {
+        questionSecondsLeft--;
+        updateTimerDisplay();
+
+        if (questionSecondsLeft <= 0) {
+          stopQuestionTimer();
+          handleAnswer({ z: -999, n: "Tiempo agotado", s: "⌛" }, null);
+        }
+      }, 1000);
+    }
+
+    function stopQuestionTimer() {
+      if (questionTimerInterval) {
+        clearInterval(questionTimerInterval);
+        questionTimerInterval = null;
+      }
+    }
+
+    function updateTimerDisplay() {
+      const timerVal = document.getElementById('timer-val');
+      const timerBox = document.getElementById('item-timer');
+      if (timerVal) timerVal.textContent = questionSecondsLeft;
+      if (timerBox) {
+        if (questionSecondsLeft <= 5) {
+          timerBox.className = "px-2 py-0.5 rounded-full font-mono text-[10px] font-black bg-rose-500/30 text-rose-300 border border-rose-500 animate-pulse flex items-center gap-1";
+        } else {
+          timerBox.className = "px-2 py-0.5 rounded-full font-mono text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1";
+        }
+      }
+    }
+
     function generateCurrentItem() {
       if (currentItemIndex >= TOTAL_ITEMS) {
+        stopQuestionTimer();
         showFinalCertificate();
         return;
       }
 
       isAnswered = false;
+      startQuestionTimer();
       const feedbackBox = document.getElementById('feedback-box');
       if (feedbackBox) feedbackBox.classList.add('hidden');
       
@@ -919,8 +1086,10 @@
     function handleAnswer(selectedOpt, btnElement) {
       if (isAnswered) return;
       isAnswered = true;
+      stopQuestionTimer();
 
-      const isCorrect = selectedOpt.z === currentElement.z;
+      const isTimeout = selectedOpt.z === -999;
+      const isCorrect = !isTimeout && selectedOpt.z === currentElement.z;
       const feedbackBox = document.getElementById('feedback-box');
       const feedbackIcon = document.getElementById('feedback-icon');
       const feedbackTitle = document.getElementById('feedback-title');
@@ -956,9 +1125,9 @@
 
         if (feedbackBox) {
           feedbackBox.className = "p-2.5 sm:p-3 rounded-xl border bg-rose-950/60 border-rose-500/50 text-rose-200 flex items-center justify-between gap-3 transition shadow";
-          if (feedbackIcon) feedbackIcon.textContent = "❌";
-          if (feedbackTitle) feedbackTitle.textContent = `Desacierto. Era ${currentElement.n} (${currentElement.s})`;
-          if (feedbackDetail) feedbackDetail.textContent = `Marcaste: ${selectedOpt.n} (${selectedOpt.s})`;
+          if (feedbackIcon) feedbackIcon.textContent = isTimeout ? "⏱️" : "❌";
+          if (feedbackTitle) feedbackTitle.textContent = isTimeout ? `¡Tiempo Agotado! (20s excedidos)` : `Desacierto. Era ${currentElement.n} (${currentElement.s})`;
+          if (feedbackDetail) feedbackDetail.textContent = isTimeout ? `La respuesta correcta era ${currentElement.n} (${currentElement.s})` : `Marcaste: ${selectedOpt.n} (${selectedOpt.s})`;
         }
       }
 
@@ -2212,7 +2381,77 @@
       isSimulating = false;
     }
 
+    function showAntiCheatNotice(msg) {
+      let banner = document.getElementById('anticheat-notice-banner');
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'anticheat-notice-banner';
+        banner.className = 'fixed top-3 left-1/2 -translate-x-1/2 z-50 bg-rose-600 text-white font-black px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-2 text-xs border-2 border-white max-w-sm text-center transition-all duration-300 animate-bounce';
+        document.body.appendChild(banner);
+      }
+      banner.innerHTML = `<span>🚨</span> ${msg}`;
+      banner.classList.remove('hidden');
+
+      setTimeout(() => {
+        if (banner) banner.classList.add('hidden');
+      }, 4500);
+    }
+
+    function setupAntiCheatShield() {
+      // 1. Bloquear menú contextual (clic derecho)
+      document.addEventListener('contextmenu', e => {
+        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+          showAntiCheatNotice("Clic derecho bloqueado por seguridad de evaluación oficial.");
+        }
+      });
+
+      // 2. Bloquear atajos de teclado de copia, ver código e inspección
+      document.addEventListener('keydown', e => {
+        if (e.key === 'F12' || 
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) || 
+            (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S')) ||
+            (e.ctrlKey && (e.key === 'c' || e.key === 'C') && !e.target.closest('input, textarea, .selectable-text'))) {
+          e.preventDefault();
+          showAntiCheatNotice("Acción restringida: El examen está protegido contra consultas externas.");
+        }
+      });
+
+      // 3. Bloquear evento de copia en el documento
+      document.addEventListener('copy', e => {
+        if (!e.target.closest('input, textarea, .selectable-text')) {
+          e.preventDefault();
+          showAntiCheatNotice("La copia de texto está deshabilitada durante la evaluación.");
+        }
+      });
+
+      // 4. Detección de salida de pantalla / cambio de app en móvil y escritorio
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden && currentItemIndex < TOTAL_ITEMS && !isAnswered && !isSimulating) {
+          handleSuspiciousTabSwitch();
+        }
+      });
+
+      window.addEventListener('blur', () => {
+        if (currentItemIndex < TOTAL_ITEMS && !isAnswered && !isSimulating) {
+          handleSuspiciousTabSwitch();
+        }
+      });
+
+      // 5. Detección de bots automatizados
+      if (navigator.webdriver) {
+        showAntiCheatNotice("Rastreador automatizado detectado. La prueba requiere intervención humana.");
+      }
+    }
+
+    function handleSuspiciousTabSwitch() {
+      tabSwitchCount++;
+      showAntiCheatNotice(`¡Alerta! Salida de pantalla detectada (#${tabSwitchCount}). Este evento queda grabado en tu reporte ante el Profesor Edwin Ortiz.`);
+      playSound('error');
+    }
+
     function initApp() {
+      setupAntiCheatShield();
       if (window.location.search.includes('simulacion=1') || window.location.search.includes('simular=1')) {
         setTimeout(runLiveStudentDemo, 800);
       } else if (window.location.search.includes('demo=1') || window.location.search.includes('test=1')) {
