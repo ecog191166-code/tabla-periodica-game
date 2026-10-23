@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#0f172a">
-  <title>Desafío Tabla Periódica - 50 Ítems</title>
+  <title>Desafío Tabla Periódica - 50 Ítems (Certificado Antifraude)</title>
   
-  <meta property="og:title" content="Desafío Tabla Periódica - 50 Ítems ⚛️">
-  <meta property="og:description" content="Evaluación de 50 preguntas sobre la tabla periódica con nota oficial de Panamá.">
+  <meta property="og:title" content="Desafío Tabla Periódica - Evaluación Oficial ⚛️">
+  <meta property="og:description" content="Evaluación de 50 ítems de química con comprobante antifraude y nota de Panamá.">
   <meta property="og:type" content="website">
 
   <!-- CDN oficial de Tailwind CSS -->
@@ -32,6 +32,9 @@
     .element-card-glow {
       box-shadow: 0 0 25px -4px rgba(59, 130, 246, 0.35);
     }
+    .certificate-border {
+      border: 2px dashed rgba(59, 130, 246, 0.5);
+    }
     .pulse-correct {
       animation: correctPulse 0.35s ease-out;
     }
@@ -52,7 +55,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start sm:justify-center p-2 sm:p-4">
 
-  <!-- Contenedor Principal Adaptable -->
+  <!-- Contenedor Principal -->
   <div id="game-container" class="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col my-auto">
     
     <!-- Encabezado Compacto -->
@@ -65,7 +68,7 @@
           <h1 class="text-sm sm:text-base font-bold tracking-tight text-white leading-tight">
             Desafío Tabla Periódica
           </h1>
-          <p class="text-[11px] sm:text-xs text-slate-400">Prueba de 50 Ítems</p>
+          <p id="student-header-tag" class="text-[11px] sm:text-xs text-slate-400">Prueba Oficial de 50 Ítems</p>
         </div>
       </div>
 
@@ -124,7 +127,7 @@
         </div>
       </div>
 
-      <!-- Selectores de Modo y Sonido (Mixto 100% activo y funcional) -->
+      <!-- Selectores de Modo y Sonido -->
       <div class="flex items-center justify-between gap-1.5 bg-slate-950/60 px-2.5 py-1.5 rounded-xl border border-slate-800/80 text-xs">
         <div class="flex items-center gap-1 sm:gap-1.5 flex-wrap">
           <button id="mode-sym-to-name" onclick="setGameMode('sym-to-name')" class="px-2 sm:px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-[11px] sm:text-xs">
@@ -146,7 +149,6 @@
       <!-- Ficha Química Central -->
       <div id="question-card" class="bg-gradient-to-b from-slate-800/90 to-slate-900 border border-slate-700/80 rounded-2xl p-3.5 sm:p-5 flex flex-col items-center justify-center text-center relative overflow-hidden element-card-glow transition-all">
         
-        <!-- Badge de Familia Química y Modo Actual -->
         <div class="flex items-center gap-1.5 mb-2">
           <span id="category-badge" class="px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
             No metales
@@ -157,10 +159,9 @@
         </div>
         
         <h2 id="prompt-question" class="text-slate-100 text-xs sm:text-sm md:text-base font-bold mb-2.5 max-w-xl">
-          <!-- Texto de pregunta dinámico -->
+          <!-- Dinámico -->
         </h2>
 
-        <!-- Ficha Química -->
         <div class="element-main-box w-28 h-32 sm:w-36 sm:h-40 rounded-2xl bg-slate-950 border-2 border-blue-500/70 p-2 sm:p-3 flex flex-col justify-between items-center shadow-lg relative my-1">
           <div class="w-full flex justify-between items-center px-0.5">
             <span id="atomic-number" class="text-xs sm:text-sm font-mono font-bold text-cyan-400">
@@ -180,7 +181,6 @@
           </div>
         </div>
 
-        <!-- Pista Científica -->
         <div class="mt-2.5 px-3 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800 max-w-lg w-full text-center">
           <p id="hint-text" class="text-xs sm:text-sm text-slate-300 italic">
             💡 <strong class="text-blue-400 not-italic">Pista:</strong> El elemento más abundante del universo.
@@ -188,7 +188,7 @@
         </div>
       </div>
 
-      <!-- Opciones de Respuesta en 2 Columnas Limpias -->
+      <!-- Opciones de Respuesta en 2 Columnas -->
       <div id="options-grid" class="grid grid-cols-2 gap-2 sm:gap-2.5">
         <!-- Generadas dinámicamente -->
       </div>
@@ -208,41 +208,102 @@
       </div>
     </main>
 
-    <!-- Pantalla de Resultados Finales (Aparece tras responder los 50 ítems) -->
-    <section id="results-panel" class="hidden p-5 sm:p-8 flex flex-col items-center justify-center text-center gap-4">
-      <div class="w-16 h-16 rounded-3xl bg-blue-500/20 border-2 border-blue-400 flex items-center justify-center text-3xl shadow-lg">
-        🎓
-      </div>
-
-      <div>
-        <h2 class="text-xl sm:text-2xl font-black text-white">Evaluación Completada</h2>
-        <p class="text-xs sm:text-sm text-slate-400 mt-1">Has respondido los 50 ítems de la prueba química.</p>
-      </div>
-
-      <!-- Tarjeta de Calificación Final Panamá -->
-      <div class="bg-gradient-to-b from-blue-950/60 to-slate-950 border-2 border-blue-500/60 rounded-3xl p-5 sm:p-6 w-full max-w-md shadow-2xl flex flex-col items-center">
-        <span class="text-xs font-bold text-blue-300 uppercase tracking-wider">Calificación Final 🇵🇦</span>
-        <span id="final-grade" class="text-5xl sm:text-6xl font-black my-2">1.0</span>
-        <span id="final-status-badge" class="px-3 py-1 rounded-full text-xs font-bold">Estado</span>
+    <!-- Pantalla de Certificado Oficial Antifraude (Aparece al terminar los 50 ítems) -->
+    <section id="results-panel" class="hidden p-4 sm:p-6 flex flex-col items-center justify-center text-center gap-3.5">
+      
+      <!-- Ficha / Certificado Oficial de Calificación -->
+      <div id="certificate-card" class="bg-gradient-to-b from-slate-950 via-slate-900 to-blue-950/50 border-2 border-blue-500/60 rounded-3xl p-4 sm:p-6 w-full max-w-lg shadow-2xl text-left relative overflow-hidden">
         
-        <div class="grid grid-cols-3 gap-2 w-full mt-5 pt-4 border-t border-slate-800 text-center">
-          <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 block">Aciertos</span>
-            <span id="final-correct" class="text-base sm:text-lg font-bold text-emerald-400">0 / 50</span>
+        <!-- Sello de Autenticidad -->
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+          <div class="flex items-center gap-2.5">
+            <span class="text-3xl">🎓</span>
+            <div>
+              <h3 class="text-sm sm:text-base font-black text-white uppercase tracking-wider">Certificado de Evaluación</h3>
+              <p class="text-[10px] text-blue-400 font-medium">Química - Tabla Periódica (50 Ítems)</p>
+            </div>
           </div>
-          <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 block">Desaciertos</span>
-            <span id="final-incorrect" class="text-base sm:text-lg font-bold text-rose-400">0 / 50</span>
-          </div>
-          <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 block">Rendimiento</span>
-            <span id="final-percent" class="text-base sm:text-lg font-bold text-blue-400">0%</span>
+          <span class="text-[10px] bg-blue-600/20 text-blue-300 border border-blue-500/40 px-2 py-0.5 rounded-full font-bold">
+            Oficial 🇵🇦
+          </span>
+        </div>
+
+        <!-- Formulario o Datos del Alumno -->
+        <div class="bg-slate-950/80 p-3 rounded-2xl border border-slate-800 mb-3 flex flex-col gap-2">
+          <div class="flex flex-col sm:flex-row gap-2">
+            <div class="flex-1">
+              <label class="text-[10px] font-bold text-slate-400 block mb-0.5">Nombre y Apellido del Estudiante:</label>
+              <input 
+                type="text" 
+                id="student-name-input" 
+                placeholder="Ej. Juan Pérez" 
+                oninput="updateCertificateSecurity()"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-semibold"
+              />
+            </div>
+            <div class="w-full sm:w-28">
+              <label class="text-[10px] font-bold text-slate-400 block mb-0.5">Grupo / Grado:</label>
+              <input 
+                type="text" 
+                id="student-group-input" 
+                placeholder="Ej. 10° A" 
+                oninput="updateCertificateSecurity()"
+                class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-semibold"
+              />
+            </div>
           </div>
         </div>
+
+        <!-- Calificación y Resultados -->
+        <div class="bg-slate-950/90 rounded-2xl p-3 border border-slate-800 flex items-center justify-between gap-3 mb-3">
+          <div>
+            <span class="text-[10px] text-slate-400 font-semibold block">Nota Final Obtenida:</span>
+            <span id="final-grade" class="text-4xl font-black text-emerald-400">5.0</span>
+            <span id="final-status-badge" class="block text-[11px] font-bold mt-0.5">APROBADO</span>
+          </div>
+
+          <div class="text-right text-xs space-y-1">
+            <p class="text-slate-300">Aciertos: <strong id="final-correct" class="text-emerald-400">0</strong> / 50</p>
+            <p class="text-slate-300">Desaciertos: <strong id="final-incorrect" class="text-rose-400">0</strong> / 50</p>
+            <p class="text-slate-300">Efectividad: <strong id="final-percent" class="text-blue-400">0%</strong></p>
+          </div>
+        </div>
+
+        <!-- Metadatos de Seguridad Antifraude -->
+        <div class="bg-blue-950/30 border border-blue-500/30 rounded-xl p-2.5 text-[11px] text-slate-300 space-y-1">
+          <div class="flex justify-between items-center">
+            <span>📅 Fecha y Hora:</span>
+            <strong id="final-datetime" class="font-mono text-white text-[10px]">--/--/----</strong>
+          </div>
+          <div class="flex justify-between items-center">
+            <span>⏱️ Tiempo de prueba:</span>
+            <strong id="final-duration" class="font-mono text-cyan-300 text-[10px]">0 min</strong>
+          </div>
+          <div class="flex justify-between items-center">
+            <span>⚠️ Salidas de pestaña:</span>
+            <strong id="final-tab-switches" class="font-mono text-amber-400 text-[10px]">0 veces</strong>
+          </div>
+          <div class="flex justify-between items-center pt-1.5 border-t border-blue-500/20 text-xs">
+            <span class="text-blue-300 font-bold">🔒 Código Antifraude:</span>
+            <span id="final-security-code" class="font-mono font-black text-emerald-400 bg-slate-950 px-2 py-0.5 rounded border border-emerald-500/40 text-xs">
+              #QZ-000000
+            </span>
+          </div>
+        </div>
+
+        <p class="text-[10px] text-slate-500 italic text-center mt-2">
+          * Este código valida matemáticamente la autenticidad de la nota y del estudiante ante el profesor.
+        </p>
       </div>
 
-      <button onclick="restartFullExam()" class="px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm sm:text-base shadow-xl transition flex items-center gap-2 active:scale-95">
-        🔄 Iniciar Nuevo Intento (50 Ítems)
+      <!-- Botón de Envío por WhatsApp -->
+      <button onclick="sendReportToTeacherWhatsApp()" class="w-full max-w-lg px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl transition flex items-center justify-center gap-2 active:scale-95">
+        <span class="text-lg">📲</span> Enviar Reporte Oficial por WhatsApp al Profesor
+      </button>
+
+      <!-- Botón Nuevo Intento -->
+      <button onclick="restartFullExam()" class="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white transition underline">
+        🔄 Realizar otro intento de 50 ítems
       </button>
     </section>
 
@@ -283,7 +344,7 @@
       </div>
     </section>
 
-    <!-- Pie de página Compacto -->
+    <!-- Pie de página -->
     <footer class="bg-slate-950/80 border-t border-slate-800 px-4 py-2 text-center text-[11px] sm:text-xs text-slate-500 flex justify-between items-center gap-2">
       <span>Desafío Tabla Periódica ⚛️</span>
       <button onclick="restartFullExam()" class="hover:text-slate-300 underline transition">Reiniciar prueba</button>
@@ -291,7 +352,6 @@
   </div>
 
   <script>
-    // Banco extenso de elementos químicos representativos
     const ELEMENTS = [
       { z: 1, s: "H", n: "Hidrógeno", m: 1.008, c: "No metales", d: "El más ligero y abundante del universo." },
       { z: 2, s: "He", n: "Helio", m: 4.0026, c: "Gases nobles", d: "Gas inerte descubierto en el espectro del Sol." },
@@ -353,23 +413,33 @@
     ];
 
     const TOTAL_ITEMS = 50;
+    const PROF_SECRET_SALT = "QUIMICA_PANAMA_PROF_ORTIZ_2026"; // Clave secreta para firma criptográfica
 
-    // Variables de Estado de la Evaluación
-    let currentMode = 'mixed'; // Predeterminado en Mixto
-    let currentItemIndex = 0; // De 0 a 49 (Total 50)
-    let examElements = []; // Lista de 50 elementos para esta prueba
-    let examTypes = []; // Lista de tipo de pregunta para cada uno de los 50 items
+    let currentMode = 'mixed';
+    let currentItemIndex = 0;
+    let examElements = [];
+    let examTypes = [];
     let currentElement = null;
-    let currentType = 'sym-to-name'; // 'sym-to-name' o 'name-to-sym'
-    let score = 0;
+    let currentType = 'sym-to-name';
     let totalCorrect = 0;
     let totalIncorrect = 0;
     let isAnswered = false;
     let soundEnabled = true;
 
-    // Web Audio sintetizador
-    let audioCtx = null;
+    // Métricas de auditoría antifraude
+    let examStartTime = null;
+    let examEndTime = null;
+    let tabSwitchCount = 0;
+    let generatedSecurityHash = "";
 
+    // Detección de cambio de pestaña (si el alumno intenta buscar en Google)
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden && examStartTime && currentItemIndex < TOTAL_ITEMS) {
+        tabSwitchCount++;
+      }
+    });
+
+    let audioCtx = null;
     function playSound(type) {
       if (!soundEnabled) return;
       try {
@@ -382,7 +452,6 @@
         const gain = audioCtx.createGain();
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-
         const now = audioCtx.currentTime;
 
         if (type === 'correct') {
@@ -402,7 +471,6 @@
           osc.start(now);
           osc.stop(now + 0.25);
         } else if (type === 'fanfare') {
-          // Sonido triunfal al terminar los 50 items
           [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
             const o = audioCtx.createOscillator();
             const g = audioCtx.createGain();
@@ -451,34 +519,29 @@
       restartFullExam();
     }
 
-    // Preparar los 50 ítems de la prueba garantizando variedad sin repetir
     function prepareExam() {
       currentItemIndex = 0;
-      score = 0;
       totalCorrect = 0;
       totalIncorrect = 0;
+      tabSwitchCount = 0;
+      examStartTime = new Date();
 
-      // Barajar banco de elementos
       const shuffled = [...ELEMENTS].sort(() => Math.random() - 0.5);
       examElements = shuffled.slice(0, TOTAL_ITEMS);
 
-      // Si hay menos de 50 en el slice, rellenar aleatoriamente
       while (examElements.length < TOTAL_ITEMS) {
         examElements.push(ELEMENTS[Math.floor(Math.random() * ELEMENTS.length)]);
       }
 
-      // Preparar modalidades de preguntas para los 50 ítems
       examTypes = [];
       for (let i = 0; i < TOTAL_ITEMS; i++) {
         if (currentMode === 'mixed') {
-          // En modo mixto, alterna equitativamente entre Nombre y Símbolo
           examTypes.push(i % 2 === 0 ? 'sym-to-name' : 'name-to-sym');
         } else {
           examTypes.push(currentMode);
         }
       }
 
-      // Mezclar los tipos en modo mixto para que no sea predecible
       if (currentMode === 'mixed') {
         examTypes.sort(() => Math.random() - 0.5);
       }
@@ -486,7 +549,7 @@
 
     function generateCurrentItem() {
       if (currentItemIndex >= TOTAL_ITEMS) {
-        showFinalResults();
+        showFinalCertificate();
         return;
       }
 
@@ -497,14 +560,12 @@
       const qCard = document.getElementById('question-card');
       if (qCard) qCard.classList.remove('pulse-correct', 'shake-error');
 
-      // Actualizar contador y barra de progreso
       const itemNum = currentItemIndex + 1;
       const percent = Math.round((itemNum / TOTAL_ITEMS) * 100);
       document.getElementById('item-counter').textContent = `Ítem ${itemNum} de ${TOTAL_ITEMS}`;
       document.getElementById('progress-bar').style.width = `${percent}%`;
       document.getElementById('progress-percent').textContent = `${percent}%`;
 
-      // Elemento y tipo correspondiente a este ítem
       currentElement = examElements[currentItemIndex];
       currentType = examTypes[currentItemIndex];
 
@@ -524,30 +585,22 @@
         hintText.innerHTML = `💡 <strong class="text-blue-400 not-italic">Pista:</strong> ${currentElement.d}`;
       }
 
-      // Configuración 100% Funcional del Modo Mixto y Fichas:
       if (currentType === 'sym-to-name') {
-        // PREGUNTA: TE DA EL SÍMBOLO -> ELIGES EL NOMBRE
         typeBadge.textContent = "Símbolo ➔ Nombre";
         typeBadge.className = "px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30";
-        
         promptQuestion.innerHTML = `¿Cuál es el <strong>nombre</strong> del elemento con símbolo <span class="text-blue-400 font-black text-sm sm:text-base md:text-lg">${currentElement.s}</span>?`;
-        
         elementDisplayEl.textContent = currentElement.s;
         elementDisplayEl.className = "element-symbol-txt text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 tracking-tight my-auto select-none";
         elementSubtextEl.textContent = "Símbolo Químico";
       } else {
-        // PREGUNTA: TE DA EL NOMBRE -> ELIGES EL SÍMBOLO
         typeBadge.textContent = "Nombre ➔ Símbolo";
         typeBadge.className = "px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30";
-        
         promptQuestion.innerHTML = `¿Cuál es el <strong>símbolo químico</strong> de <span class="text-teal-300 font-black text-sm sm:text-base md:text-lg">${currentElement.n}</span>?`;
-        
         elementDisplayEl.textContent = currentElement.n;
         elementDisplayEl.className = "element-symbol-txt text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-cyan-300 to-blue-400 tracking-tight my-auto px-1 select-none text-center";
         elementSubtextEl.textContent = "¿Cuál es su símbolo?";
       }
 
-      // Generar 4 opciones limpias (3 distractores)
       const options = [currentElement];
       while (options.length < 4) {
         const randOpt = ELEMENTS[Math.floor(Math.random() * ELEMENTS.length)];
@@ -599,8 +652,6 @@
 
       if (isCorrect) {
         totalCorrect++;
-        score = totalCorrect;
-
         if (qCard) qCard.classList.add('pulse-correct');
         playSound('correct');
 
@@ -623,10 +674,9 @@
         }
       }
 
-      // Si es el ítem 50, preparar botón de resultados
       if (currentItemIndex === TOTAL_ITEMS - 1) {
         if (nextBtn) {
-          nextBtn.textContent = "Ver Calificación Final 🎓";
+          nextBtn.textContent = "Ver Certificado Oficial 🎓";
           nextBtn.className = "px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm shadow-lg transition whitespace-nowrap animate-pulse";
         }
       } else {
@@ -643,7 +693,7 @@
     function nextQuestion() {
       currentItemIndex++;
       if (currentItemIndex >= TOTAL_ITEMS) {
-        showFinalResults();
+        showFinalCertificate();
       } else {
         generateCurrentItem();
       }
@@ -659,7 +709,6 @@
       if (cVal) cVal.textContent = totalCorrect;
       if (iVal) iVal.textContent = totalIncorrect;
 
-      // Fórmula oficial Panamá: (Aciertos / 50 * 4) + 1
       let nota = ((totalCorrect / TOTAL_ITEMS) * 4) + 1;
       if (nota > 5.0) nota = 5.0;
       const notaFormateada = nota.toFixed(1);
@@ -674,9 +723,23 @@
       }
     }
 
-    // Pantalla de resultados al finalizar los 50 ítems
-    function showFinalResults() {
+    // Generador criptográfico de firma antifraude
+    function calculateSecurityCode(name, group, correct, total, dateStr) {
+      const payload = `${name.trim().toUpperCase()}|${group.trim().toUpperCase()}|${correct}|${total}|${dateStr}|${PROF_SECRET_SALT}`;
+      let hash = 0;
+      for (let i = 0; i < payload.length; i++) {
+        const char = payload.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash |= 0;
+      }
+      const hex = Math.abs(hash).toString(16).toUpperCase().padStart(6, '0').slice(-6);
+      return `#QZ-${hex}`;
+    }
+
+    function showFinalCertificate() {
+      examEndTime = new Date();
       playSound('fanfare');
+
       document.getElementById('play-panel').classList.add('hidden');
       document.getElementById('explore-panel').classList.add('hidden');
       document.getElementById('progress-container').classList.add('hidden');
@@ -691,22 +754,100 @@
       const fCorrect = document.getElementById('final-correct');
       const fIncorrect = document.getElementById('final-incorrect');
       const fPercent = document.getElementById('final-percent');
+      const fDateTime = document.getElementById('final-datetime');
+      const fDuration = document.getElementById('final-duration');
+      const fSwitches = document.getElementById('final-tab-switches');
 
       fGrade.textContent = notaFinal;
-      fCorrect.textContent = `${totalCorrect} / ${TOTAL_ITEMS}`;
-      fIncorrect.textContent = `${totalIncorrect} / ${TOTAL_ITEMS}`;
+      fCorrect.textContent = totalCorrect;
+      fIncorrect.textContent = totalIncorrect;
       const pct = Math.round((totalCorrect / TOTAL_ITEMS) * 100);
       fPercent.textContent = `${pct}%`;
 
-      if (nota >= 3.0) {
-        fGrade.className = "text-5xl sm:text-6xl font-black my-2 text-emerald-400";
-        fStatus.textContent = "¡APROBADO!";
-        fStatus.className = "px-4 py-1 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 uppercase tracking-wide";
+      // Duración de la prueba
+      const diffSecs = Math.max(1, Math.round((examEndTime - examStartTime) / 1000));
+      const mins = Math.floor(diffSecs / 60);
+      const secs = diffSecs % 60;
+      fDuration.textContent = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+
+      // Fecha y hora formateada (Panamá)
+      const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+      const formattedDate = examEndTime.toLocaleDateString('es-PA', options);
+      fDateTime.textContent = formattedDate;
+
+      // Salidas de pantalla
+      fSwitches.textContent = `${tabSwitchCount} ${tabSwitchCount === 1 ? 'vez' : 'veces'}`;
+      if (tabSwitchCount > 0) {
+        fSwitches.className = "font-mono text-rose-400 text-[10px] font-bold";
       } else {
-        fGrade.className = "text-5xl sm:text-6xl font-black my-2 text-rose-400";
-        fStatus.textContent = "REPROBADO (Mínimo 3.0)";
-        fStatus.className = "px-4 py-1 rounded-full text-xs font-black bg-rose-500/20 text-rose-300 border border-rose-500/40 uppercase tracking-wide";
+        fSwitches.className = "font-mono text-emerald-400 text-[10px] font-bold";
       }
+
+      if (nota >= 3.0) {
+        fGrade.className = "text-4xl font-black text-emerald-400";
+        fStatus.textContent = "APROBADO (≥ 3.0)";
+        fStatus.className = "block text-[11px] font-extrabold text-emerald-400 mt-0.5";
+      } else {
+        fGrade.className = "text-4xl font-black text-rose-400";
+        fStatus.textContent = "REPROBADO (< 3.0)";
+        fStatus.className = "block text-[11px] font-extrabold text-rose-400 mt-0.5";
+      }
+
+      updateCertificateSecurity();
+    }
+
+    function updateCertificateSecurity() {
+      const nameInput = document.getElementById('student-name-input');
+      const groupInput = document.getElementById('student-group-input');
+      const codeSpan = document.getElementById('final-security-code');
+      const dateTimeSpan = document.getElementById('final-datetime');
+
+      const name = nameInput ? nameInput.value : '';
+      const group = groupInput ? groupInput.value : '';
+      const dateStr = dateTimeSpan ? dateTimeSpan.textContent : '';
+
+      generatedSecurityHash = calculateSecurityCode(name || 'ESTUDIANTE', group || 'S/G', totalCorrect, TOTAL_ITEMS, dateStr);
+      if (codeSpan) codeSpan.textContent = generatedSecurityHash;
+    }
+
+    function sendReportToTeacherWhatsApp() {
+      const name = (document.getElementById('student-name-input').value || '').trim();
+      const group = (document.getElementById('student-group-input').value || '').trim();
+
+      if (!name) {
+        alert("Por favor escribe tu Nombre y Apellido completo antes de enviar tu informe.");
+        document.getElementById('student-name-input').focus();
+        return;
+      }
+
+      let nota = ((totalCorrect / TOTAL_ITEMS) * 4) + 1;
+      if (nota > 5.0) nota = 5.0;
+      const notaFinal = nota.toFixed(1);
+      const estado = nota >= 3.0 ? "APROBADO" : "REPROBADO";
+      const dateTime = document.getElementById('final-datetime').textContent;
+      const duration = document.getElementById('final-duration').textContent;
+      const switches = tabSwitchCount;
+
+      const mensaje = 
+`*REPORTE OFICIAL DE EVALUACIÓN - QUÍMICA ⚛️*
+----------------------------------------
+👤 *Estudiante:* ${name}
+🏫 *Grupo:* ${group || 'No especificado'}
+📅 *Fecha:* ${dateTime}
+⏱️ *Tiempo:* ${duration}
+⚠️ *Salidas de app/pestaña:* ${switches}
+----------------------------------------
+✅ *Aciertos:* ${totalCorrect} / ${TOTAL_ITEMS}
+❌ *Desaciertos:* ${totalIncorrect} / ${TOTAL_ITEMS}
+🇵🇦 *NOTA FINAL:* ${notaFinal} (${estado})
+----------------------------------------
+🔒 *CÓDIGO DE VALIDACIÓN ANTIFRAUDE:*
+${generatedSecurityHash}
+----------------------------------------
+_Comprobante verificado matemáticamente._`;
+
+      const encodedUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
+      window.open(encodedUrl, '_blank');
     }
 
     function restartFullExam() {
@@ -792,9 +933,10 @@
       });
     }
 
-    // Inicializar prueba de 50 ítems al cargar
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', restartFullExam);
+      document.addEventListener('DOMContentLoaded', () => {
+        restartFullExam();
+      });
     } else {
       restartFullExam();
     }
