@@ -347,7 +347,8 @@
     <!-- Pie de página -->
     <footer class="bg-slate-950/80 border-t border-slate-800 px-4 py-2 text-center text-[11px] sm:text-xs text-slate-500 flex justify-between items-center gap-2">
       <span>Desafío Tabla Periódica ⚛️</span>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button onclick="runQuickTestDemo()" class="text-amber-400 hover:text-amber-300 font-medium underline transition" title="Simula un examen terminado para ver el certificado y probar WhatsApp">🧪 Demo Rápida</button>
         <button onclick="openVerifierModal()" class="text-cyan-400 hover:text-cyan-300 font-medium underline transition">🔍 Verificar Código</button>
         <button onclick="restartFullExam()" class="hover:text-slate-300 underline transition">Reiniciar prueba</button>
       </div>
@@ -471,6 +472,7 @@
 
     const TOTAL_ITEMS = 50;
     const PROF_SECRET_SALT = "QUIMICA_PANAMA_PROF_ORTIZ_2026"; // Clave secreta para firma criptográfica
+    const TEACHER_PHONE = "50761074877"; // WhatsApp Oficial del Profesor Edwin Ortiz (+507 6107-4877)
 
     let currentMode = 'mixed';
     let currentItemIndex = 0;
@@ -903,8 +905,24 @@ ${generatedSecurityHash}
 ----------------------------------------
 _Comprobante verificado matemáticamente._`;
 
-      const encodedUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
+      const targetPhone = TEACHER_PHONE ? `phone=${TEACHER_PHONE}&` : '';
+      const encodedUrl = `https://api.whatsapp.com/send?${targetPhone}text=${encodeURIComponent(mensaje)}`;
       window.open(encodedUrl, '_blank');
+    }
+
+    function runQuickTestDemo() {
+      totalCorrect = 47;
+      totalIncorrect = 3;
+      currentItemIndex = 49;
+      examStartTime = new Date(Date.now() - 252000); // 4 minutos y 12 segundos atrás
+      tabSwitchCount = 0;
+      showFinalCertificate();
+
+      const nameInput = document.getElementById('student-name-input');
+      const groupInput = document.getElementById('student-group-input');
+      if (nameInput) nameInput.value = "Estudiante Demostración (Edwin)";
+      if (groupInput) groupInput.value = "10° Ciencias A";
+      updateCertificateSecurity();
     }
 
     function openVerifierModal() {
@@ -1064,12 +1082,18 @@ _Comprobante verificado matemáticamente._`;
       });
     }
 
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
+    function initApp() {
+      if (window.location.search.includes('demo=1') || window.location.search.includes('test=1')) {
+        runQuickTestDemo();
+      } else {
         restartFullExam();
-      });
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
     } else {
-      restartFullExam();
+      initApp();
     }
   </script>
 </body>
