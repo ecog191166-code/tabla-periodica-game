@@ -381,6 +381,9 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
+          <button onclick="runLiveStudentDemo()" class="px-2.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1 shadow transition active:scale-95" title="Simula en vivo un estudiante respondiendo y enviando su nota">
+            <span>▶️</span> Simulación en Vivo
+          </button>
           <button onclick="downloadDatabaseCSV()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow transition active:scale-95">
             <span>📥</span> Exportar Excel
           </button>
@@ -467,9 +470,9 @@
       <div class="flex items-center gap-2 sm:gap-3">
         <!-- Herramientas visibles ÚNICAMENTE para el Profesor -->
         <div id="teacher-footer-tools" class="hidden items-center gap-2 sm:gap-3">
-          <button onclick="switchTab('teacher')" class="text-amber-400 hover:text-amber-300 font-bold underline transition">👨‍🏫 Evaluaciones</button>
-          <button onclick="openVerifierModal()" class="text-cyan-400 hover:text-cyan-300 font-medium underline transition">🔍 Validar Código</button>
-          <button onclick="runQuickTestDemo()" class="text-slate-400 hover:text-slate-300 underline transition text-[10px]" title="Simula un examen para probar">🧪 Demo</button>
+          <button onclick="runLiveStudentDemo()" class="text-amber-400 hover:text-amber-300 font-bold underline transition text-[11px]" title="Simula en vivo a un alumno respondiendo 50 preguntas y enviando">▶️ Probar Alumno</button>
+          <button onclick="switchTab('teacher')" class="text-cyan-400 hover:text-cyan-300 font-bold underline transition">👨‍🏫 Evaluaciones</button>
+          <button onclick="openVerifierModal()" class="text-slate-300 hover:text-white font-medium underline transition text-[11px]">🔍 Validar Código</button>
           <button onclick="exitTeacherMode()" class="text-rose-400 hover:text-rose-300 underline transition text-[10px]" title="Cerrar sesión de profesor">Cerrar Sesión</button>
         </div>
         <button onclick="restartFullExam()" class="hover:text-slate-300 underline transition">Reiniciar prueba</button>
@@ -1173,14 +1176,14 @@
       }
     }
 
-    function sendOfficialCodeToTeacherDatabase() {
+    function sendOfficialCodeToTeacherDatabase(isSilent = false) {
       const nameInput = document.getElementById('student-name-input');
       const groupInput = document.getElementById('student-group-input');
       const name = (nameInput ? nameInput.value : '').trim();
       const group = (groupInput ? groupInput.value : '').trim();
 
       if (!name || name.length < 3) {
-        alert("Por favor escribe tu Nombre y Apellido completo antes de enviar tu evaluación.");
+        if (!isSilent) alert("Por favor escribe tu Nombre y Apellido completo antes de enviar tu evaluación.");
         if (nameInput) nameInput.focus();
         return;
       }
@@ -1221,7 +1224,9 @@
       }
 
       playSound('correct');
-      alert(`¡Evaluación enviada con éxito, ${name}!\n\nNota: ${notaStr}\nCódigo Oficial: ${generatedSecurityHash}\n\nHa quedado registrado en el panel del Profesor Edwin Ortiz.`);
+      if (!isSilent) {
+        alert(`¡Evaluación enviada con éxito, ${name}!\n\nNota: ${notaStr}\nCódigo Oficial: ${generatedSecurityHash}\n\nHa quedado registrado en el panel del Profesor Edwin Ortiz.`);
+      }
     }
 
     function copyCertificateCode() {
@@ -1981,9 +1986,110 @@
       });
     }
 
+    let isSimulating = false;
+
+    async function runLiveStudentDemo() {
+      if (isSimulating) return;
+      isSimulating = true;
+
+      // 1. Iniciar prueba limpia para el estudiante
+      switchTab('play');
+      restartFullExam();
+
+      // Banner flotante para que Edwin vea cada paso en vivo
+      let simBanner = document.getElementById('live-sim-banner');
+      if (!simBanner) {
+        simBanner = document.createElement('div');
+        simBanner.id = 'live-sim-banner';
+        simBanner.className = 'fixed top-3 left-1/2 -translate-x-1/2 z-50 bg-amber-500 text-slate-950 font-black px-4 py-2 rounded-2xl shadow-2xl flex items-center gap-2 text-xs border-2 border-white';
+        document.body.appendChild(simBanner);
+      }
+      simBanner.classList.remove('hidden');
+      simBanner.className = 'fixed top-3 left-1/2 -translate-x-1/2 z-50 bg-amber-500 text-slate-950 font-black px-4 py-2 rounded-2xl shadow-2xl flex items-center gap-2 text-xs border-2 border-white';
+      simBanner.innerHTML = `<span>⚡</span> Simulando Alumno en Vivo: resolviendo 50 ítems...`;
+
+      // Simular respuestas en tiempo real (150ms por ítem para ver el progreso fluido)
+      for (let i = 0; i < TOTAL_ITEMS; i++) {
+        await new Promise(r => setTimeout(r, 150));
+
+        const buttons = Array.from(document.querySelectorAll('#options-grid button'));
+        let targetBtn = buttons.find(b => parseInt(b.dataset.z, 10) === currentElement.z) || buttons[0];
+        
+        // Simular 2 desaciertos realistas
+        if (i === 11 || i === 33) {
+          targetBtn = buttons.find(b => parseInt(b.dataset.z, 10) !== currentElement.z) || buttons[0];
+        }
+
+        if (targetBtn) {
+          targetBtn.click();
+        }
+
+        simBanner.innerHTML = `<span>⚡</span> Alumno respondiendo ítem ${i + 1} de 50... (Aciertos: ${totalCorrect})`;
+
+        await new Promise(r => setTimeout(r, 90));
+
+        if (i < TOTAL_ITEMS - 1) {
+          nextQuestion();
+        } else {
+          const nextBtn = document.getElementById('next-btn');
+          if (nextBtn) nextBtn.click();
+        }
+      }
+
+      simBanner.innerHTML = `<span>🎓</span> ¡50 ítems listos! El estudiante escribe sus datos...`;
+      await new Promise(r => setTimeout(r, 1200));
+
+      const nameInput = document.getElementById('student-name-input');
+      const groupInput = document.getElementById('student-group-input');
+      const studentName = "Edwin Ortiz Jr. (Prueba en Vivo)";
+      const studentGroup = "10° Ciencias A";
+
+      if (nameInput) {
+        nameInput.value = "";
+        for (let char of studentName) {
+          nameInput.value += char;
+          nameInput.dispatchEvent(new Event('input'));
+          await new Promise(r => setTimeout(r, 25));
+        }
+      }
+
+      if (groupInput) {
+        groupInput.value = "";
+        for (let char of studentGroup) {
+          groupInput.value += char;
+          groupInput.dispatchEvent(new Event('input'));
+          await new Promise(r => setTimeout(r, 25));
+        }
+      }
+
+      simBanner.innerHTML = `<span>🚀</span> Alumno haciendo clic en 'Enviar mi Código Oficial al Profesor'...`;
+      await new Promise(r => setTimeout(r, 1300));
+
+      // Enviar a la base de datos sin alert bloqueante
+      sendOfficialCodeToTeacherDatabase(true);
+
+      simBanner.innerHTML = `<span>👨‍🏫</span> ¡Enviado! Abriendo el Panel Docente para ver la nota en la tabla...`;
+      await new Promise(r => setTimeout(r, 1800));
+
+      // Activar modo profesor y mostrar el panel docente con la nota recibida
+      activateTeacherMode(false);
+      switchTab('teacher');
+
+      simBanner.className = 'fixed top-3 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white font-black px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-2 text-xs border-2 border-white animate-bounce';
+      simBanner.innerHTML = `<span>✅</span> ¡Simulación completada! Mira el alumno en la cima de tu tabla docente.`;
+
+      setTimeout(() => {
+        if (simBanner) simBanner.remove();
+      }, 7000);
+
+      isSimulating = false;
+    }
+
     function initApp() {
       checkTeacherModeAuto();
-      if (window.location.search.includes('demo=1') || window.location.search.includes('test=1')) {
+      if (window.location.search.includes('simulacion=1') || window.location.search.includes('simular=1')) {
+        setTimeout(runLiveStudentDemo, 800);
+      } else if (window.location.search.includes('demo=1') || window.location.search.includes('test=1')) {
         runQuickTestDemo();
       } else {
         restartFullExam();
