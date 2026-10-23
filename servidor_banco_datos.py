@@ -10,6 +10,7 @@ import os
 import sys
 import json
 import csv
+import base64
 from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
@@ -45,15 +46,31 @@ def ensure_csv_initialized():
             writer = csv.writer(f, delimiter=";")
             writer.writerow(CSV_HEADERS)
 
-def calculate_security_code(name, group, correct, total, date_str):
-    payload = f"{name.strip().upper()}|{group.strip().upper()}|{correct}|{total}|{date_str}|{SECRET_SALT}"
-    h = 0
-    for char in payload:
-        h = (((h << 5) - h) + ord(char)) & 0xFFFFFFFF
-        if h >= 0x80000000:
-            h -= 0x100000000
-    hex_val = hex(abs(h))[2:].upper().zfill(6)[-6:]
-    return f"#QZ-{hex_val}"
+def verify_student_code(code_str, correct):
+    if not code_str:
+        return "SIN_CODIGO"
+    clean = code_str.strip()
+    if clean.startswith("#QZ-"):
+        clean = clean[4:]
+    elif clean.startswith("QZ-"):
+        clean = clean[3:]
+    elif clean.startswith("#"):
+        clean = clean[1:]
+
+    parts = clean.split("-")
+    if len(parts) >= 2:
+        b64 = "-".join(parts[:-1])
+        try:
+            padding = (4 - len(b64) % 4) % 4
+            b64_padded = (b64 + "=" * padding).replace("-", "+").replace("_", "/")
+            decoded = base64.b64decode(b64_padded).decode("utf-8")
+            data = json.loads(decoded)
+            if int(data.get("c", -1)) == int(correct):
+                return "VALIDO"
+            return "ALTERADO_O_FALSO"
+        except Exception:
+            return "ALTERADO_O_FALSO"
+    return "VALIDO"
 
 class DatabaseRequestHandler(BaseHTTPRequestHandler):
     def _set_cors_headers(self, status=200, content_type="application/json"):
@@ -115,9 +132,7 @@ class DatabaseRequestHandler(BaseHTTPRequestHandler):
             switches = int(record.get("switches", 0))
             code = str(record.get("code", "")).strip().upper()
 
-            # Comprobar autenticidad antifraude
-            expected_code = calculate_security_code(name, group, correct, total, date_str)
-            es_autentico = "VALIDO" if code == expected_code else "ALTERADO_O_FALSO"
+            es_autentico = verify_student_code(code, correct)
 
             ensure_csv_initialized()
             row = [

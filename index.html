@@ -283,22 +283,34 @@
             <span>⚠️ Salidas de pestaña:</span>
             <strong id="final-tab-switches" class="font-mono text-amber-400 text-[10px]">0 veces</strong>
           </div>
-          <div class="flex justify-between items-center pt-1.5 border-t border-blue-500/20 text-xs">
-            <span class="text-blue-300 font-bold">🔒 Código Antifraude:</span>
-            <span id="final-security-code" class="font-mono font-black text-emerald-400 bg-slate-950 px-2 py-0.5 rounded border border-emerald-500/40 text-xs">
-              #QZ-000000
-            </span>
+          <div class="flex flex-col gap-1.5 pt-2 border-t border-blue-500/20">
+            <span class="text-blue-300 font-bold text-xs">🔒 Código Oficial de Certificación:</span>
+            <div class="flex items-center gap-2">
+              <input 
+                type="text" 
+                id="final-security-code" 
+                readonly 
+                class="flex-1 font-mono font-bold text-emerald-400 bg-slate-950 px-2.5 py-2 rounded-xl border border-emerald-500/40 text-[11px] select-all tracking-tight truncate focus:outline-none"
+                value="#QZ-000000"
+              />
+              <button 
+                onclick="copyCertificateCode()" 
+                id="btn-copy-code-sm"
+                class="px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition flex items-center gap-1.5 active:scale-95 whitespace-nowrap shadow">
+                <span>📋</span> Copiar
+              </button>
+            </div>
           </div>
         </div>
 
         <p class="text-[10px] text-slate-500 italic text-center mt-2">
-          * Este código valida matemáticamente la autenticidad de la nota y del estudiante ante el profesor.
+          * Este código valida matemáticamente tu nombre, fecha y aciertos ante el profesor.
         </p>
       </div>
 
-      <!-- Botón de Envío por WhatsApp -->
-      <button onclick="sendReportToTeacherWhatsApp()" class="w-full max-w-lg px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl transition flex items-center justify-center gap-2 active:scale-95">
-        <span class="text-lg">📲</span> Enviar Reporte Oficial por WhatsApp al Profesor
+      <!-- Botón Copiar Código Oficial para entregar al Profesor -->
+      <button onclick="copyCertificateCode()" id="btn-copy-code-lg" class="w-full max-w-lg px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl transition flex items-center justify-center gap-2 active:scale-95">
+        <span class="text-lg">📋</span> Copiar mi Código Oficial para el Profesor
       </button>
 
       <!-- Botón Nuevo Intento -->
@@ -383,22 +395,22 @@
           <span>🔄</span> Sincronizar a Carpeta Local
         </button>
         <button onclick="togglePasteWhatsAppArea()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-semibold transition flex items-center gap-1">
-          <span>📋</span> Pegar WhatsApps Recibidos
+          <span>📋</span> Pegar Códigos de Alumnos
         </button>
         <button onclick="clearDatabase()" class="px-2.5 py-1.5 rounded-xl text-rose-400 hover:text-rose-300 transition text-[11px] ml-auto">
           🗑️ Vaciar
         </button>
       </div>
 
-      <!-- Zona de pegar múltiples mensajes de WhatsApp -->
+      <!-- Zona de pegar múltiples códigos de estudiantes -->
       <div id="bulk-whatsapp-box" class="hidden mb-3 p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs">
         <label class="block text-slate-300 font-semibold mb-1">
-          Pega aquí el reporte o los reportes de WhatsApp que te enviaron tus estudiantes:
+          Pega aquí el código o los códigos (#QZ-...) de tus estudiantes (uno por línea):
         </label>
-        <textarea id="bulk-whatsapp-input" rows="3" placeholder="Pega uno o varios mensajes de WhatsApp de tus alumnos..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500 text-xs font-mono"></textarea>
+        <textarea id="bulk-whatsapp-input" rows="3" placeholder="Pega aquí los códigos #QZ-... de tus alumnos..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500 text-xs font-mono"></textarea>
         <div class="flex justify-between items-center mt-2">
-          <span class="text-[10px] text-slate-500">Se validará cada código antifraude automáticamente.</span>
-          <button onclick="processBulkWhatsApp()" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs">
+          <span class="text-[10px] text-slate-500">Se validará matemáticamente cada código antes de agregarse.</span>
+          <button onclick="processBulkCodes()" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs">
             Validar y Agregar
           </button>
         </div>
@@ -434,55 +446,39 @@
   </div>
 
   <!-- Modal Validador Docente Antifraude -->
-  <div id="verifier-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div id="verifier-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative">
       <button onclick="closeVerifierModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
       <div class="flex items-center gap-2 mb-2">
         <span class="text-xl">🔍</span>
-        <h3 class="text-base font-bold text-white">Validador Docente de Códigos</h3>
+        <h3 class="text-base font-bold text-white">Validador de Código de Estudiante</h3>
       </div>
-      <p class="text-xs text-slate-400 mb-3 leading-relaxed">
-        Pega abajo el texto que te envió el estudiante por WhatsApp para comprobar al instante si su nota o su nombre fueron alterados.
+      <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+        Pega abajo el código oficial que te entregó el estudiante. La app determinará al instante si es correcto y revelará su nota y datos originales.
       </p>
 
-      <div class="space-y-2.5 text-xs">
+      <div class="space-y-3 text-xs">
         <div>
-          <label class="block text-slate-400 font-medium mb-1">Pegar mensaje de WhatsApp (Autocompletar):</label>
-          <textarea id="verify-paste-box" rows="2" placeholder="Pega aquí el reporte recibido por WhatsApp..." oninput="autoFillFromWhatsApp()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-cyan-500"></textarea>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-slate-400 mb-0.5">Nombre Alumno:</label>
-            <input type="text" id="verify-name" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-slate-200 focus:outline-none focus:border-cyan-500">
-          </div>
-          <div>
-            <label class="block text-slate-400 mb-0.5">Grupo:</label>
-            <input type="text" id="verify-group" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-slate-200 focus:outline-none focus:border-cyan-500">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-slate-400 mb-0.5">Aciertos (de 50):</label>
-            <input type="number" id="verify-correct" min="0" max="50" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-slate-200 focus:outline-none focus:border-cyan-500">
-          </div>
-          <div>
-            <label class="block text-slate-400 mb-0.5">Fecha y Hora:</label>
-            <input type="text" id="verify-datetime" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-slate-200 focus:outline-none focus:border-cyan-500">
+          <label class="block text-slate-300 font-semibold mb-1.5">Código del Estudiante (#QZ-...):</label>
+          <div class="flex gap-2">
+            <input 
+              type="text" 
+              id="verify-single-code-input" 
+              placeholder="Pega aquí el código #QZ-..." 
+              oninput="executeDirectCodeVerification()"
+              class="flex-1 font-mono bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-cyan-300 placeholder-slate-600 focus:outline-none focus:border-cyan-500 text-xs select-all tracking-wide"
+            />
+            <button onclick="pasteFromClipboardToVerifier()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-semibold text-xs transition active:scale-95 whitespace-nowrap">
+              📋 Pegar
+            </button>
           </div>
         </div>
 
-        <div>
-          <label class="block text-slate-400 mb-0.5">Código Antifraude (#QZ-XXXXXX):</label>
-          <input type="text" id="verify-code" placeholder="#QZ-000000" class="w-full font-mono bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-amber-300 uppercase focus:outline-none focus:border-cyan-500">
-        </div>
-
-        <button onclick="executeVerification()" class="w-full mt-2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition active:scale-95">
-          Comprobar Autenticidad
+        <button onclick="executeDirectCodeVerification()" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition active:scale-95 shadow">
+          Validar Código
         </button>
 
-        <div id="verify-result" class="hidden mt-3 p-3 rounded-2xl border text-xs text-center font-medium leading-relaxed"></div>
+        <div id="verify-result" class="hidden mt-3 p-3.5 rounded-2xl border text-xs leading-relaxed"></div>
       </div>
     </div>
   </div>
@@ -550,7 +546,6 @@
 
     const TOTAL_ITEMS = 50;
     const PROF_SECRET_SALT = "QUIMICA_PANAMA_PROF_ORTIZ_2026"; // Clave secreta para firma criptográfica
-    const TEACHER_PHONE = "50761074877"; // WhatsApp Oficial del Profesor Edwin Ortiz (+507 6107-4877)
 
     let currentMode = 'mixed';
     let currentItemIndex = 0;
@@ -860,17 +855,74 @@
       }
     }
 
-    // Generador criptográfico de firma antifraude
-    function calculateSecurityCode(name, group, correct, total, dateStr) {
-      const payload = `${name.trim().toUpperCase()}|${group.trim().toUpperCase()}|${correct}|${total}|${dateStr}|${PROF_SECRET_SALT}`;
-      let hash = 0;
-      for (let i = 0; i < payload.length; i++) {
-        const char = payload.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash |= 0;
+    // Generador criptográfico de firma y token antifraude
+    function generateSignature(str, salt) {
+      let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+      const s = str + '|' + salt;
+      for (let i = 0; i < s.length; i++) {
+        const ch = s.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
       }
-      const hex = Math.abs(hash).toString(16).toUpperCase().padStart(6, '0').slice(-6);
-      return `#QZ-${hex}`;
+      h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+      h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+      const val = 4294967296 * (2097151 & h2) + (h1 >>> 0);
+      return Math.abs(val).toString(16).toUpperCase().padStart(8, '0').slice(-8);
+    }
+
+    function encodePayload(str) {
+      const utf8Bytes = new TextEncoder().encode(str);
+      let binary = '';
+      for (let i = 0; i < utf8Bytes.length; i++) binary += String.fromCharCode(utf8Bytes[i]);
+      return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    function decodePayload(base64) {
+      let b64 = base64.replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      const binary = atob(b64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      return new TextDecoder().decode(bytes);
+    }
+
+    function createStudentCertificateCode(name, group, correct, total, switches, duration, datetime) {
+      const data = {
+        n: (name || 'ESTUDIANTE').trim().toUpperCase(),
+        g: (group || 'S/G').trim().toUpperCase(),
+        c: correct,
+        t: total,
+        s: switches,
+        dur: duration,
+        d: datetime
+      };
+      const json = JSON.stringify(data);
+      const sig = generateSignature(json, PROF_SECRET_SALT);
+      const b64 = encodePayload(json);
+      return '#QZ-' + b64 + '-' + sig;
+    }
+
+    function verifyStudentCertificateCode(token) {
+      if (!token) return { valid: false, error: 'Código vacío' };
+      let clean = token.trim();
+      if (clean.startsWith('#QZ-')) clean = clean.slice(4);
+      else if (clean.startsWith('QZ-')) clean = clean.slice(3);
+      else if (clean.startsWith('#')) clean = clean.slice(1);
+
+      const parts = clean.split('-');
+      if (parts.length < 2) return { valid: false, error: 'Formato incorrecto' };
+      const sig = parts.pop();
+      const b64 = parts.join('-');
+
+      try {
+        const json = decodePayload(b64);
+        const expectedSig = generateSignature(json, PROF_SECRET_SALT);
+        if (sig !== expectedSig) return { valid: false, error: 'Firma manipulada' };
+        const data = JSON.parse(json);
+        return { valid: true, data: data };
+      } catch(e) {
+        return { valid: false, error: 'Datos no válidos' };
+      }
     }
 
     function showFinalCertificate() {
@@ -936,73 +988,195 @@
     function updateCertificateSecurity() {
       const nameInput = document.getElementById('student-name-input');
       const groupInput = document.getElementById('student-group-input');
-      const codeSpan = document.getElementById('final-security-code');
+      const codeInput = document.getElementById('final-security-code');
       const dateTimeSpan = document.getElementById('final-datetime');
+      const durationSpan = document.getElementById('final-duration');
 
       const name = nameInput ? nameInput.value : '';
       const group = groupInput ? groupInput.value : '';
       const dateStr = dateTimeSpan ? dateTimeSpan.textContent : '';
+      const duration = durationSpan ? durationSpan.textContent : '0s';
 
-      generatedSecurityHash = calculateSecurityCode(name || 'ESTUDIANTE', group || 'S/G', totalCorrect, TOTAL_ITEMS, dateStr);
-      if (codeSpan) codeSpan.textContent = generatedSecurityHash;
+      generatedSecurityHash = createStudentCertificateCode(
+        name || 'ESTUDIANTE',
+        group || 'S/G',
+        totalCorrect,
+        TOTAL_ITEMS,
+        tabSwitchCount,
+        duration,
+        dateStr
+      );
+
+      if (codeInput) codeInput.value = generatedSecurityHash;
 
       if (name && name.trim().length >= 3) {
         let nota = ((totalCorrect / TOTAL_ITEMS) * 4) + 1;
         if (nota > 5.0) nota = 5.0;
         addRecordToDatabase({
           datetime: dateStr,
-          name: name.trim(),
-          group: group.trim() || 'S/G',
+          name: name.trim().toUpperCase(),
+          group: (group || 'S/G').trim().toUpperCase(),
           correct: totalCorrect,
           total: TOTAL_ITEMS,
           grade: nota.toFixed(1),
           status: nota >= 3.0 ? "APROBADO" : "REPROBADO",
-          duration: document.getElementById('final-duration').textContent || "0s",
+          duration: duration,
           switches: tabSwitchCount,
           code: generatedSecurityHash
         }, true);
       }
     }
 
-    function sendReportToTeacherWhatsApp() {
-      const name = (document.getElementById('student-name-input').value || '').trim();
-      const group = (document.getElementById('student-group-input').value || '').trim();
+    function copyCertificateCode() {
+      const codeInput = document.getElementById('final-security-code');
+      const code = codeInput ? codeInput.value : generatedSecurityHash;
+      if (!code) return;
 
-      if (!name) {
-        alert("Por favor escribe tu Nombre y Apellido completo antes de enviar tu informe.");
-        document.getElementById('student-name-input').focus();
+      navigator.clipboard.writeText(code).then(() => {
+        showCopyNotification("¡Código oficial copiado!");
+      }).catch(() => {
+        if (codeInput) {
+          codeInput.select();
+          document.execCommand('copy');
+        }
+        showCopyNotification("¡Código oficial copiado!");
+      });
+    }
+
+    function showCopyNotification(msg) {
+      const btnSm = document.getElementById('btn-copy-code-sm');
+      const btnLg = document.getElementById('btn-copy-code-lg');
+      if (btnSm) {
+        btnSm.innerHTML = `<span>✅</span> ¡Copiado!`;
+        btnSm.className = "px-3 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs transition flex items-center gap-1.5 shadow";
+        setTimeout(() => {
+          btnSm.innerHTML = `<span>📋</span> Copiar`;
+          btnSm.className = "px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition flex items-center gap-1.5 shadow";
+        }, 2500);
+      }
+      if (btnLg) {
+        btnLg.innerHTML = `<span class="text-lg">✅</span> ¡Código Oficial Copiado al Portapapeles!`;
+        btnLg.className = "w-full max-w-lg px-5 py-3 rounded-2xl bg-cyan-600 text-white font-bold text-sm shadow-xl transition flex items-center justify-center gap-2";
+        setTimeout(() => {
+          btnLg.innerHTML = `<span class="text-lg">📋</span> Copiar mi Código Oficial para el Profesor`;
+          btnLg.className = "w-full max-w-lg px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl transition flex items-center justify-center gap-2";
+        }, 2500);
+      }
+    }
+
+    let lastVerifiedStudentData = null;
+
+    function openVerifierModal() {
+      const modal = document.getElementById('verifier-modal');
+      if (modal) modal.classList.remove('hidden');
+      const input = document.getElementById('verify-single-code-input');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+      const resultBox = document.getElementById('verify-result');
+      if (resultBox) resultBox.classList.add('hidden');
+      lastVerifiedStudentData = null;
+    }
+
+    function closeVerifierModal() {
+      const modal = document.getElementById('verifier-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function executeDirectCodeVerification() {
+      const input = document.getElementById('verify-single-code-input');
+      const code = (input ? input.value : '').trim();
+      const resultBox = document.getElementById('verify-result');
+      if (!resultBox) return;
+
+      if (!code) {
+        resultBox.classList.add('hidden');
+        lastVerifiedStudentData = null;
         return;
       }
 
-      let nota = ((totalCorrect / TOTAL_ITEMS) * 4) + 1;
+      const res = verifyStudentCertificateCode(code);
+      if (res.valid) {
+        const d = res.data;
+        lastVerifiedStudentData = { ...d, code: code.startsWith('#') ? code : '#' + code };
+        let nota = ((d.c / (d.t || 50)) * 4) + 1;
+        if (nota > 5.0) nota = 5.0;
+        const notaStr = nota.toFixed(1);
+        const isPass = parseFloat(notaStr) >= 3.0;
+
+        resultBox.className = "mt-3 p-3.5 rounded-2xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-300 text-xs text-left";
+        resultBox.innerHTML = `
+          <div class="font-black text-sm text-emerald-400 mb-2 flex items-center gap-1.5">
+            <span>✅</span> CÓDIGO 100% AUTÉNTICO Y VÁLIDO
+          </div>
+          <div class="space-y-1 text-slate-200">
+            <div>👤 <strong>Estudiante:</strong> <span class="text-white font-bold">${d.n}</span></div>
+            <div>🏫 <strong>Grupo:</strong> <span class="text-cyan-300">${d.g}</span></div>
+            <div>📅 <strong>Fecha:</strong> <span class="text-slate-300">${d.d || '--'}</span></div>
+            <div>⏱️ <strong>Duración:</strong> <span class="text-slate-300">${d.dur || 'N/D'}</span></div>
+            <div>⚠️ <strong>Salidas de pantalla:</strong> <span class="${d.s > 0 ? 'text-rose-400 font-bold' : 'text-emerald-400 font-bold'}">${d.s || 0} vez/veces</span></div>
+            <div class="pt-2 mt-2 border-t border-emerald-500/30 flex justify-between items-center text-xs">
+              <span>Aciertos: <strong class="text-white">${d.c} / ${d.t || 50}</strong></span>
+              <span class="text-sm font-black ${isPass ? 'text-emerald-400' : 'text-rose-400'}">Nota Panamá: ${notaStr} (${isPass ? 'APROBADO' : 'REPROBADO'})</span>
+            </div>
+          </div>
+          <button onclick="saveCurrentDecodedToDB()" class="mt-3 w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition active:scale-95 flex items-center justify-center gap-1.5">
+            <span>💾</span> Guardar en Banco de Datos Docente (Excel)
+          </button>
+        `;
+      } else {
+        lastVerifiedStudentData = null;
+        resultBox.className = "mt-3 p-3.5 rounded-2xl border border-rose-500/50 bg-rose-950/40 text-rose-300 text-xs text-left";
+        resultBox.innerHTML = `
+          <div class="font-black text-sm text-rose-400 mb-1 flex items-center gap-1.5">
+            <span>❌</span> CÓDIGO INVÁLIDO O ALTERADO
+          </div>
+          <p class="text-slate-300">Este código no es auténtico, pertenece a otra prueba o fue modificado. Ningún dato fue certificado.</p>
+        `;
+      }
+      resultBox.classList.remove('hidden');
+    }
+
+    async function pasteFromClipboardToVerifier() {
+      try {
+        const text = await navigator.clipboard.readText();
+        const input = document.getElementById('verify-single-code-input');
+        if (input && text) {
+          input.value = text.trim();
+          executeDirectCodeVerification();
+        }
+      } catch (e) {
+        const input = document.getElementById('verify-single-code-input');
+        if (input) {
+          input.focus();
+          input.select();
+        }
+        alert("Presiona Ctrl+V para pegar el código en el recuadro.");
+      }
+    }
+
+    function saveCurrentDecodedToDB() {
+      if (!lastVerifiedStudentData) return;
+      const d = lastVerifiedStudentData;
+      let nota = ((d.c / (d.t || 50)) * 4) + 1;
       if (nota > 5.0) nota = 5.0;
-      const notaFinal = nota.toFixed(1);
-      const estado = nota >= 3.0 ? "APROBADO" : "REPROBADO";
-      const dateTime = document.getElementById('final-datetime').textContent;
-      const duration = document.getElementById('final-duration').textContent;
-      const switches = tabSwitchCount;
+      const notaStr = nota.toFixed(1);
 
-      const mensaje = 
-`*REPORTE OFICIAL DE EVALUACIÓN - QUÍMICA ⚛️*
-----------------------------------------
-👤 *Estudiante:* ${name}
-🏫 *Grupo:* ${group || 'No especificado'}
-📅 *Fecha:* ${dateTime}
-⏱️ *Tiempo:* ${duration}
-⚠️ *Salidas de app/pestaña:* ${switches}
-----------------------------------------
-✅ *Aciertos:* ${totalCorrect} / ${TOTAL_ITEMS}
-❌ *Desaciertos:* ${totalIncorrect} / ${TOTAL_ITEMS}
-🇵🇦 *NOTA FINAL:* ${notaFinal} (${estado})
-----------------------------------------
-🔒 *CÓDIGO DE VALIDACIÓN ANTIFRAUDE:*
-${generatedSecurityHash}
-----------------------------------------
-_Comprobante verificado matemáticamente._`;
+      addRecordToDatabase({
+        datetime: d.d || '--',
+        name: d.n,
+        group: d.g || 'S/G',
+        correct: d.c,
+        total: d.t || 50,
+        grade: notaStr,
+        status: parseFloat(notaStr) >= 3.0 ? "APROBADO" : "REPROBADO",
+        duration: d.dur || 'N/D',
+        switches: d.s || 0,
+        code: d.code
+      }, true);
 
-      const targetPhone = TEACHER_PHONE ? `phone=${TEACHER_PHONE}&` : '';
-      const encodedUrl = `https://api.whatsapp.com/send?${targetPhone}text=${encodeURIComponent(mensaje)}`;
-      window.open(encodedUrl, '_blank');
+      alert(`¡Calificación de ${d.n} guardada con éxito en el banco de datos!`);
     }
 
     function runQuickTestDemo() {
@@ -1018,83 +1192,6 @@ _Comprobante verificado matemáticamente._`;
       if (nameInput) nameInput.value = "Estudiante Demostración (Edwin)";
       if (groupInput) groupInput.value = "10° Ciencias A";
       updateCertificateSecurity();
-    }
-
-    function openVerifierModal() {
-      const modal = document.getElementById('verifier-modal');
-      if (modal) modal.classList.remove('hidden');
-    }
-
-    function closeVerifierModal() {
-      const modal = document.getElementById('verifier-modal');
-      if (modal) modal.classList.add('hidden');
-    }
-
-    function autoFillFromWhatsApp() {
-      const text = document.getElementById('verify-paste-box').value || '';
-      
-      const nameMatch = text.match(/Estudiante:\*\s*(.+)/i);
-      const groupMatch = text.match(/Grupo:\*\s*(.+)/i);
-      const dateMatch = text.match(/Fecha:\*\s*(.+)/i);
-      const scoreMatch = text.match(/Aciertos:\*\s*(\d+)/i);
-      const codeMatch = text.match(/(#QZ-[A-F0-9]{4,8})/i);
-
-      if (nameMatch) document.getElementById('verify-name').value = nameMatch[1].trim();
-      if (groupMatch) document.getElementById('verify-group').value = groupMatch[1].trim();
-      if (dateMatch) document.getElementById('verify-datetime').value = dateMatch[1].trim();
-      if (scoreMatch) document.getElementById('verify-correct').value = scoreMatch[1].trim();
-      if (codeMatch) document.getElementById('verify-code').value = codeMatch[1].trim();
-
-      if (nameMatch && scoreMatch && codeMatch) {
-        executeVerification();
-      }
-    }
-
-    function executeVerification() {
-      const name = (document.getElementById('verify-name').value || '').trim();
-      const group = (document.getElementById('verify-group').value || '').trim();
-      const correct = parseInt(document.getElementById('verify-correct').value, 10);
-      const dateStr = (document.getElementById('verify-datetime').value || '').trim();
-      const inputCode = (document.getElementById('verify-code').value || '').trim().toUpperCase();
-      const resultBox = document.getElementById('verify-result');
-
-      if (!name || isNaN(correct) || !inputCode) {
-        resultBox.className = "mt-3 p-3 rounded-2xl border border-amber-500/50 bg-amber-950/40 text-amber-300 text-xs";
-        resultBox.textContent = "Por favor completa el nombre, los aciertos y el código para verificar.";
-        resultBox.classList.remove('hidden');
-        return;
-      }
-
-      const expectedCode = calculateSecurityCode(name, group || 'S/G', correct, TOTAL_ITEMS, dateStr);
-      let calculatedGrade = ((correct / TOTAL_ITEMS) * 4) + 1;
-      if (calculatedGrade > 5.0) calculatedGrade = 5.0;
-
-      if (expectedCode === inputCode) {
-        resultBox.className = "mt-3 p-3 rounded-2xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-300 text-xs text-left";
-        resultBox.innerHTML = `
-          <div class="font-bold text-sm text-emerald-400 mb-1 flex items-center gap-1.5">
-            <span>✅</span> REPORTE 100% AUTÉNTICO Y VÁLIDO
-          </div>
-          <p class="text-slate-300">El código <strong>${inputCode}</strong> es legítimo para el estudiante <strong>${name}</strong>.</p>
-          <div class="mt-2 pt-2 border-t border-emerald-500/20 text-[11px] text-slate-300 flex justify-between">
-            <span>Nota Panamá: <strong class="text-white">${calculatedGrade.toFixed(1)}</strong></span>
-            <span>Aciertos: <strong class="text-white">${correct} / ${TOTAL_ITEMS}</strong></span>
-          </div>
-          <button onclick="saveCurrentVerifiedToDB('${name}', '${group || 'S/G'}', ${correct}, ${TOTAL_ITEMS}, '${calculatedGrade.toFixed(1)}', '${dateStr}', '${inputCode}')" class="mt-2.5 w-full py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition active:scale-95 shadow">
-            💾 Agregar al Banco de Datos Docente
-          </button>
-        `;
-      } else {
-        resultBox.className = "mt-3 p-3 rounded-2xl border border-rose-500/50 bg-rose-950/40 text-rose-300 text-xs text-left";
-        resultBox.innerHTML = `
-          <div class="font-bold text-sm text-rose-400 mb-1 flex items-center gap-1.5">
-            <span>❌</span> ADVERTENCIA: REPORTE ALTERADO O FALSO
-          </div>
-          <p class="text-slate-300">El código ingresado <strong>${inputCode}</strong> no coincide con los datos del reporte. El estudiante pudo haber modificado la nota, el nombre o la fecha.</p>
-          <p class="mt-1 text-[11px] text-rose-300/80">Código esperado para estos datos: <code>${expectedCode}</code></p>
-        `;
-      }
-      resultBox.classList.remove('hidden');
     }
 
     const DB_STORAGE_KEY = 'quimica_panama_calificaciones_db';
@@ -1279,93 +1376,61 @@ _Comprobante verificado matemáticamente._`;
       if (box) box.classList.toggle('hidden');
     }
 
-    function processBulkWhatsApp() {
+    function processBulkCodes() {
       const text = (document.getElementById('bulk-whatsapp-input').value || '').trim();
       if (!text) {
-        alert("Por favor pega al menos un reporte de WhatsApp.");
+        alert("Por favor pega uno o varios códigos (#QZ-...).");
+        return;
+      }
+
+      // Buscar patrones de códigos #QZ-... o QZ-...
+      const tokens = text.match(/(?:#?QZ-[A-Za-z0-9_-]+)/g);
+      if (!tokens || tokens.length === 0) {
+        alert("No se encontraron códigos con formato #QZ-... en el texto.");
         return;
       }
 
       let added = 0;
       let rejected = 0;
 
-      const studentMatches = text.matchAll(/👤\s*\*?Estudiante:\*?\s*([^\n\r]+)[\s\S]*?🏫\s*\*?Grupo:\*?\s*([^\n\r]+)[\s\S]*?📅\s*\*?Fecha:\*?\s*([^\n\r]+)[\s\S]*?⏱️\s*\*?Tiempo:\*?\s*([^\n\r]+)[\s\S]*?⚠️\s*\*?Salidas[^\n\r]*:\*?\s*(\d+)[\s\S]*?✅\s*\*?Aciertos:\*?\s*(\d+)[\s\S]*?🇵🇦\s*\*?NOTA FINAL:\*?\s*([\d\.]+)[\s\S]*?🔒\s*\*?CÓDIGO[^\n\r]*:\*?\s*(#QZ-[A-F0-9]+)/gi);
+      tokens.forEach(tok => {
+        const res = verifyStudentCertificateCode(tok);
+        if (res.valid) {
+          const d = res.data;
+          let nota = ((d.c / (d.t || 50)) * 4) + 1;
+          if (nota > 5.0) nota = 5.0;
+          const notaStr = nota.toFixed(1);
 
-      for (const match of studentMatches) {
-        const name = match[1].trim();
-        const group = match[2].trim();
-        const dateStr = match[3].trim();
-        const duration = match[4].trim();
-        const switches = parseInt(match[5], 10);
-        const correct = parseInt(match[6], 10);
-        const grade = match[7].trim();
-        const code = match[8].trim().toUpperCase();
-
-        const expected = calculateSecurityCode(name, group || 'S/G', correct, TOTAL_ITEMS, dateStr);
-        if (expected === code) {
           addRecordToDatabase({
-            datetime: dateStr,
-            name: name,
-            group: group,
-            correct: correct,
-            total: TOTAL_ITEMS,
-            grade: grade,
-            status: parseFloat(grade) >= 3.0 ? "APROBADO" : "REPROBADO",
-            duration: duration,
-            switches: switches,
-            code: code
+            datetime: d.d || '--',
+            name: d.n,
+            group: d.g || 'S/G',
+            correct: d.c,
+            total: d.t || 50,
+            grade: notaStr,
+            status: parseFloat(notaStr) >= 3.0 ? "APROBADO" : "REPROBADO",
+            duration: d.dur || 'N/D',
+            switches: d.s || 0,
+            code: tok.startsWith('#') ? tok : '#' + tok
           }, true);
           added++;
         } else {
           rejected++;
         }
-      }
-
-      if (added === 0 && rejected === 0) {
-        const nameM = text.match(/Estudiante:\*\s*(.+)/i);
-        const groupM = text.match(/Grupo:\*\s*(.+)/i);
-        const dateM = text.match(/Fecha:\*\s*(.+)/i);
-        const scoreM = text.match(/Aciertos:\*\s*(\d+)/i);
-        const codeM = text.match(/(#QZ-[A-F0-9]+)/i);
-
-        if (nameM && scoreM && codeM) {
-          const name = nameM[1].trim();
-          const group = groupM ? groupM[1].trim() : 'S/G';
-          const dateStr = dateM ? dateM[1].trim() : '';
-          const correct = parseInt(scoreM[1], 10);
-          const code = codeM[1].trim().toUpperCase();
-          const expected = calculateSecurityCode(name, group, correct, TOTAL_ITEMS, dateStr);
-
-          if (expected === code) {
-            let nota = ((correct / TOTAL_ITEMS) * 4) + 1;
-            if (nota > 5.0) nota = 5.0;
-            addRecordToDatabase({
-              datetime: dateStr,
-              name: name,
-              group: group,
-              correct: correct,
-              total: TOTAL_ITEMS,
-              grade: nota.toFixed(1),
-              status: nota >= 3.0 ? "APROBADO" : "REPROBADO",
-              duration: "Reportado",
-              switches: 0,
-              code: code
-            }, true);
-            added++;
-          } else {
-            rejected++;
-          }
-        }
-      }
+      });
 
       renderDatabaseTable();
       document.getElementById('bulk-whatsapp-input').value = '';
 
       if (added > 0) {
-        alert(`¡Listo! Se agregaron ${added} estudiante(s) al banco de datos.` + (rejected > 0 ? `\n⚠️ Se ignoraron ${rejected} reporte(s) por código antifraude inválido.` : ''));
+        alert(`¡Listo! Se agregaron ${added} estudiante(s) verificados al banco de datos.` + (rejected > 0 ? `\n⚠️ Se ignoraron ${rejected} código(s) por ser inválidos o alterados.` : ''));
       } else {
-        alert("No se pudieron extraer datos válidos del texto pegado o los códigos eran inválidos.");
+        alert("Todos los códigos pegados eran inválidos o alterados.");
       }
+    }
+
+    function processBulkWhatsApp() {
+      processBulkCodes();
     }
 
     function clearDatabase() {
