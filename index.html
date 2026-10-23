@@ -81,7 +81,7 @@
           <button id="tab-explore-btn" onclick="switchTab('explore')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition">
             📖 Repaso
           </button>
-          <button id="tab-teacher-btn" onclick="switchTab('teacher')" class="hidden px-2.5 py-1 rounded-md text-amber-400 hover:text-amber-300 font-bold transition flex items-center gap-1">
+          <button id="tab-teacher-btn" onclick="handleTeacherTabClick()" class="px-2.5 py-1 rounded-md text-amber-400 hover:text-amber-300 font-bold transition flex items-center gap-1">
             <span>👨‍🏫</span> Panel Docente
           </button>
         </div>
@@ -471,13 +471,49 @@
         <!-- Herramientas visibles ÚNICAMENTE para el Profesor -->
         <div id="teacher-footer-tools" class="hidden items-center gap-2 sm:gap-3">
           <button onclick="runLiveStudentDemo()" class="text-amber-400 hover:text-amber-300 font-bold underline transition text-[11px]" title="Simula en vivo a un alumno respondiendo 50 preguntas y enviando">▶️ Probar Alumno</button>
-          <button onclick="switchTab('teacher')" class="text-cyan-400 hover:text-cyan-300 font-bold underline transition">👨‍🏫 Evaluaciones</button>
+          <button onclick="handleTeacherTabClick()" class="text-cyan-400 hover:text-cyan-300 font-bold underline transition">👨‍🏫 Evaluaciones</button>
           <button onclick="openVerifierModal()" class="text-slate-300 hover:text-white font-medium underline transition text-[11px]">🔍 Validar Código</button>
           <button onclick="exitTeacherMode()" class="text-rose-400 hover:text-rose-300 underline transition text-[10px]" title="Cerrar sesión de profesor">Cerrar Sesión</button>
         </div>
         <button onclick="restartFullExam()" class="hover:text-slate-300 underline transition">Reiniciar prueba</button>
       </div>
     </footer>
+  </div>
+
+  <!-- Modal de Código de Acceso al Panel Docente -->
+  <div id="teacher-auth-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 sm:p-6 shadow-2xl relative text-center">
+      <button onclick="closeTeacherAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      
+      <div class="w-12 h-12 mx-auto rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl mb-3 shadow-inner">
+        🔒
+      </div>
+      
+      <h3 class="text-base font-bold text-white mb-1">Acceso al Panel Docente</h3>
+      <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+        Ingresa el código o PIN de acceso del Profesor para ver las evaluaciones y notas recibidas:
+      </p>
+
+      <form onsubmit="submitTeacherAuth(event)" class="space-y-3">
+        <div>
+          <input 
+            type="password" 
+            id="teacher-pin-input" 
+            placeholder="Código o PIN de acceso..." 
+            autocomplete="off"
+            class="w-full text-center tracking-widest font-mono text-base bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 shadow-inner"
+          />
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition active:scale-95 shadow">
+          Desbloquear Panel
+        </button>
+
+        <div id="teacher-auth-error" class="hidden text-xs text-rose-400 font-semibold mt-2">
+          ❌ Código de acceso incorrecto.
+        </div>
+      </form>
+    </div>
   </div>
 
   <!-- Modal Banco de Datos Docente -->
@@ -1741,50 +1777,72 @@
     }
 
     const TEACHER_PIN_CODES = ["1966", "2026", "1234", "admin", "profesor"];
-    let isTeacherMode = false;
+    let isTeacherAuthenticated = false;
 
-    function requestTeacherAccess() {
-      const pin = prompt("🔒 Acceso Exclusivo del Profesor\n\nPor favor ingresa tu PIN de acceso:");
-      if (!pin) return;
-      if (TEACHER_PIN_CODES.includes(pin.trim())) {
-        activateTeacherMode(true);
+    function handleTeacherTabClick() {
+      if (isTeacherAuthenticated) {
         switchTab('teacher');
       } else {
-        alert("PIN incorrecto. Acceso denegado.");
+        openTeacherAuthModal();
       }
     }
 
-    function activateTeacherMode(shouldAlert) {
-      isTeacherMode = true;
-      try { localStorage.setItem('quimica_is_teacher', 'true'); } catch(e){}
+    function requestTeacherAccess() {
+      openTeacherAuthModal();
+    }
 
-      const teacherTabBtn = document.getElementById('tab-teacher-btn');
+    function openTeacherAuthModal() {
+      const modal = document.getElementById('teacher-auth-modal');
+      const pinInput = document.getElementById('teacher-pin-input');
+      const errorBox = document.getElementById('teacher-auth-error');
+      if (modal) modal.classList.remove('hidden');
+      if (errorBox) errorBox.classList.add('hidden');
+      if (pinInput) {
+        pinInput.value = '';
+        setTimeout(() => pinInput.focus(), 100);
+      }
+    }
+
+    function closeTeacherAuthModal() {
+      const modal = document.getElementById('teacher-auth-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function submitTeacherAuth(event) {
+      if (event) event.preventDefault();
+      const pinInput = document.getElementById('teacher-pin-input');
+      const errorBox = document.getElementById('teacher-auth-error');
+      const pin = (pinInput ? pinInput.value : '').trim();
+
+      if (TEACHER_PIN_CODES.includes(pin)) {
+        isTeacherAuthenticated = true;
+        closeTeacherAuthModal();
+        activateTeacherTools();
+        switchTab('teacher');
+      } else {
+        if (errorBox) errorBox.classList.remove('hidden');
+        if (pinInput) {
+          pinInput.select();
+          pinInput.focus();
+        }
+      }
+    }
+
+    function activateTeacherTools() {
       const teacherTools = document.getElementById('teacher-footer-tools');
       const lockBtn = document.getElementById('footer-teacher-lock');
-
-      if (teacherTabBtn) teacherTabBtn.classList.remove('hidden');
       if (teacherTools) {
         teacherTools.classList.remove('hidden');
         teacherTools.classList.add('flex');
       }
       if (lockBtn) lockBtn.classList.add('hidden');
-
       refreshTeacherDatabase();
-      if (shouldAlert) {
-        alert("¡Bienvenido, Profesor Edwin Ortiz!\nPanel Docente Activado.");
-      }
     }
 
     function exitTeacherMode() {
-      if (!confirm("¿Deseas cerrar la sesión del Profesor y ocultar el Panel Docente para los alumnos?")) return;
-      isTeacherMode = false;
-      try { localStorage.removeItem('quimica_is_teacher'); } catch(e){}
-
-      const teacherTabBtn = document.getElementById('tab-teacher-btn');
+      isTeacherAuthenticated = false;
       const teacherTools = document.getElementById('teacher-footer-tools');
       const lockBtn = document.getElementById('footer-teacher-lock');
-
-      if (teacherTabBtn) teacherTabBtn.classList.add('hidden');
       if (teacherTools) {
         teacherTools.classList.add('hidden');
         teacherTools.classList.remove('flex');
@@ -1792,19 +1850,7 @@
       if (lockBtn) lockBtn.classList.remove('hidden');
 
       switchTab('play');
-      alert("Sesión docente cerrada. El panel ahora está protegido y oculto.");
-    }
-
-    function checkTeacherModeAuto() {
-      const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const isFileProtocol = window.location.protocol === 'file:';
-      const hasTeacherParam = window.location.search.includes('profesor=1') || window.location.search.includes('admin=1');
-      let storedTeacher = false;
-      try { storedTeacher = localStorage.getItem('quimica_is_teacher') === 'true'; } catch(e){}
-
-      if (isLocalHost || isFileProtocol || hasTeacherParam || storedTeacher) {
-        activateTeacherMode(false);
-      }
+      alert("Sesión de profesor cerrada. El panel ahora requiere código de acceso para volver a entrar.");
     }
 
     function renderTeacherTable() {
@@ -2072,7 +2118,8 @@
       await new Promise(r => setTimeout(r, 1800));
 
       // Activar modo profesor y mostrar el panel docente con la nota recibida
-      activateTeacherMode(false);
+      isTeacherAuthenticated = true;
+      activateTeacherTools();
       switchTab('teacher');
 
       simBanner.className = 'fixed top-3 left-1/2 -translate-x-1/2 z-50 bg-emerald-600 text-white font-black px-5 py-2.5 rounded-2xl shadow-2xl flex items-center gap-2 text-xs border-2 border-white animate-bounce';
@@ -2086,7 +2133,6 @@
     }
 
     function initApp() {
-      checkTeacherModeAuto();
       if (window.location.search.includes('simulacion=1') || window.location.search.includes('simular=1')) {
         setTimeout(runLiveStudentDemo, 800);
       } else if (window.location.search.includes('demo=1') || window.location.search.includes('test=1')) {
