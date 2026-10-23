@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#0f172a">
-  <title>Desafío Tabla Periódica - Evaluación Panamá</title>
+  <title>Desafío Tabla Periódica - 50 Ítems</title>
   
-  <meta property="og:title" content="Desafío Tabla Periódica ⚛️">
-  <meta property="og:description" content="Juego interactivo de química con sistema de evaluación (Escala 1.0 a 5.0 de Panamá).">
+  <meta property="og:title" content="Desafío Tabla Periódica - 50 Ítems ⚛️">
+  <meta property="og:description" content="Evaluación de 50 preguntas sobre la tabla periódica con nota oficial de Panamá.">
   <meta property="og:type" content="website">
 
   <!-- CDN oficial de Tailwind CSS -->
@@ -52,7 +52,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start sm:justify-center p-2 sm:p-4">
 
-  <!-- Contenedor Principal Proporcional: Se ajusta perfectamente en Celulares y Laptops -->
+  <!-- Contenedor Principal Adaptable -->
   <div id="game-container" class="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col my-auto">
     
     <!-- Encabezado Compacto -->
@@ -65,7 +65,7 @@
           <h1 class="text-sm sm:text-base font-bold tracking-tight text-white leading-tight">
             Desafío Tabla Periódica
           </h1>
-          <p class="text-[11px] sm:text-xs text-slate-400">Química Interactiva</p>
+          <p class="text-[11px] sm:text-xs text-slate-400">Prueba de 50 Ítems</p>
         </div>
       </div>
 
@@ -73,7 +73,7 @@
       <div class="flex items-center gap-1.5">
         <div class="flex items-center bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-xs font-medium">
           <button id="tab-play-btn" onclick="switchTab('play')" class="px-2.5 py-1 rounded-md bg-blue-600 text-white font-semibold shadow-sm transition">
-            🎮 Jugar
+            🎮 Evaluación
           </button>
           <button id="tab-explore-btn" onclick="switchTab('explore')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition">
             📖 Repaso
@@ -85,10 +85,19 @@
       </div>
     </header>
 
-    <!-- Panel de Juego -->
+    <!-- Barra de Progreso de 50 Ítems -->
+    <div id="progress-container" class="bg-slate-950 border-b border-slate-800 px-3.5 sm:px-5 py-2 flex items-center justify-between gap-3 text-xs">
+      <span id="item-counter" class="font-bold text-blue-400 whitespace-nowrap">Ítem 1 de 50</span>
+      <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex-1">
+        <div id="progress-bar" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-full transition-all duration-300" style="width: 2%;"></div>
+      </div>
+      <span id="progress-percent" class="text-slate-400 font-mono text-[11px]">2%</span>
+    </div>
+
+    <!-- Panel de Juego Principal -->
     <main id="play-panel" class="p-3 sm:p-5 flex flex-col gap-3 sm:gap-4">
       
-      <!-- Marcadores de Evaluación (4 campos limpios y simétricos) -->
+      <!-- Marcadores de Evaluación: 4 campos limpios -->
       <div class="grid grid-cols-4 gap-1.5 sm:gap-2.5 text-center">
         <!-- 1. Puntos -->
         <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-1.5 sm:p-2.5">
@@ -115,16 +124,16 @@
         </div>
       </div>
 
-      <!-- Selectores de Modo y Sonido -->
-      <div class="flex items-center justify-between gap-1.5 bg-slate-950/60 px-2 py-1.5 rounded-xl border border-slate-800/80 text-xs">
+      <!-- Selectores de Modo y Sonido (Mixto 100% activo y funcional) -->
+      <div class="flex items-center justify-between gap-1.5 bg-slate-950/60 px-2.5 py-1.5 rounded-xl border border-slate-800/80 text-xs">
         <div class="flex items-center gap-1 sm:gap-1.5 flex-wrap">
-          <button id="mode-sym-to-name" onclick="setGameMode('sym-to-name')" class="px-2 sm:px-2.5 py-1 rounded-lg bg-blue-600/30 border border-blue-500/50 text-blue-300 font-bold transition text-[11px] sm:text-xs">
+          <button id="mode-sym-to-name" onclick="setGameMode('sym-to-name')" class="px-2 sm:px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-[11px] sm:text-xs">
             Símbolo ➔ Nombre
           </button>
           <button id="mode-name-to-sym" onclick="setGameMode('name-to-sym')" class="px-2 sm:px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-[11px] sm:text-xs">
             Nombre ➔ Símbolo
           </button>
-          <button id="mode-mixed" onclick="setGameMode('mixed')" class="px-2 sm:px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-[11px] sm:text-xs">
+          <button id="mode-mixed" onclick="setGameMode('mixed')" class="px-2 sm:px-2.5 py-1 rounded-lg bg-blue-600/30 border border-blue-500/50 text-blue-300 font-bold transition text-[11px] sm:text-xs">
             🎲 Mixto
           </button>
         </div>
@@ -134,18 +143,24 @@
         </button>
       </div>
 
-      <!-- Ficha Química Central Proporcional (Se lee claro sin ocupar toda la pantalla) -->
+      <!-- Ficha Química Central -->
       <div id="question-card" class="bg-gradient-to-b from-slate-800/90 to-slate-900 border border-slate-700/80 rounded-2xl p-3.5 sm:p-5 flex flex-col items-center justify-center text-center relative overflow-hidden element-card-glow transition-all">
         
-        <div id="category-badge" class="px-3 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 mb-2">
-          No metales
+        <!-- Badge de Familia Química y Modo Actual -->
+        <div class="flex items-center gap-1.5 mb-2">
+          <span id="category-badge" class="px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+            No metales
+          </span>
+          <span id="type-badge" class="px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold bg-blue-500/10 text-blue-300 border border-blue-500/20">
+            Pregunta
+          </span>
         </div>
         
         <h2 id="prompt-question" class="text-slate-100 text-xs sm:text-sm md:text-base font-bold mb-2.5 max-w-xl">
-          ¿Cuál es el nombre correspondiente a este símbolo?
+          <!-- Texto de pregunta dinámico -->
         </h2>
 
-        <!-- Ficha Química Equilibrada -->
+        <!-- Ficha Química -->
         <div class="element-main-box w-28 h-32 sm:w-36 sm:h-40 rounded-2xl bg-slate-950 border-2 border-blue-500/70 p-2 sm:p-3 flex flex-col justify-between items-center shadow-lg relative my-1">
           <div class="w-full flex justify-between items-center px-0.5">
             <span id="atomic-number" class="text-xs sm:text-sm font-mono font-bold text-cyan-400">
@@ -156,7 +171,7 @@
             </span>
           </div>
 
-          <div id="element-display" class="element-symbol-txt text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 tracking-tight my-auto select-none">
+          <div id="element-display" class="element-symbol-txt text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 tracking-tight my-auto select-none">
             H
           </div>
 
@@ -165,7 +180,7 @@
           </div>
         </div>
 
-        <!-- Pista Científica Compacta -->
+        <!-- Pista Científica -->
         <div class="mt-2.5 px-3 py-1.5 rounded-xl bg-slate-950/80 border border-slate-800 max-w-lg w-full text-center">
           <p id="hint-text" class="text-xs sm:text-sm text-slate-300 italic">
             💡 <strong class="text-blue-400 not-italic">Pista:</strong> El elemento más abundante del universo.
@@ -175,7 +190,7 @@
 
       <!-- Opciones de Respuesta en 2 Columnas Limpias -->
       <div id="options-grid" class="grid grid-cols-2 gap-2 sm:gap-2.5">
-        <!-- Botones limpios -->
+        <!-- Generadas dinámicamente -->
       </div>
 
       <!-- Mensaje de Feedback -->
@@ -187,13 +202,51 @@
             <p id="feedback-detail" class="text-slate-300 text-[11px] sm:text-xs"></p>
           </div>
         </div>
-        <button onclick="nextQuestion()" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow transition whitespace-nowrap">
-          Siguiente ➔
+        <button id="next-btn" onclick="nextQuestion()" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow transition whitespace-nowrap">
+          Siguiente Ítem ➔
         </button>
       </div>
     </main>
 
-    <!-- Panel de Exploración / Repaso -->
+    <!-- Pantalla de Resultados Finales (Aparece tras responder los 50 ítems) -->
+    <section id="results-panel" class="hidden p-5 sm:p-8 flex flex-col items-center justify-center text-center gap-4">
+      <div class="w-16 h-16 rounded-3xl bg-blue-500/20 border-2 border-blue-400 flex items-center justify-center text-3xl shadow-lg">
+        🎓
+      </div>
+
+      <div>
+        <h2 class="text-xl sm:text-2xl font-black text-white">Evaluación Completada</h2>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">Has respondido los 50 ítems de la prueba química.</p>
+      </div>
+
+      <!-- Tarjeta de Calificación Final Panamá -->
+      <div class="bg-gradient-to-b from-blue-950/60 to-slate-950 border-2 border-blue-500/60 rounded-3xl p-5 sm:p-6 w-full max-w-md shadow-2xl flex flex-col items-center">
+        <span class="text-xs font-bold text-blue-300 uppercase tracking-wider">Calificación Final 🇵🇦</span>
+        <span id="final-grade" class="text-5xl sm:text-6xl font-black my-2">1.0</span>
+        <span id="final-status-badge" class="px-3 py-1 rounded-full text-xs font-bold">Estado</span>
+        
+        <div class="grid grid-cols-3 gap-2 w-full mt-5 pt-4 border-t border-slate-800 text-center">
+          <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block">Aciertos</span>
+            <span id="final-correct" class="text-base sm:text-lg font-bold text-emerald-400">0 / 50</span>
+          </div>
+          <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block">Desaciertos</span>
+            <span id="final-incorrect" class="text-base sm:text-lg font-bold text-rose-400">0 / 50</span>
+          </div>
+          <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block">Rendimiento</span>
+            <span id="final-percent" class="text-base sm:text-lg font-bold text-blue-400">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="restartFullExam()" class="px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm sm:text-base shadow-xl transition flex items-center gap-2 active:scale-95">
+        🔄 Iniciar Nuevo Intento (50 Ítems)
+      </button>
+    </section>
+
+    <!-- Panel de Repaso / Exploración -->
     <section id="explore-panel" class="hidden p-3 sm:p-5 flex flex-col gap-3">
       <div class="flex flex-col sm:flex-row gap-2">
         <input 
@@ -231,13 +284,14 @@
     </section>
 
     <!-- Pie de página Compacto -->
-    <footer class="bg-slate-950/80 border-t border-slate-800 px-4 py-2.5 text-center text-[11px] sm:text-xs text-slate-500 flex justify-between items-center gap-2">
+    <footer class="bg-slate-950/80 border-t border-slate-800 px-4 py-2 text-center text-[11px] sm:text-xs text-slate-500 flex justify-between items-center gap-2">
       <span>Desafío Tabla Periódica ⚛️</span>
-      <button onclick="resetGameStats()" class="hover:text-slate-300 underline transition">Reiniciar</button>
+      <button onclick="restartFullExam()" class="hover:text-slate-300 underline transition">Reiniciar prueba</button>
     </footer>
   </div>
 
   <script>
+    // Banco extenso de elementos químicos representativos
     const ELEMENTS = [
       { z: 1, s: "H", n: "Hidrógeno", m: 1.008, c: "No metales", d: "El más ligero y abundante del universo." },
       { z: 2, s: "He", n: "Helio", m: 4.0026, c: "Gases nobles", d: "Gas inerte descubierto en el espectro del Sol." },
@@ -298,16 +352,22 @@
       { z: 94, s: "Pu", n: "Plutonio", m: 244, c: "Lantánidos y Actínidos", d: "Elemento artificial fisionable clave." }
     ];
 
-    let currentMode = 'sym-to-name';
+    const TOTAL_ITEMS = 50;
+
+    // Variables de Estado de la Evaluación
+    let currentMode = 'mixed'; // Predeterminado en Mixto
+    let currentItemIndex = 0; // De 0 a 49 (Total 50)
+    let examElements = []; // Lista de 50 elementos para esta prueba
+    let examTypes = []; // Lista de tipo de pregunta para cada uno de los 50 items
     let currentElement = null;
-    let currentType = 'sym-to-name';
+    let currentType = 'sym-to-name'; // 'sym-to-name' o 'name-to-sym'
     let score = 0;
     let totalCorrect = 0;
     let totalIncorrect = 0;
-    let streak = 0;
     let isAnswered = false;
     let soundEnabled = true;
 
+    // Web Audio sintetizador
     let audioCtx = null;
 
     function playSound(type) {
@@ -341,15 +401,20 @@
           gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
           osc.start(now);
           osc.stop(now + 0.25);
-        } else if (type === 'streak') {
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(523.25, now);
-          osc.frequency.setValueAtTime(659.25, now + 0.08);
-          osc.frequency.setValueAtTime(783.99, now + 0.16);
-          gain.gain.setValueAtTime(0.15, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-          osc.start(now);
-          osc.stop(now + 0.3);
+        } else if (type === 'fanfare') {
+          // Sonido triunfal al terminar los 50 items
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.connect(g);
+            g.connect(audioCtx.destination);
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(freq, now + idx * 0.1);
+            g.gain.setValueAtTime(0.2, now + idx * 0.1);
+            g.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.1 + 0.35);
+            o.start(now + idx * 0.1);
+            o.stop(now + idx * 0.1 + 0.35);
+          });
         }
       } catch (e) {}
     }
@@ -378,15 +443,53 @@
         const btn = document.getElementById('mode-' + m);
         if (!btn) return;
         if (m === mode) {
-          btn.className = "px-2.5 py-1 rounded-lg bg-blue-600/30 border border-blue-500/50 text-blue-300 font-bold transition text-[11px] sm:text-xs";
+          btn.className = "px-2 sm:px-2.5 py-1 rounded-lg bg-blue-600/30 border border-blue-500/50 text-blue-300 font-bold transition text-[11px] sm:text-xs";
         } else {
-          btn.className = "px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-[11px] sm:text-xs";
+          btn.className = "px-2 sm:px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-[11px] sm:text-xs";
         }
       });
-      generateQuestion();
+      restartFullExam();
     }
 
-    function generateQuestion() {
+    // Preparar los 50 ítems de la prueba garantizando variedad sin repetir
+    function prepareExam() {
+      currentItemIndex = 0;
+      score = 0;
+      totalCorrect = 0;
+      totalIncorrect = 0;
+
+      // Barajar banco de elementos
+      const shuffled = [...ELEMENTS].sort(() => Math.random() - 0.5);
+      examElements = shuffled.slice(0, TOTAL_ITEMS);
+
+      // Si hay menos de 50 en el slice, rellenar aleatoriamente
+      while (examElements.length < TOTAL_ITEMS) {
+        examElements.push(ELEMENTS[Math.floor(Math.random() * ELEMENTS.length)]);
+      }
+
+      // Preparar modalidades de preguntas para los 50 ítems
+      examTypes = [];
+      for (let i = 0; i < TOTAL_ITEMS; i++) {
+        if (currentMode === 'mixed') {
+          // En modo mixto, alterna equitativamente entre Nombre y Símbolo
+          examTypes.push(i % 2 === 0 ? 'sym-to-name' : 'name-to-sym');
+        } else {
+          examTypes.push(currentMode);
+        }
+      }
+
+      // Mezclar los tipos en modo mixto para que no sea predecible
+      if (currentMode === 'mixed') {
+        examTypes.sort(() => Math.random() - 0.5);
+      }
+    }
+
+    function generateCurrentItem() {
+      if (currentItemIndex >= TOTAL_ITEMS) {
+        showFinalResults();
+        return;
+      }
+
       isAnswered = false;
       const feedbackBox = document.getElementById('feedback-box');
       if (feedbackBox) feedbackBox.classList.add('hidden');
@@ -394,19 +497,23 @@
       const qCard = document.getElementById('question-card');
       if (qCard) qCard.classList.remove('pulse-correct', 'shake-error');
 
-      const randomIndex = Math.floor(Math.random() * ELEMENTS.length);
-      currentElement = ELEMENTS[randomIndex];
+      // Actualizar contador y barra de progreso
+      const itemNum = currentItemIndex + 1;
+      const percent = Math.round((itemNum / TOTAL_ITEMS) * 100);
+      document.getElementById('item-counter').textContent = `Ítem ${itemNum} de ${TOTAL_ITEMS}`;
+      document.getElementById('progress-bar').style.width = `${percent}%`;
+      document.getElementById('progress-percent').textContent = `${percent}%`;
 
-      if (currentMode === 'mixed') {
-        currentType = Math.random() > 0.5 ? 'sym-to-name' : 'name-to-sym';
-      } else {
-        currentType = currentMode;
-      }
+      // Elemento y tipo correspondiente a este ítem
+      currentElement = examElements[currentItemIndex];
+      currentType = examTypes[currentItemIndex];
 
       const atomicNumberEl = document.getElementById('atomic-number');
       const atomicMassEl = document.getElementById('atomic-mass');
       const elementDisplayEl = document.getElementById('element-display');
+      const elementSubtextEl = document.getElementById('element-subtext');
       const categoryBadge = document.getElementById('category-badge');
+      const typeBadge = document.getElementById('type-badge');
       const promptQuestion = document.getElementById('prompt-question');
       const hintText = document.getElementById('hint-text');
 
@@ -417,18 +524,30 @@
         hintText.innerHTML = `💡 <strong class="text-blue-400 not-italic">Pista:</strong> ${currentElement.d}`;
       }
 
+      // Configuración 100% Funcional del Modo Mixto y Fichas:
       if (currentType === 'sym-to-name') {
-        if (promptQuestion) {
-          promptQuestion.innerHTML = `¿Cuál es el <strong>nombre</strong> del elemento con símbolo <span class="text-blue-400 font-black text-sm sm:text-base md:text-lg">${currentElement.s}</span>?`;
-        }
-        if (elementDisplayEl) elementDisplayEl.textContent = currentElement.s;
+        // PREGUNTA: TE DA EL SÍMBOLO -> ELIGES EL NOMBRE
+        typeBadge.textContent = "Símbolo ➔ Nombre";
+        typeBadge.className = "px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30";
+        
+        promptQuestion.innerHTML = `¿Cuál es el <strong>nombre</strong> del elemento con símbolo <span class="text-blue-400 font-black text-sm sm:text-base md:text-lg">${currentElement.s}</span>?`;
+        
+        elementDisplayEl.textContent = currentElement.s;
+        elementDisplayEl.className = "element-symbol-txt text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 tracking-tight my-auto select-none";
+        elementSubtextEl.textContent = "Símbolo Químico";
       } else {
-        if (promptQuestion) {
-          promptQuestion.innerHTML = `¿Cuál es el <strong>símbolo químico</strong> de <span class="text-teal-300 font-black text-sm sm:text-base md:text-lg">${currentElement.n}</span>?`;
-        }
-        if (elementDisplayEl) elementDisplayEl.textContent = "?";
+        // PREGUNTA: TE DA EL NOMBRE -> ELIGES EL SÍMBOLO
+        typeBadge.textContent = "Nombre ➔ Símbolo";
+        typeBadge.className = "px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30";
+        
+        promptQuestion.innerHTML = `¿Cuál es el <strong>símbolo químico</strong> de <span class="text-teal-300 font-black text-sm sm:text-base md:text-lg">${currentElement.n}</span>?`;
+        
+        elementDisplayEl.textContent = currentElement.n;
+        elementDisplayEl.className = "element-symbol-txt text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-cyan-300 to-blue-400 tracking-tight my-auto px-1 select-none text-center";
+        elementSubtextEl.textContent = "¿Cuál es su símbolo?";
       }
 
+      // Generar 4 opciones limpias (3 distractores)
       const options = [currentElement];
       while (options.length < 4) {
         const randOpt = ELEMENTS[Math.floor(Math.random() * ELEMENTS.length)];
@@ -443,7 +562,6 @@
       if (!optionsGrid) return;
       optionsGrid.innerHTML = '';
 
-      // Opciones limpias y tamaño equilibrado
       options.forEach(opt => {
         const btn = document.createElement('button');
         const textToDisplay = currentType === 'sym-to-name' ? opt.n : opt.s;
@@ -466,6 +584,7 @@
       const feedbackIcon = document.getElementById('feedback-icon');
       const feedbackTitle = document.getElementById('feedback-title');
       const feedbackDetail = document.getElementById('feedback-detail');
+      const nextBtn = document.getElementById('next-btn');
       const qCard = document.getElementById('question-card');
 
       const buttons = document.querySelectorAll('#options-grid button');
@@ -504,12 +623,30 @@
         }
       }
 
+      // Si es el ítem 50, preparar botón de resultados
+      if (currentItemIndex === TOTAL_ITEMS - 1) {
+        if (nextBtn) {
+          nextBtn.textContent = "Ver Calificación Final 🎓";
+          nextBtn.className = "px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm shadow-lg transition whitespace-nowrap animate-pulse";
+        }
+      } else {
+        if (nextBtn) {
+          nextBtn.textContent = "Siguiente Ítem ➔";
+          nextBtn.className = "px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow transition whitespace-nowrap";
+        }
+      }
+
       if (feedbackBox) feedbackBox.classList.remove('hidden');
       updateStats();
     }
 
     function nextQuestion() {
-      generateQuestion();
+      currentItemIndex++;
+      if (currentItemIndex >= TOTAL_ITEMS) {
+        showFinalResults();
+      } else {
+        generateCurrentItem();
+      }
     }
 
     function updateStats() {
@@ -523,7 +660,7 @@
       if (iVal) iVal.textContent = totalIncorrect;
 
       // Fórmula oficial Panamá: (Aciertos / 50 * 4) + 1
-      let nota = ((totalCorrect / 50) * 4) + 1;
+      let nota = ((totalCorrect / TOTAL_ITEMS) * 4) + 1;
       if (nota > 5.0) nota = 5.0;
       const notaFormateada = nota.toFixed(1);
 
@@ -537,30 +674,74 @@
       }
     }
 
-    function resetGameStats() {
-      score = 0;
-      totalCorrect = 0;
-      totalIncorrect = 0;
+    // Pantalla de resultados al finalizar los 50 ítems
+    function showFinalResults() {
+      playSound('fanfare');
+      document.getElementById('play-panel').classList.add('hidden');
+      document.getElementById('explore-panel').classList.add('hidden');
+      document.getElementById('progress-container').classList.add('hidden');
+      document.getElementById('results-panel').classList.remove('hidden');
+
+      let nota = ((totalCorrect / TOTAL_ITEMS) * 4) + 1;
+      if (nota > 5.0) nota = 5.0;
+      const notaFinal = nota.toFixed(1);
+
+      const fGrade = document.getElementById('final-grade');
+      const fStatus = document.getElementById('final-status-badge');
+      const fCorrect = document.getElementById('final-correct');
+      const fIncorrect = document.getElementById('final-incorrect');
+      const fPercent = document.getElementById('final-percent');
+
+      fGrade.textContent = notaFinal;
+      fCorrect.textContent = `${totalCorrect} / ${TOTAL_ITEMS}`;
+      fIncorrect.textContent = `${totalIncorrect} / ${TOTAL_ITEMS}`;
+      const pct = Math.round((totalCorrect / TOTAL_ITEMS) * 100);
+      fPercent.textContent = `${pct}%`;
+
+      if (nota >= 3.0) {
+        fGrade.className = "text-5xl sm:text-6xl font-black my-2 text-emerald-400";
+        fStatus.textContent = "¡APROBADO!";
+        fStatus.className = "px-4 py-1 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 uppercase tracking-wide";
+      } else {
+        fGrade.className = "text-5xl sm:text-6xl font-black my-2 text-rose-400";
+        fStatus.textContent = "REPROBADO (Mínimo 3.0)";
+        fStatus.className = "px-4 py-1 rounded-full text-xs font-black bg-rose-500/20 text-rose-300 border border-rose-500/40 uppercase tracking-wide";
+      }
+    }
+
+    function restartFullExam() {
+      document.getElementById('results-panel').classList.add('hidden');
+      document.getElementById('explore-panel').classList.add('hidden');
+      document.getElementById('play-panel').classList.remove('hidden');
+      document.getElementById('progress-container').classList.remove('hidden');
+
+      prepareExam();
       updateStats();
-      generateQuestion();
+      generateCurrentItem();
     }
 
     function switchTab(tab) {
       const playPanel = document.getElementById('play-panel');
       const explorePanel = document.getElementById('explore-panel');
+      const resultsPanel = document.getElementById('results-panel');
+      const progressContainer = document.getElementById('progress-container');
       const playBtn = document.getElementById('tab-play-btn');
       const exploreBtn = document.getElementById('tab-explore-btn');
 
       if (tab === 'play') {
-        if (playPanel) playPanel.classList.remove('hidden');
-        if (explorePanel) explorePanel.classList.add('hidden');
-        if (playBtn) playBtn.className = "px-2.5 py-1 rounded-md bg-blue-600 text-white font-semibold shadow-sm transition";
-        if (exploreBtn) exploreBtn.className = "px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition";
+        resultsPanel.classList.add('hidden');
+        explorePanel.classList.add('hidden');
+        playPanel.classList.remove('hidden');
+        progressContainer.classList.remove('hidden');
+        playBtn.className = "px-2.5 py-1 rounded-md bg-blue-600 text-white font-semibold shadow-sm transition";
+        exploreBtn.className = "px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition";
       } else {
-        if (playPanel) playPanel.classList.add('hidden');
-        if (explorePanel) explorePanel.classList.remove('hidden');
-        if (exploreBtn) exploreBtn.className = "px-2.5 py-1 rounded-md bg-blue-600 text-white font-semibold shadow-sm transition";
-        if (playBtn) playBtn.className = "px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition";
+        playPanel.classList.add('hidden');
+        resultsPanel.classList.add('hidden');
+        progressContainer.classList.add('hidden');
+        explorePanel.classList.remove('hidden');
+        exploreBtn.className = "px-2.5 py-1 rounded-md bg-blue-600 text-white font-semibold shadow-sm transition";
+        playBtn.className = "px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition";
         renderExploreElements();
       }
     }
@@ -611,14 +792,11 @@
       });
     }
 
+    // Inicializar prueba de 50 ítems al cargar
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => {
-        generateQuestion();
-        updateStats();
-      });
+      document.addEventListener('DOMContentLoaded', restartFullExam);
     } else {
-      generateQuestion();
-      updateStats();
+      restartFullExam();
     }
   </script>
 </body>
