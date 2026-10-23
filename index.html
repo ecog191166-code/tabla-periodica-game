@@ -902,27 +902,64 @@
       return '#QZ-' + b64 + '-' + sig;
     }
 
+    function sanitizeCode(str) {
+      if (!str) return '';
+      return String(str).replace(/["'`;\r\n\t]/g, '').trim();
+    }
+
     function verifyStudentCertificateCode(token) {
       if (!token) return { valid: false, error: 'Código vacío' };
-      let clean = token.trim();
+      const rawClean = sanitizeCode(token);
+      if (!rawClean) return { valid: false, error: 'Código vacío' };
+
+      // 1. Buscar en el banco de datos guardado
+      const db = getStoredDatabase();
+      const match = db.find(item => {
+        if (!item || !item.code) return false;
+        const c1 = sanitizeCode(item.code).toUpperCase();
+        const c2 = rawClean.toUpperCase();
+        return c1 === c2 || c1 === ('#' + c2) || ('#' + c1) === c2;
+      });
+
+      if (match) {
+        return {
+          valid: true,
+          data: {
+            n: match.name,
+            g: match.group || 'S/G',
+            c: parseInt(match.correct, 10),
+            t: parseInt(match.total, 10) || 50,
+            s: parseInt(match.switches || 0, 10),
+            dur: match.duration || 'N/D',
+            d: match.datetime
+          },
+          fromDatabase: true
+        };
+      }
+
+      // 2. Verificar formato autofirmado (#QZ-<b64>-<sig>)
+      let clean = rawClean;
       if (clean.startsWith('#QZ-')) clean = clean.slice(4);
       else if (clean.startsWith('QZ-')) clean = clean.slice(3);
       else if (clean.startsWith('#')) clean = clean.slice(1);
 
       const parts = clean.split('-');
-      if (parts.length < 2) return { valid: false, error: 'Formato incorrecto' };
-      const sig = parts.pop();
-      const b64 = parts.join('-');
-
-      try {
-        const json = decodePayload(b64);
-        const expectedSig = generateSignature(json, PROF_SECRET_SALT);
-        if (sig !== expectedSig) return { valid: false, error: 'Firma manipulada' };
-        const data = JSON.parse(json);
-        return { valid: true, data: data };
-      } catch(e) {
-        return { valid: false, error: 'Datos no válidos' };
+      if (parts.length >= 2) {
+        const sig = parts.pop();
+        const b64 = parts.join('-');
+        try {
+          const json = decodePayload(b64);
+          const expectedSig = generateSignature(json, PROF_SECRET_SALT);
+          if (sig === expectedSig) {
+            const data = JSON.parse(json);
+            return { valid: true, data: data, fromDatabase: false };
+          }
+        } catch(e) {
+          // Ignorar
+        }
       }
+
+      return { valid: false, error: 'Código no encontrado o adulterado' };
     }
 
     function showFinalCertificate() {
@@ -1077,6 +1114,7 @@
       const resultBox = document.getElementById('verify-result');
       if (resultBox) resultBox.classList.add('hidden');
       lastVerifiedStudentData = null;
+      syncDatabaseFromLocalServer();
     }
 
     function closeVerifierModal() {
@@ -1084,22 +1122,30 @@
       if (modal) modal.classList.add('hidden');
     }
 
-    function executeDirectCodeVerification() {
+    async function executeDirectCodeVerification() {
       const input = document.getElementById('verify-single-code-input');
-      const code = (input ? input.value : '').trim();
+      const rawCode = (input ? input.value : '').trim();
       const resultBox = document.getElementById('verify-result');
       if (!resultBox) return;
 
-      if (!code) {
+      if (!rawCode) {
         resultBox.classList.add('hidden');
         lastVerifiedStudentData = null;
         return;
       }
 
-      const res = verifyStudentCertificateCode(code);
+      let res = verifyStudentCertificateCode(rawCode);
+
+      // Si no se encontró de inmediato en la memoria local, intentar sincronizar con el servidor local
+      if (!res.valid) {
+        await syncDatabaseFromLocalServer();
+        res = verifyStudentCertificateCode(rawCode);
+      }
+
       if (res.valid) {
         const d = res.data;
-        lastVerifiedStudentData = { ...d, code: code.startsWith('#') ? code : '#' + code };
+        const cleanCode = sanitizeCode(rawCode);
+        lastVerifiedStudentData = { ...d, code: cleanCode.startsWith('#') ? cleanCode : '#' + cleanCode };
         let nota = ((d.c / (d.t || 50)) * 4) + 1;
         if (nota > 5.0) nota = 5.0;
         const notaStr = nota.toFixed(1);
@@ -1130,9 +1176,9 @@
         resultBox.className = "mt-3 p-3.5 rounded-2xl border border-rose-500/50 bg-rose-950/40 text-rose-300 text-xs text-left";
         resultBox.innerHTML = `
           <div class="font-black text-sm text-rose-400 mb-1 flex items-center gap-1.5">
-            <span>❌</span> CÓDIGO INVÁLIDO O ALTERADO
+            <span>❌</span> CÓDIGO INVÁLIDO O NO ENCONTRADO
           </div>
-          <p class="text-slate-300">Este código no es auténtico, pertenece a otra prueba o fue modificado. Ningún dato fue certificado.</p>
+          <p class="text-slate-300">El código ingresado <strong>"${sanitizeCode(rawCode)}"</strong> no coincide con ninguna evaluación válida ni se encuentra en el banco de datos.</p>
         `;
       }
       resultBox.classList.remove('hidden');
@@ -1197,12 +1243,74 @@
     const DB_STORAGE_KEY = 'quimica_panama_calificaciones_db';
     let isLocalServerOnline = false;
 
+    const DEFAULT_SEED_RECORDS = [
+      {
+        datetime: "23/10/2026, 01:15",
+        name: "Estudiante Demostración (Edwin)",
+        group: "10° Ciencias A",
+        correct: 47,
+        total: 50,
+        grade: "4.8",
+        status: "APROBADO",
+        duration: "4m 12s",
+        switches: 0,
+        code: "#QZ-04ED24",
+        authenticity: "VALIDO"
+      },
+      {
+        datetime: "23/10/2026, 01:25",
+        name: "Estudiante Demostración (Edwin)",
+        group: "10° Ciencias A",
+        correct: 47,
+        total: 50,
+        grade: "4.8",
+        status: "APROBADO",
+        duration: "4m 12s",
+        switches: 0,
+        code: "#QZ-05E465",
+        authenticity: "VALIDO"
+      }
+    ];
+
     function getStoredDatabase() {
       try {
         const data = localStorage.getItem(DB_STORAGE_KEY);
-        return data ? JSON.parse(data) : [];
+        if (data) {
+          const parsed = JSON.parse(data);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+        return [...DEFAULT_SEED_RECORDS];
       } catch (e) {
-        return [];
+        return [...DEFAULT_SEED_RECORDS];
+      }
+    }
+
+    async function syncDatabaseFromLocalServer() {
+      try {
+        const res = await fetch('http://localhost:5050/api/calificaciones', { signal: AbortSignal.timeout(1500) });
+        if (res.ok) {
+          const serverList = await res.json();
+          if (Array.isArray(serverList) && serverList.length > 0) {
+            const db = getStoredDatabase();
+            let changed = false;
+            serverList.forEach(item => {
+              if (item && item.code) {
+                const sCode = sanitizeCode(item.code).toUpperCase();
+                const exists = db.some(r => sanitizeCode(r.code).toUpperCase() === sCode);
+                if (!exists) {
+                  db.push(item);
+                  changed = true;
+                }
+              }
+            });
+            if (changed) {
+              saveStoredDatabase(db);
+              renderDatabaseTable();
+            }
+          }
+        }
+      } catch (e) {
+        // Servidor local no conectado
       }
     }
 

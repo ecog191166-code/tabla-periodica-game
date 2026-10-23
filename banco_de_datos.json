@@ -1,6 +1,6 @@
 [
   {
-    "datetime": "10/23/2026, 01:15 a. m.",
+    "datetime": "23/10/2026, 01:15",
     "name": "Estudiante Demostración (Edwin)",
     "group": "10° Ciencias A",
     "correct": 47,
@@ -13,20 +13,7 @@
     "authenticity": "VALIDO"
   },
   {
-    "datetime": "10/23/2026, 01:15 a. m.",
-    "name": "Estudiante Demostración (Edwin)",
-    "group": "10° Ciencias A",
-    "correct": 47,
-    "total": 50,
-    "grade": "4.8",
-    "status": "APROBADO",
-    "duration": "4m 12s",
-    "switches": 0,
-    "code": "#QZ-04ED24",
-    "authenticity": "VALIDO"
-  },
-  {
-    "datetime": "10/23/2026, 01:25 a. m.",
+    "datetime": "23/10/2026, 01:25",
     "name": "Estudiante Demostración (Edwin)",
     "group": "10° Ciencias A",
     "correct": 47,
