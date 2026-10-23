@@ -81,6 +81,9 @@
           <button id="tab-explore-btn" onclick="switchTab('explore')" class="px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition">
             📖 Repaso
           </button>
+          <button id="tab-teacher-btn" onclick="switchTab('teacher')" class="hidden px-2.5 py-1 rounded-md text-amber-400 hover:text-amber-300 font-bold transition flex items-center gap-1">
+            <span>👨‍🏫</span> Panel Docente
+          </button>
         </div>
         <button onclick="toggleFullscreen()" title="Pantalla completa" class="p-1.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-300 hover:text-white transition text-xs">
           ⛶
@@ -308,10 +311,18 @@
         </p>
       </div>
 
-      <!-- Botón Copiar Código Oficial para entregar al Profesor -->
-      <button onclick="copyCertificateCode()" id="btn-copy-code-lg" class="w-full max-w-lg px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl transition flex items-center justify-center gap-2 active:scale-95">
-        <span class="text-lg">📋</span> Copiar mi Código Oficial para el Profesor
+      <!-- Botón Enviar Código Oficial al Profesor -->
+      <button onclick="sendOfficialCodeToTeacherDatabase()" id="btn-submit-code-lg" class="w-full max-w-lg px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl transition flex items-center justify-center gap-2 active:scale-95">
+        <span class="text-lg">🚀</span> Enviar mi Código Oficial al Profesor
       </button>
+
+      <!-- Mensaje de Confirmación de Envío Exitoso -->
+      <div id="submit-success-banner" class="hidden w-full max-w-lg p-3 rounded-2xl bg-emerald-950/90 border border-emerald-500/60 text-emerald-300 text-xs text-center flex flex-col items-center justify-center gap-1 shadow-lg">
+        <div class="flex items-center gap-1.5 font-bold text-emerald-400">
+          <span class="text-base">✅</span> ¡Evaluación Enviada Exitosamente!
+        </div>
+        <p class="text-[11px] text-slate-300">Tus respuestas, nota y código fueron registrados automáticamente en la base de datos del Profesor Edwin Ortiz.</p>
+      </div>
 
       <!-- Botón Nuevo Intento -->
       <button onclick="restartFullExam()" class="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white transition underline">
@@ -356,14 +367,112 @@
       </div>
     </section>
 
+    <!-- Pantalla Privada del Profesor (Oculta para alumnos) -->
+    <section id="teacher-panel" class="hidden p-3.5 sm:p-5 flex flex-col gap-3">
+      <!-- Encabezado del Panel Docente -->
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-black text-lg">
+            👨‍🏫
+          </div>
+          <div>
+            <h2 class="text-sm sm:text-base font-extrabold text-white leading-tight">Panel Privado del Profesor Edwin Ortiz</h2>
+            <p class="text-[11px] text-slate-400">Estudiantes que completaron la prueba y enviaron su evaluación</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="downloadDatabaseCSV()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow transition active:scale-95">
+            <span>📥</span> Exportar Excel
+          </button>
+          <button onclick="openVerifierModal()" class="px-2.5 py-1.5 rounded-xl bg-cyan-700 hover:bg-cyan-600 text-white font-medium text-xs transition">
+            🔍 Validar
+          </button>
+        </div>
+      </div>
+
+      <!-- Métricas Resumen -->
+      <div class="grid grid-cols-4 gap-2 text-center text-xs">
+        <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+          <span class="text-[10px] text-slate-400 block font-medium">Total Alumnos</span>
+          <strong id="kpi-total-students" class="text-base sm:text-lg font-black text-white">0</strong>
+        </div>
+        <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+          <span class="text-[10px] text-slate-400 block font-medium">Promedio Nota</span>
+          <strong id="kpi-avg-grade" class="text-base sm:text-lg font-black text-cyan-300">0.0</strong>
+        </div>
+        <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+          <span class="text-[10px] text-slate-400 block font-medium">Aprobados</span>
+          <strong id="kpi-passed-students" class="text-base sm:text-lg font-black text-emerald-400">0</strong>
+        </div>
+        <div class="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800">
+          <span class="text-[10px] text-slate-400 block font-medium">Reprobados</span>
+          <strong id="kpi-failed-students" class="text-base sm:text-lg font-black text-rose-400">0</strong>
+        </div>
+      </div>
+
+      <!-- Filtros y Buscador -->
+      <div class="flex flex-col sm:flex-row gap-2 text-xs">
+        <input 
+          type="text" 
+          id="teacher-search-input" 
+          placeholder="Buscar estudiante por nombre..." 
+          oninput="renderTeacherTable()"
+          class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-amber-500"
+        />
+        <select 
+          id="teacher-group-filter" 
+          onchange="renderTeacherTable()"
+          class="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-slate-300 focus:outline-none focus:border-amber-500">
+          <option value="all">Todos los Grupos</option>
+        </select>
+        <button onclick="refreshTeacherDatabase()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition flex items-center gap-1 justify-center">
+          <span>🔄</span> Actualizar
+        </button>
+      </div>
+
+      <!-- Tabla de Estudiantes -->
+      <div class="border border-slate-800 rounded-2xl bg-slate-950/70 overflow-hidden max-h-[340px] overflow-y-auto">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-900 text-[10px] text-slate-400 uppercase tracking-wider sticky top-0 border-b border-slate-800">
+            <tr>
+              <th class="p-2">Fecha</th>
+              <th class="p-2">Estudiante</th>
+              <th class="p-2">Grupo</th>
+              <th class="p-2 text-center">Aciertos</th>
+              <th class="p-2 text-center">Nota</th>
+              <th class="p-2 text-center">Salidas</th>
+              <th class="p-2 text-center">Código Oficial</th>
+              <th class="p-2 text-center">Estado</th>
+            </tr>
+          </thead>
+          <tbody id="teacher-table-body" class="divide-y divide-slate-800/60 text-[11px]">
+            <!-- Filas generadas dinámicamente -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex justify-between items-center text-[10px] text-slate-500 px-1">
+        <span>Archivo local: <code class="text-slate-400">banco_de_datos.csv</code></span>
+        <button onclick="clearDatabase()" class="hover:text-rose-400 underline transition">Vaciar lista</button>
+      </div>
+    </section>
+
     <!-- Pie de página -->
     <footer class="bg-slate-950/80 border-t border-slate-800 px-4 py-2 text-center text-[11px] sm:text-xs text-slate-500 flex justify-between items-center gap-2">
-      <span>Desafío Tabla Periódica ⚛️</span>
+      <div class="flex items-center gap-2">
+        <span>Desafío Tabla Periódica ⚛️</span>
+        <!-- Botón discreto de acceso docente -->
+        <button onclick="requestTeacherAccess()" id="footer-teacher-lock" class="text-slate-600 hover:text-amber-400 transition text-xs" title="Acceso exclusivo del Profesor">🔒</button>
+      </div>
       <div class="flex items-center gap-2 sm:gap-3">
-        <button onclick="openDatabaseModal()" class="text-emerald-400 hover:text-emerald-300 font-semibold underline transition">📊 Banco de Datos</button>
-        <button onclick="openVerifierModal()" class="text-cyan-400 hover:text-cyan-300 font-medium underline transition">🔍 Verificar Código</button>
-        <button onclick="runQuickTestDemo()" class="text-amber-400 hover:text-amber-300 font-medium underline transition" title="Simula un examen terminado para ver el certificado y probar WhatsApp">🧪 Demo</button>
-        <button onclick="restartFullExam()" class="hover:text-slate-300 underline transition">Reiniciar</button>
+        <!-- Herramientas visibles ÚNICAMENTE para el Profesor -->
+        <div id="teacher-footer-tools" class="hidden items-center gap-2 sm:gap-3">
+          <button onclick="switchTab('teacher')" class="text-amber-400 hover:text-amber-300 font-bold underline transition">👨‍🏫 Evaluaciones</button>
+          <button onclick="openVerifierModal()" class="text-cyan-400 hover:text-cyan-300 font-medium underline transition">🔍 Validar Código</button>
+          <button onclick="runQuickTestDemo()" class="text-slate-400 hover:text-slate-300 underline transition text-[10px]" title="Simula un examen para probar">🧪 Demo</button>
+          <button onclick="exitTeacherMode()" class="text-rose-400 hover:text-rose-300 underline transition text-[10px]" title="Cerrar sesión de profesor">Cerrar Sesión</button>
+        </div>
+        <button onclick="restartFullExam()" class="hover:text-slate-300 underline transition">Reiniciar prueba</button>
       </div>
     </footer>
   </div>
@@ -1064,6 +1173,57 @@
       }
     }
 
+    function sendOfficialCodeToTeacherDatabase() {
+      const nameInput = document.getElementById('student-name-input');
+      const groupInput = document.getElementById('student-group-input');
+      const name = (nameInput ? nameInput.value : '').trim();
+      const group = (groupInput ? groupInput.value : '').trim();
+
+      if (!name || name.length < 3) {
+        alert("Por favor escribe tu Nombre y Apellido completo antes de enviar tu evaluación.");
+        if (nameInput) nameInput.focus();
+        return;
+      }
+
+      updateCertificateSecurity();
+
+      const dateStr = document.getElementById('final-datetime').textContent || '';
+      const duration = document.getElementById('final-duration').textContent || '0s';
+      let nota = ((totalCorrect / TOTAL_ITEMS) * 4) + 1;
+      if (nota > 5.0) nota = 5.0;
+      const notaStr = nota.toFixed(1);
+
+      const record = {
+        datetime: dateStr,
+        name: name.toUpperCase(),
+        group: (group || 'S/G').toUpperCase(),
+        correct: totalCorrect,
+        total: TOTAL_ITEMS,
+        grade: notaStr,
+        status: parseFloat(notaStr) >= 3.0 ? "APROBADO" : "REPROBADO",
+        duration: duration,
+        switches: tabSwitchCount,
+        code: generatedSecurityHash
+      };
+
+      addRecordToDatabase(record, true);
+
+      // Feedback visual inmediato en el botón
+      const btn = document.getElementById('btn-submit-code-lg');
+      const banner = document.getElementById('submit-success-banner');
+      if (btn) {
+        btn.innerHTML = `<span class="text-lg">✅</span> ¡Código Oficial Enviado al Profesor!`;
+        btn.className = "w-full max-w-lg px-5 py-3 rounded-2xl bg-emerald-700 text-emerald-100 font-bold text-sm shadow transition cursor-default";
+        btn.onclick = null;
+      }
+      if (banner) {
+        banner.classList.remove('hidden');
+      }
+
+      playSound('correct');
+      alert(`¡Evaluación enviada con éxito, ${name}!\n\nNota: ${notaStr}\nCódigo Oficial: ${generatedSecurityHash}\n\nHa quedado registrado en el panel del Profesor Edwin Ortiz.`);
+    }
+
     function copyCertificateCode() {
       const codeInput = document.getElementById('final-security-code');
       const code = codeInput ? codeInput.value : generatedSecurityHash;
@@ -1575,29 +1735,203 @@
       generateCurrentItem();
     }
 
+    const TEACHER_PIN_CODES = ["1966", "2026", "1234", "admin", "profesor"];
+    let isTeacherMode = false;
+
+    function requestTeacherAccess() {
+      const pin = prompt("🔒 Acceso Exclusivo del Profesor\n\nPor favor ingresa tu PIN de acceso:");
+      if (!pin) return;
+      if (TEACHER_PIN_CODES.includes(pin.trim())) {
+        activateTeacherMode(true);
+        switchTab('teacher');
+      } else {
+        alert("PIN incorrecto. Acceso denegado.");
+      }
+    }
+
+    function activateTeacherMode(shouldAlert) {
+      isTeacherMode = true;
+      try { localStorage.setItem('quimica_is_teacher', 'true'); } catch(e){}
+
+      const teacherTabBtn = document.getElementById('tab-teacher-btn');
+      const teacherTools = document.getElementById('teacher-footer-tools');
+      const lockBtn = document.getElementById('footer-teacher-lock');
+
+      if (teacherTabBtn) teacherTabBtn.classList.remove('hidden');
+      if (teacherTools) {
+        teacherTools.classList.remove('hidden');
+        teacherTools.classList.add('flex');
+      }
+      if (lockBtn) lockBtn.classList.add('hidden');
+
+      refreshTeacherDatabase();
+      if (shouldAlert) {
+        alert("¡Bienvenido, Profesor Edwin Ortiz!\nPanel Docente Activado.");
+      }
+    }
+
+    function exitTeacherMode() {
+      if (!confirm("¿Deseas cerrar la sesión del Profesor y ocultar el Panel Docente para los alumnos?")) return;
+      isTeacherMode = false;
+      try { localStorage.removeItem('quimica_is_teacher'); } catch(e){}
+
+      const teacherTabBtn = document.getElementById('tab-teacher-btn');
+      const teacherTools = document.getElementById('teacher-footer-tools');
+      const lockBtn = document.getElementById('footer-teacher-lock');
+
+      if (teacherTabBtn) teacherTabBtn.classList.add('hidden');
+      if (teacherTools) {
+        teacherTools.classList.add('hidden');
+        teacherTools.classList.remove('flex');
+      }
+      if (lockBtn) lockBtn.classList.remove('hidden');
+
+      switchTab('play');
+      alert("Sesión docente cerrada. El panel ahora está protegido y oculto.");
+    }
+
+    function checkTeacherModeAuto() {
+      const isLocalHost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const isFileProtocol = window.location.protocol === 'file:';
+      const hasTeacherParam = window.location.search.includes('profesor=1') || window.location.search.includes('admin=1');
+      let storedTeacher = false;
+      try { storedTeacher = localStorage.getItem('quimica_is_teacher') === 'true'; } catch(e){}
+
+      if (isLocalHost || isFileProtocol || hasTeacherParam || storedTeacher) {
+        activateTeacherMode(false);
+      }
+    }
+
+    function renderTeacherTable() {
+      const db = getStoredDatabase();
+      const tbody = document.getElementById('teacher-table-body');
+      const searchInput = document.getElementById('teacher-search-input');
+      const groupFilter = document.getElementById('teacher-group-filter');
+
+      const totalStudents = db.length;
+      let totalGradeSum = 0;
+      let passedCount = 0;
+      let failedCount = 0;
+      const groupsSet = new Set();
+
+      db.forEach(item => {
+        const gradeVal = parseFloat(item.grade) || 1.0;
+        totalGradeSum += gradeVal;
+        if (gradeVal >= 3.0) passedCount++;
+        else failedCount++;
+        if (item.group && item.group.trim()) groupsSet.add(item.group.trim());
+      });
+
+      const avgGrade = totalStudents > 0 ? (totalGradeSum / totalStudents).toFixed(1) : "0.0";
+
+      const kpiTotal = document.getElementById('kpi-total-students');
+      const kpiAvg = document.getElementById('kpi-avg-grade');
+      const kpiPassed = document.getElementById('kpi-passed-students');
+      const kpiFailed = document.getElementById('kpi-failed-students');
+
+      if (kpiTotal) kpiTotal.textContent = totalStudents;
+      if (kpiAvg) kpiAvg.textContent = avgGrade;
+      if (kpiPassed) kpiPassed.textContent = passedCount;
+      if (kpiFailed) kpiFailed.textContent = failedCount;
+
+      if (groupFilter) {
+        const currentSelected = groupFilter.value;
+        groupFilter.innerHTML = '<option value="all">Todos los Grupos</option>';
+        groupsSet.forEach(grp => {
+          const opt = document.createElement('option');
+          opt.value = grp;
+          opt.textContent = grp;
+          if (grp === currentSelected) opt.selected = true;
+          groupFilter.appendChild(opt);
+        });
+      }
+
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+      const selectedGroup = groupFilter ? groupFilter.value : 'all';
+
+      const filtered = db.filter(item => {
+        const matchesQuery = (item.name || '').toLowerCase().includes(query) || (item.code || '').toLowerCase().includes(query);
+        const matchesGroup = selectedGroup === 'all' || (item.group || '').trim() === selectedGroup;
+        return matchesQuery && matchesGroup;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500 italic">No hay evaluaciones registradas con los filtros actuales.</td></tr>`;
+        return;
+      }
+
+      const sorted = [...filtered].reverse();
+
+      sorted.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-800/50 transition";
+        const gradeVal = parseFloat(item.grade) || 1.0;
+        const isPass = gradeVal >= 3.0;
+        const statusBadge = isPass 
+          ? `<span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-500/40 font-bold">APROBADO</span>`
+          : `<span class="px-1.5 py-0.5 rounded bg-rose-950 text-rose-400 border border-rose-500/40 font-bold">REPROBADO</span>`;
+
+        tr.innerHTML = `
+          <td class="p-2 whitespace-nowrap text-slate-400">${item.datetime || '--'}</td>
+          <td class="p-2 font-bold text-white whitespace-nowrap">${item.name}</td>
+          <td class="p-2 text-cyan-300 whitespace-nowrap">${item.group || 'S/G'}</td>
+          <td class="p-2 text-center font-mono font-semibold">${item.correct}/${item.total || 50}</td>
+          <td class="p-2 text-center font-black ${isPass ? 'text-emerald-400' : 'text-rose-400'} text-xs">${item.grade}</td>
+          <td class="p-2 text-center font-mono ${item.switches > 0 ? 'text-rose-400 font-bold' : 'text-slate-400'}">${item.switches || 0}</td>
+          <td class="p-2 text-center font-mono text-[10px] text-amber-300 select-all cursor-pointer" title="Clic para copiar código" onclick="navigator.clipboard.writeText('${item.code}')">${item.code || '--'}</td>
+          <td class="p-2 text-center">${statusBadge}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function refreshTeacherDatabase() {
+      await syncDatabaseFromLocalServer();
+      renderTeacherTable();
+    }
+
     function switchTab(tab) {
       const playPanel = document.getElementById('play-panel');
       const explorePanel = document.getElementById('explore-panel');
       const resultsPanel = document.getElementById('results-panel');
+      const teacherPanel = document.getElementById('teacher-panel');
       const progressContainer = document.getElementById('progress-container');
       const playBtn = document.getElementById('tab-play-btn');
       const exploreBtn = document.getElementById('tab-explore-btn');
+      const teacherBtn = document.getElementById('tab-teacher-btn');
 
       if (tab === 'play') {
+        if (teacherPanel) teacherPanel.classList.add('hidden');
         resultsPanel.classList.add('hidden');
         explorePanel.classList.add('hidden');
         playPanel.classList.remove('hidden');
         progressContainer.classList.remove('hidden');
         playBtn.className = "px-2.5 py-1 rounded-md bg-blue-600 text-white font-semibold shadow-sm transition";
         exploreBtn.className = "px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition";
-      } else {
+        if (teacherBtn) teacherBtn.className = "px-2.5 py-1 rounded-md text-amber-400 hover:text-amber-300 font-bold transition flex items-center gap-1";
+      } else if (tab === 'explore') {
+        if (teacherPanel) teacherPanel.classList.add('hidden');
         playPanel.classList.add('hidden');
         resultsPanel.classList.add('hidden');
         progressContainer.classList.add('hidden');
         explorePanel.classList.remove('hidden');
         exploreBtn.className = "px-2.5 py-1 rounded-md bg-blue-600 text-white font-semibold shadow-sm transition";
         playBtn.className = "px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition";
+        if (teacherBtn) teacherBtn.className = "px-2.5 py-1 rounded-md text-amber-400 hover:text-amber-300 font-bold transition flex items-center gap-1";
         renderExploreElements();
+      } else if (tab === 'teacher') {
+        playPanel.classList.add('hidden');
+        resultsPanel.classList.add('hidden');
+        progressContainer.classList.add('hidden');
+        explorePanel.classList.add('hidden');
+        if (teacherPanel) teacherPanel.classList.remove('hidden');
+        if (teacherBtn) teacherBtn.className = "px-2.5 py-1 rounded-md bg-amber-500 text-slate-950 font-black shadow transition flex items-center gap-1";
+        playBtn.className = "px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition";
+        exploreBtn.className = "px-2.5 py-1 rounded-md text-slate-400 hover:text-white transition";
+        renderTeacherTable();
       }
     }
 
@@ -1648,6 +1982,7 @@
     }
 
     function initApp() {
+      checkTeacherModeAuto();
       if (window.location.search.includes('demo=1') || window.location.search.includes('test=1')) {
         runQuickTestDemo();
       } else {

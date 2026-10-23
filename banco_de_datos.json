@@ -24,5 +24,44 @@
     "switches": 0,
     "code": "#QZ-05E465",
     "authenticity": "VALIDO"
+  },
+  {
+    "datetime": "10/23/2026, 01:25 a. m.",
+    "name": "Estudiante Demostración (Edwin)",
+    "group": "10° Ciencias A",
+    "correct": 47,
+    "total": 50,
+    "grade": "4.8",
+    "status": "APROBADO",
+    "duration": "4m 12s",
+    "switches": 0,
+    "code": "#QZ-05E465",
+    "authenticity": "VALIDO"
+  },
+  {
+    "datetime": "10/23/2026, 01:37 a. m.",
+    "name": "ESTUDIANTE DEMOSTRACIÓN (EDWIN)",
+    "group": "10° CIENCIAS A",
+    "correct": 47,
+    "total": 50,
+    "grade": "4.8",
+    "status": "APROBADO",
+    "duration": "4m 12s",
+    "switches": 0,
+    "code": "#QZ-EYJUIJOIRVNUVURJQU5URSBERU1PU1RSQUNJW5NOICHFRFDJTIKILCJNIJOIMTDCSCBDSUVOQ0LBUYBBIIWIYYI6NDCSINQIOJUWLCJZIJOWLCJKDXIIOII0BSAXMNMILCJKIJOIMTAVMJMVMJAYNIWGMDE6MZCGYS4GBS4IFQ-96EF5CE0",
+    "authenticity": "ALTERADO_O_FALSO"
+  },
+  {
+    "datetime": "10/23/2026, 01:49 a. m.",
+    "name": "ESTUDIANTE DEMOSTRACIÓN (EDWIN)",
+    "group": "10° CIENCIAS A",
+    "correct": 47,
+    "total": 50,
+    "grade": "4.8",
+    "status": "APROBADO",
+    "duration": "4m 12s",
+    "switches": 0,
+    "code": "#QZ-EYJUIJOIRVNUVURJQU5URSBERU1PU1RSQUNJW5NOICHFRFDJTIKILCJNIJOIMTDCSCBDSUVOQ0LBUYBBIIWIYYI6NDCSINQIOJUWLCJZIJOWLCJKDXIIOII0BSAXMNMILCJKIJOIMTAVMJMVMJAYNIWGMDE6NDKGYS4GBS4IFQ-1259FC22",
+    "authenticity": "ALTERADO_O_FALSO"
   }
 ]
