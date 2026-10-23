@@ -342,7 +342,7 @@
         <div class="flex items-center gap-1.5 font-bold text-emerald-400">
           <span class="text-base">✅</span> ¡Evaluación Enviada Exitosamente!
         </div>
-        <p class="text-[11px] text-slate-300">Tus respuestas, nota y código fueron registrados automáticamente en la base de datos del Profesor Edwin Ortiz.</p>
+        <p class="text-[11px] text-slate-300">Tus respuestas, nota y código fueron registrados automáticamente en la base de datos oficial del docente.</p>
       </div>
 
       <!-- Botón Nuevo Intento -->
@@ -397,7 +397,7 @@
             👨‍🏫
           </div>
           <div>
-            <h2 class="text-sm sm:text-base font-extrabold text-white leading-tight">Panel Privado del Profesor Edwin Ortiz</h2>
+            <h2 class="text-sm sm:text-base font-extrabold text-white leading-tight">Panel Privado del Docente</h2>
             <p class="text-[11px] text-slate-400">Estudiantes que completaron la prueba y enviaron su evaluación</p>
           </div>
         </div>
@@ -1438,7 +1438,7 @@
 
       playSound('correct');
       if (!isSilent) {
-        alert(`¡Evaluación enviada con éxito, ${name}!\n\nNota: ${notaStr}\nCódigo Oficial: ${generatedSecurityHash}\n\nHa quedado registrado en el panel del Profesor Edwin Ortiz.`);
+        alert(`¡Evaluación enviada con éxito, ${name}!\n\nNota: ${notaStr}\nCódigo Oficial: ${generatedSecurityHash}\n\nHa quedado registrado en el panel oficial del docente.`);
       }
     }
 
@@ -2336,7 +2336,7 @@
 
       const nameInput = document.getElementById('student-name-input');
       const groupInput = document.getElementById('student-group-input');
-      const studentName = "Edwin Ortiz Jr. (Prueba en Vivo)";
+      const studentName = "Estudiante Demostración (Prueba en Vivo)";
       const studentGroup = "10° Ciencias A";
 
       if (nameInput) {
@@ -2446,7 +2446,7 @@
 
     function handleSuspiciousTabSwitch() {
       tabSwitchCount++;
-      showAntiCheatNotice(`¡Alerta! Salida de pantalla detectada (#${tabSwitchCount}). Este evento queda grabado en tu reporte ante el Profesor Edwin Ortiz.`);
+      showAntiCheatNotice(`¡Alerta! Salida de pantalla detectada (#${tabSwitchCount}). Este evento queda grabado en tu reporte oficial de evaluación.`);
       playSound('error');
     }
 
