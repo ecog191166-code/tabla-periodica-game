@@ -348,11 +348,89 @@
     <footer class="bg-slate-950/80 border-t border-slate-800 px-4 py-2 text-center text-[11px] sm:text-xs text-slate-500 flex justify-between items-center gap-2">
       <span>Desafío Tabla Periódica ⚛️</span>
       <div class="flex items-center gap-2 sm:gap-3">
-        <button onclick="runQuickTestDemo()" class="text-amber-400 hover:text-amber-300 font-medium underline transition" title="Simula un examen terminado para ver el certificado y probar WhatsApp">🧪 Demo Rápida</button>
+        <button onclick="openDatabaseModal()" class="text-emerald-400 hover:text-emerald-300 font-semibold underline transition">📊 Banco de Datos</button>
         <button onclick="openVerifierModal()" class="text-cyan-400 hover:text-cyan-300 font-medium underline transition">🔍 Verificar Código</button>
-        <button onclick="restartFullExam()" class="hover:text-slate-300 underline transition">Reiniciar prueba</button>
+        <button onclick="runQuickTestDemo()" class="text-amber-400 hover:text-amber-300 font-medium underline transition" title="Simula un examen terminado para ver el certificado y probar WhatsApp">🧪 Demo</button>
+        <button onclick="restartFullExam()" class="hover:text-slate-300 underline transition">Reiniciar</button>
       </div>
     </footer>
+  </div>
+
+  <!-- Modal Banco de Datos Docente -->
+  <div id="database-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl relative flex flex-col max-h-[90vh]">
+      <button onclick="closeDatabaseModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📊</span>
+          <div>
+            <h3 class="text-base font-bold text-white leading-tight">Banco de Datos de Calificaciones</h3>
+            <p class="text-[11px] text-slate-400">Guardado en: <code class="text-emerald-400">Desktop/Juego Tabla Periodica/banco_de_datos.csv</code></p>
+          </div>
+        </div>
+        <div id="server-status-pill" class="text-[10px] font-mono px-2.5 py-1 rounded-full border bg-slate-950 text-slate-400 border-slate-800 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-slate-500 inline-block"></span> Local: verificando...
+        </div>
+      </div>
+
+      <!-- Acciones de Gestión -->
+      <div class="flex flex-wrap items-center gap-2 mb-3 text-xs">
+        <button onclick="downloadDatabaseCSV()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition flex items-center gap-1 shadow active:scale-95">
+          <span>📥</span> Descargar Excel / CSV
+        </button>
+        <button onclick="syncAllToLocalServer()" id="btn-sync-server" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition flex items-center gap-1 shadow active:scale-95">
+          <span>🔄</span> Sincronizar a Carpeta Local
+        </button>
+        <button onclick="togglePasteWhatsAppArea()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-semibold transition flex items-center gap-1">
+          <span>📋</span> Pegar WhatsApps Recibidos
+        </button>
+        <button onclick="clearDatabase()" class="px-2.5 py-1.5 rounded-xl text-rose-400 hover:text-rose-300 transition text-[11px] ml-auto">
+          🗑️ Vaciar
+        </button>
+      </div>
+
+      <!-- Zona de pegar múltiples mensajes de WhatsApp -->
+      <div id="bulk-whatsapp-box" class="hidden mb-3 p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs">
+        <label class="block text-slate-300 font-semibold mb-1">
+          Pega aquí el reporte o los reportes de WhatsApp que te enviaron tus estudiantes:
+        </label>
+        <textarea id="bulk-whatsapp-input" rows="3" placeholder="Pega uno o varios mensajes de WhatsApp de tus alumnos..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500 text-xs font-mono"></textarea>
+        <div class="flex justify-between items-center mt-2">
+          <span class="text-[10px] text-slate-500">Se validará cada código antifraude automáticamente.</span>
+          <button onclick="processBulkWhatsApp()" class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs">
+            Validar y Agregar
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabla de Registros -->
+      <div class="flex-1 overflow-y-auto border border-slate-800 rounded-2xl bg-slate-950/60 p-1">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-900 text-[11px] text-slate-400 uppercase tracking-wider sticky top-0">
+            <tr>
+              <th class="p-2">Fecha</th>
+              <th class="p-2">Estudiante</th>
+              <th class="p-2">Grupo</th>
+              <th class="p-2 text-center">Aciertos</th>
+              <th class="p-2 text-center">Nota</th>
+              <th class="p-2 text-center">Salidas</th>
+              <th class="p-2 text-center">Código</th>
+              <th class="p-2 text-center">Estado</th>
+            </tr>
+          </thead>
+          <tbody id="database-table-body" class="divide-y divide-slate-800/60 text-[11px]">
+            <!-- Filas dinámicas -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-3 flex justify-between items-center text-[11px] text-slate-400">
+        <span id="database-count">0 registros guardados</span>
+        <span class="text-slate-500 italic">Compatible con Microsoft Excel (.csv)</span>
+      </div>
+    </div>
+  </div>
   </div>
 
   <!-- Modal Validador Docente Antifraude -->
@@ -867,6 +945,23 @@
 
       generatedSecurityHash = calculateSecurityCode(name || 'ESTUDIANTE', group || 'S/G', totalCorrect, TOTAL_ITEMS, dateStr);
       if (codeSpan) codeSpan.textContent = generatedSecurityHash;
+
+      if (name && name.trim().length >= 3) {
+        let nota = ((totalCorrect / TOTAL_ITEMS) * 4) + 1;
+        if (nota > 5.0) nota = 5.0;
+        addRecordToDatabase({
+          datetime: dateStr,
+          name: name.trim(),
+          group: group.trim() || 'S/G',
+          correct: totalCorrect,
+          total: TOTAL_ITEMS,
+          grade: nota.toFixed(1),
+          status: nota >= 3.0 ? "APROBADO" : "REPROBADO",
+          duration: document.getElementById('final-duration').textContent || "0s",
+          switches: tabSwitchCount,
+          code: generatedSecurityHash
+        }, true);
+      }
     }
 
     function sendReportToTeacherWhatsApp() {
@@ -985,6 +1080,9 @@ _Comprobante verificado matemáticamente._`;
             <span>Nota Panamá: <strong class="text-white">${calculatedGrade.toFixed(1)}</strong></span>
             <span>Aciertos: <strong class="text-white">${correct} / ${TOTAL_ITEMS}</strong></span>
           </div>
+          <button onclick="saveCurrentVerifiedToDB('${name}', '${group || 'S/G'}', ${correct}, ${TOTAL_ITEMS}, '${calculatedGrade.toFixed(1)}', '${dateStr}', '${inputCode}')" class="mt-2.5 w-full py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition active:scale-95 shadow">
+            💾 Agregar al Banco de Datos Docente
+          </button>
         `;
       } else {
         resultBox.className = "mt-3 p-3 rounded-2xl border border-rose-500/50 bg-rose-950/40 text-rose-300 text-xs text-left";
@@ -997,6 +1095,300 @@ _Comprobante verificado matemáticamente._`;
         `;
       }
       resultBox.classList.remove('hidden');
+    }
+
+    const DB_STORAGE_KEY = 'quimica_panama_calificaciones_db';
+    let isLocalServerOnline = false;
+
+    function getStoredDatabase() {
+      try {
+        const data = localStorage.getItem(DB_STORAGE_KEY);
+        return data ? JSON.parse(data) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveStoredDatabase(list) {
+      try {
+        localStorage.setItem(DB_STORAGE_KEY, JSON.stringify(list));
+      } catch (e) {
+        console.error("Error al guardar en almacenamiento local:", e);
+      }
+    }
+
+    async function checkLocalServerStatus() {
+      const pill = document.getElementById('server-status-pill');
+      try {
+        const res = await fetch('http://localhost:5050/api/estado', { method: 'GET', signal: AbortSignal.timeout(1500) });
+        if (res.ok) {
+          isLocalServerOnline = true;
+          if (pill) {
+            pill.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span> Servidor Local Conectado (Puerto 5050)`;
+            pill.className = "text-[10px] font-mono px-2.5 py-1 rounded-full border bg-emerald-950/40 text-emerald-300 border-emerald-500/50 flex items-center gap-1.5";
+          }
+          return true;
+        }
+      } catch (e) {
+        isLocalServerOnline = false;
+        if (pill) {
+          pill.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-500 inline-block"></span> Servidor Local Inactivo`;
+          pill.className = "text-[10px] font-mono px-2.5 py-1 rounded-full border bg-slate-950 text-slate-400 border-slate-800 flex items-center gap-1.5";
+        }
+        return false;
+      }
+    }
+
+    function openDatabaseModal() {
+      const modal = document.getElementById('database-modal');
+      if (modal) modal.classList.remove('hidden');
+      checkLocalServerStatus();
+      renderDatabaseTable();
+    }
+
+    function closeDatabaseModal() {
+      const modal = document.getElementById('database-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function renderDatabaseTable() {
+      const db = getStoredDatabase();
+      const tbody = document.getElementById('database-table-body');
+      const countSpan = document.getElementById('database-count');
+
+      if (countSpan) {
+        countSpan.textContent = `${db.length} estudiante(s) registrado(s)`;
+      }
+
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (db.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500 italic">No hay calificaciones guardadas aún. Pega los reportes de WhatsApp recibidos o realiza una prueba.</td></tr>`;
+        return;
+      }
+
+      const sorted = [...db].reverse();
+
+      sorted.forEach((item) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-800/40 transition";
+        const isPass = parseFloat(item.grade) >= 3.0;
+        const statusBadge = isPass 
+          ? `<span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-500/40 font-bold">APROBADO</span>`
+          : `<span class="px-1.5 py-0.5 rounded bg-rose-950 text-rose-400 border border-rose-500/40 font-bold">REPROBADO</span>`;
+
+        tr.innerHTML = `
+          <td class="p-2 whitespace-nowrap text-slate-400">${item.datetime || '--'}</td>
+          <td class="p-2 font-bold text-white whitespace-nowrap">${item.name}</td>
+          <td class="p-2 text-cyan-300">${item.group || 'S/G'}</td>
+          <td class="p-2 text-center font-mono">${item.correct}/${item.total || 50}</td>
+          <td class="p-2 text-center font-black ${isPass ? 'text-emerald-400' : 'text-rose-400'} text-xs">${item.grade}</td>
+          <td class="p-2 text-center font-mono ${item.switches > 0 ? 'text-rose-400 font-bold' : 'text-slate-400'}">${item.switches || 0}</td>
+          <td class="p-2 text-center font-mono text-[10px] text-amber-300">${item.code || '--'}</td>
+          <td class="p-2 text-center">${statusBadge}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function addRecordToDatabase(record, autoSync = true) {
+      const db = getStoredDatabase();
+      const exists = db.some(r => r.code && r.code === record.code);
+      if (!exists) {
+        db.push(record);
+        saveStoredDatabase(db);
+        if (autoSync) {
+          sendRecordToLocalServer(record);
+        }
+      }
+    }
+
+    async function sendRecordToLocalServer(record) {
+      try {
+        await fetch('http://localhost:5050/api/guardar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(record)
+        });
+      } catch (e) {
+        // Servidor local no conectado, ignorar
+      }
+    }
+
+    async function syncAllToLocalServer() {
+      const db = getStoredDatabase();
+      if (db.length === 0) {
+        alert("El banco de datos está vacío.");
+        return;
+      }
+      const isOnline = await checkLocalServerStatus();
+      if (!isOnline) {
+        alert("El servidor local no está iniciado en tu computadora.\n\nHaz doble clic en el acceso directo 'Iniciar Banco de Datos' en tu Escritorio y vuelve a presionar este botón.");
+        return;
+      }
+
+      let count = 0;
+      for (const item of db) {
+        await sendRecordToLocalServer(item);
+        count++;
+      }
+      alert(`¡Sincronización completada!\nSe enviaron ${count} calificaciones a la carpeta Desktop/Juego Tabla Periodica/banco_de_datos.csv`);
+    }
+
+    function downloadDatabaseCSV() {
+      const db = getStoredDatabase();
+      if (db.length === 0) {
+        alert("No hay registros en el banco de datos para exportar.");
+        return;
+      }
+
+      const headers = ["Fecha_Hora", "Estudiante", "Grupo", "Aciertos", "Total_Items", "Nota_Panama", "Estado", "Duracion", "Salidas_Pantalla", "Codigo_Antifraude"];
+      const rows = [headers.join(";")];
+
+      db.forEach(item => {
+        const row = [
+          `"${item.datetime || ''}"`,
+          `"${item.name || ''}"`,
+          `"${item.group || ''}"`,
+          item.correct || 0,
+          item.total || 50,
+          item.grade || '1.0',
+          `"${item.status || ''}"`,
+          `"${item.duration || ''}"`,
+          item.switches || 0,
+          `"${item.code || ''}"`
+        ];
+        rows.push(row.join(";"));
+      });
+
+      const csvContent = "\uFEFF" + rows.join("\r\n");
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `banco_de_datos_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function togglePasteWhatsAppArea() {
+      const box = document.getElementById('bulk-whatsapp-box');
+      if (box) box.classList.toggle('hidden');
+    }
+
+    function processBulkWhatsApp() {
+      const text = (document.getElementById('bulk-whatsapp-input').value || '').trim();
+      if (!text) {
+        alert("Por favor pega al menos un reporte de WhatsApp.");
+        return;
+      }
+
+      let added = 0;
+      let rejected = 0;
+
+      const studentMatches = text.matchAll(/👤\s*\*?Estudiante:\*?\s*([^\n\r]+)[\s\S]*?🏫\s*\*?Grupo:\*?\s*([^\n\r]+)[\s\S]*?📅\s*\*?Fecha:\*?\s*([^\n\r]+)[\s\S]*?⏱️\s*\*?Tiempo:\*?\s*([^\n\r]+)[\s\S]*?⚠️\s*\*?Salidas[^\n\r]*:\*?\s*(\d+)[\s\S]*?✅\s*\*?Aciertos:\*?\s*(\d+)[\s\S]*?🇵🇦\s*\*?NOTA FINAL:\*?\s*([\d\.]+)[\s\S]*?🔒\s*\*?CÓDIGO[^\n\r]*:\*?\s*(#QZ-[A-F0-9]+)/gi);
+
+      for (const match of studentMatches) {
+        const name = match[1].trim();
+        const group = match[2].trim();
+        const dateStr = match[3].trim();
+        const duration = match[4].trim();
+        const switches = parseInt(match[5], 10);
+        const correct = parseInt(match[6], 10);
+        const grade = match[7].trim();
+        const code = match[8].trim().toUpperCase();
+
+        const expected = calculateSecurityCode(name, group || 'S/G', correct, TOTAL_ITEMS, dateStr);
+        if (expected === code) {
+          addRecordToDatabase({
+            datetime: dateStr,
+            name: name,
+            group: group,
+            correct: correct,
+            total: TOTAL_ITEMS,
+            grade: grade,
+            status: parseFloat(grade) >= 3.0 ? "APROBADO" : "REPROBADO",
+            duration: duration,
+            switches: switches,
+            code: code
+          }, true);
+          added++;
+        } else {
+          rejected++;
+        }
+      }
+
+      if (added === 0 && rejected === 0) {
+        const nameM = text.match(/Estudiante:\*\s*(.+)/i);
+        const groupM = text.match(/Grupo:\*\s*(.+)/i);
+        const dateM = text.match(/Fecha:\*\s*(.+)/i);
+        const scoreM = text.match(/Aciertos:\*\s*(\d+)/i);
+        const codeM = text.match(/(#QZ-[A-F0-9]+)/i);
+
+        if (nameM && scoreM && codeM) {
+          const name = nameM[1].trim();
+          const group = groupM ? groupM[1].trim() : 'S/G';
+          const dateStr = dateM ? dateM[1].trim() : '';
+          const correct = parseInt(scoreM[1], 10);
+          const code = codeM[1].trim().toUpperCase();
+          const expected = calculateSecurityCode(name, group, correct, TOTAL_ITEMS, dateStr);
+
+          if (expected === code) {
+            let nota = ((correct / TOTAL_ITEMS) * 4) + 1;
+            if (nota > 5.0) nota = 5.0;
+            addRecordToDatabase({
+              datetime: dateStr,
+              name: name,
+              group: group,
+              correct: correct,
+              total: TOTAL_ITEMS,
+              grade: nota.toFixed(1),
+              status: nota >= 3.0 ? "APROBADO" : "REPROBADO",
+              duration: "Reportado",
+              switches: 0,
+              code: code
+            }, true);
+            added++;
+          } else {
+            rejected++;
+          }
+        }
+      }
+
+      renderDatabaseTable();
+      document.getElementById('bulk-whatsapp-input').value = '';
+
+      if (added > 0) {
+        alert(`¡Listo! Se agregaron ${added} estudiante(s) al banco de datos.` + (rejected > 0 ? `\n⚠️ Se ignoraron ${rejected} reporte(s) por código antifraude inválido.` : ''));
+      } else {
+        alert("No se pudieron extraer datos válidos del texto pegado o los códigos eran inválidos.");
+      }
+    }
+
+    function clearDatabase() {
+      if (confirm("¿Estás seguro de que deseas vaciar el banco de datos de la pantalla?")) {
+        localStorage.removeItem(DB_STORAGE_KEY);
+        renderDatabaseTable();
+      }
+    }
+
+    function saveCurrentVerifiedToDB(name, group, correct, total, grade, dateStr, code) {
+      addRecordToDatabase({
+        datetime: dateStr,
+        name: name,
+        group: group,
+        correct: correct,
+        total: total,
+        grade: grade,
+        status: parseFloat(grade) >= 3.0 ? "APROBADO" : "REPROBADO",
+        duration: "Verificado",
+        switches: 0,
+        code: code
+      }, true);
+      alert(`¡Estudiante ${name} agregado al banco de datos exitosamente!`);
     }
 
     function restartFullExam() {
