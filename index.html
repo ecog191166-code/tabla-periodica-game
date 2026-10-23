@@ -347,8 +347,65 @@
     <!-- Pie de página -->
     <footer class="bg-slate-950/80 border-t border-slate-800 px-4 py-2 text-center text-[11px] sm:text-xs text-slate-500 flex justify-between items-center gap-2">
       <span>Desafío Tabla Periódica ⚛️</span>
-      <button onclick="restartFullExam()" class="hover:text-slate-300 underline transition">Reiniciar prueba</button>
+      <div class="flex items-center gap-3">
+        <button onclick="openVerifierModal()" class="text-cyan-400 hover:text-cyan-300 font-medium underline transition">🔍 Verificar Código</button>
+        <button onclick="restartFullExam()" class="hover:text-slate-300 underline transition">Reiniciar prueba</button>
+      </div>
     </footer>
+  </div>
+
+  <!-- Modal Validador Docente Antifraude -->
+  <div id="verifier-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative">
+      <button onclick="closeVerifierModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-xl">🔍</span>
+        <h3 class="text-base font-bold text-white">Validador Docente de Códigos</h3>
+      </div>
+      <p class="text-xs text-slate-400 mb-3 leading-relaxed">
+        Pega abajo el texto que te envió el estudiante por WhatsApp para comprobar al instante si su nota o su nombre fueron alterados.
+      </p>
+
+      <div class="space-y-2.5 text-xs">
+        <div>
+          <label class="block text-slate-400 font-medium mb-1">Pegar mensaje de WhatsApp (Autocompletar):</label>
+          <textarea id="verify-paste-box" rows="2" placeholder="Pega aquí el reporte recibido por WhatsApp..." oninput="autoFillFromWhatsApp()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-cyan-500"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-slate-400 mb-0.5">Nombre Alumno:</label>
+            <input type="text" id="verify-name" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-slate-200 focus:outline-none focus:border-cyan-500">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-0.5">Grupo:</label>
+            <input type="text" id="verify-group" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-slate-200 focus:outline-none focus:border-cyan-500">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-slate-400 mb-0.5">Aciertos (de 50):</label>
+            <input type="number" id="verify-correct" min="0" max="50" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-slate-200 focus:outline-none focus:border-cyan-500">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-0.5">Fecha y Hora:</label>
+            <input type="text" id="verify-datetime" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-slate-200 focus:outline-none focus:border-cyan-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-0.5">Código Antifraude (#QZ-XXXXXX):</label>
+          <input type="text" id="verify-code" placeholder="#QZ-000000" class="w-full font-mono bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-amber-300 uppercase focus:outline-none focus:border-cyan-500">
+        </div>
+
+        <button onclick="executeVerification()" class="w-full mt-2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition active:scale-95">
+          Comprobar Autenticidad
+        </button>
+
+        <div id="verify-result" class="hidden mt-3 p-3 rounded-2xl border text-xs text-center font-medium leading-relaxed"></div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -848,6 +905,80 @@ _Comprobante verificado matemáticamente._`;
 
       const encodedUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`;
       window.open(encodedUrl, '_blank');
+    }
+
+    function openVerifierModal() {
+      const modal = document.getElementById('verifier-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeVerifierModal() {
+      const modal = document.getElementById('verifier-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function autoFillFromWhatsApp() {
+      const text = document.getElementById('verify-paste-box').value || '';
+      
+      const nameMatch = text.match(/Estudiante:\*\s*(.+)/i);
+      const groupMatch = text.match(/Grupo:\*\s*(.+)/i);
+      const dateMatch = text.match(/Fecha:\*\s*(.+)/i);
+      const scoreMatch = text.match(/Aciertos:\*\s*(\d+)/i);
+      const codeMatch = text.match(/(#QZ-[A-F0-9]{4,8})/i);
+
+      if (nameMatch) document.getElementById('verify-name').value = nameMatch[1].trim();
+      if (groupMatch) document.getElementById('verify-group').value = groupMatch[1].trim();
+      if (dateMatch) document.getElementById('verify-datetime').value = dateMatch[1].trim();
+      if (scoreMatch) document.getElementById('verify-correct').value = scoreMatch[1].trim();
+      if (codeMatch) document.getElementById('verify-code').value = codeMatch[1].trim();
+
+      if (nameMatch && scoreMatch && codeMatch) {
+        executeVerification();
+      }
+    }
+
+    function executeVerification() {
+      const name = (document.getElementById('verify-name').value || '').trim();
+      const group = (document.getElementById('verify-group').value || '').trim();
+      const correct = parseInt(document.getElementById('verify-correct').value, 10);
+      const dateStr = (document.getElementById('verify-datetime').value || '').trim();
+      const inputCode = (document.getElementById('verify-code').value || '').trim().toUpperCase();
+      const resultBox = document.getElementById('verify-result');
+
+      if (!name || isNaN(correct) || !inputCode) {
+        resultBox.className = "mt-3 p-3 rounded-2xl border border-amber-500/50 bg-amber-950/40 text-amber-300 text-xs";
+        resultBox.textContent = "Por favor completa el nombre, los aciertos y el código para verificar.";
+        resultBox.classList.remove('hidden');
+        return;
+      }
+
+      const expectedCode = calculateSecurityCode(name, group || 'S/G', correct, TOTAL_ITEMS, dateStr);
+      let calculatedGrade = ((correct / TOTAL_ITEMS) * 4) + 1;
+      if (calculatedGrade > 5.0) calculatedGrade = 5.0;
+
+      if (expectedCode === inputCode) {
+        resultBox.className = "mt-3 p-3 rounded-2xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-300 text-xs text-left";
+        resultBox.innerHTML = `
+          <div class="font-bold text-sm text-emerald-400 mb-1 flex items-center gap-1.5">
+            <span>✅</span> REPORTE 100% AUTÉNTICO Y VÁLIDO
+          </div>
+          <p class="text-slate-300">El código <strong>${inputCode}</strong> es legítimo para el estudiante <strong>${name}</strong>.</p>
+          <div class="mt-2 pt-2 border-t border-emerald-500/20 text-[11px] text-slate-300 flex justify-between">
+            <span>Nota Panamá: <strong class="text-white">${calculatedGrade.toFixed(1)}</strong></span>
+            <span>Aciertos: <strong class="text-white">${correct} / ${TOTAL_ITEMS}</strong></span>
+          </div>
+        `;
+      } else {
+        resultBox.className = "mt-3 p-3 rounded-2xl border border-rose-500/50 bg-rose-950/40 text-rose-300 text-xs text-left";
+        resultBox.innerHTML = `
+          <div class="font-bold text-sm text-rose-400 mb-1 flex items-center gap-1.5">
+            <span>❌</span> ADVERTENCIA: REPORTE ALTERADO O FALSO
+          </div>
+          <p class="text-slate-300">El código ingresado <strong>${inputCode}</strong> no coincide con los datos del reporte. El estudiante pudo haber modificado la nota, el nombre o la fecha.</p>
+          <p class="mt-1 text-[11px] text-rose-300/80">Código esperado para estos datos: <code>${expectedCode}</code></p>
+        `;
+      }
+      resultBox.classList.remove('hidden');
     }
 
     function restartFullExam() {
