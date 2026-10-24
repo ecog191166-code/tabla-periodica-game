@@ -470,6 +470,7 @@
               <th class="p-2 text-center">Salidas</th>
               <th class="p-2 text-center">Código Oficial</th>
               <th class="p-2 text-center">Estado</th>
+              <th class="p-2 text-center">Acción</th>
             </tr>
           </thead>
           <tbody id="teacher-table-body" class="divide-y divide-slate-800/60 text-[11px]">
@@ -1373,23 +1374,6 @@
       );
 
       if (codeInput) codeInput.value = generatedSecurityHash;
-
-      if (name && name.trim().length >= 3) {
-        let nota = ((totalCorrect / TOTAL_ITEMS) * 4) + 1;
-        if (nota > 5.0) nota = 5.0;
-        addRecordToDatabase({
-          datetime: dateStr,
-          name: name.trim().toUpperCase(),
-          group: (group || 'S/G').trim().toUpperCase(),
-          correct: totalCorrect,
-          total: TOTAL_ITEMS,
-          grade: nota.toFixed(1),
-          status: nota >= 3.0 ? "APROBADO" : "REPROBADO",
-          duration: duration,
-          switches: tabSwitchCount,
-          code: generatedSecurityHash
-        }, true);
-      }
     }
 
     function sendOfficialCodeToTeacherDatabase(isSilent = false) {
@@ -1653,17 +1637,58 @@
       }
     ];
 
+    function deduplicateDatabase(records) {
+      if (!Array.isArray(records) || records.length === 0) return [];
+      const result = [];
+      const sorted = [...records].sort((a, b) => (b.name || '').length - (a.name || '').length);
+
+      for (const item of sorted) {
+        if (!item || !item.name) continue;
+        const normName = item.name.trim().toUpperCase();
+        const normGroup = (item.group || '').trim().toUpperCase();
+        
+        const isFragment = result.some(existing => {
+          const exNormName = existing.name.trim().toUpperCase();
+          const exNormGroup = (existing.group || '').trim().toUpperCase();
+          const sameSession = existing.datetime === item.datetime && 
+                              existing.correct === item.correct && 
+                              existing.total === item.total &&
+                              exNormGroup === normGroup;
+          return sameSession && exNormName.startsWith(normName);
+        });
+
+        if (!isFragment && !result.some(r => r.code === item.code)) {
+          result.push(item);
+        }
+      }
+      return result;
+    }
+
     function getStoredDatabase() {
       try {
         const data = localStorage.getItem(DB_STORAGE_KEY);
         if (data) {
           const parsed = JSON.parse(data);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const clean = deduplicateDatabase(parsed);
+            if (clean.length !== parsed.length) {
+              saveStoredDatabase(clean);
+            }
+            return clean;
+          }
         }
         return [...DEFAULT_SEED_RECORDS];
       } catch (e) {
         return [...DEFAULT_SEED_RECORDS];
       }
+    }
+
+    function deleteRecord(code) {
+      if (!confirm("¿Deseas eliminar este registro del banco de datos?")) return;
+      let db = getStoredDatabase();
+      db = db.filter(r => r.code !== code);
+      saveStoredDatabase(db);
+      renderDatabaseTable();
     }
 
     async function syncDatabaseFromLocalServer() {
@@ -1750,7 +1775,7 @@
       tbody.innerHTML = '';
 
       if (db.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500 italic">No hay calificaciones guardadas aún. Pega los reportes de WhatsApp recibidos o realiza una prueba.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-500 italic">No hay calificaciones guardadas aún. Pega los reportes de WhatsApp recibidos o realiza una prueba.</td></tr>`;
         return;
       }
 
@@ -1773,6 +1798,9 @@
           <td class="p-2 text-center font-mono ${item.switches > 0 ? 'text-rose-400 font-bold' : 'text-slate-400'}">${item.switches || 0}</td>
           <td class="p-2 text-center font-mono text-[10px] text-amber-300">${item.code || '--'}</td>
           <td class="p-2 text-center">${statusBadge}</td>
+          <td class="p-2 text-center">
+            <button onclick="deleteRecord('${item.code}')" title="Eliminar registro" class="px-2 py-0.5 rounded bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-500/40 text-[10px] font-bold transition">🗑️</button>
+          </td>
         `;
         tbody.appendChild(tr);
       });
