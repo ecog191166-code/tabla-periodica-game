@@ -481,7 +481,7 @@
 
       <div class="flex justify-between items-center text-[10px] text-slate-500 px-1">
         <span>Archivo local: <code class="text-slate-400">banco_de_datos.csv</code></span>
-        <button onclick="clearDatabase()" class="hover:text-rose-400 underline transition">Vaciar lista</button>
+        <button onclick="clearDatabase()" class="hover:text-rose-400 underline transition text-rose-400 font-medium">Dejar registro en cero</button>
       </div>
     </section>
 
@@ -570,8 +570,8 @@
         <button onclick="togglePasteWhatsAppArea()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-semibold transition flex items-center gap-1">
           <span>📋</span> Pegar Códigos de Alumnos
         </button>
-        <button onclick="clearDatabase()" class="px-2.5 py-1.5 rounded-xl text-rose-400 hover:text-rose-300 transition text-[11px] ml-auto">
-          🗑️ Vaciar
+        <button onclick="clearDatabase()" class="px-3 py-1.5 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-300 hover:bg-rose-900 transition text-xs font-bold ml-auto flex items-center gap-1.5 active:scale-95">
+          <span>🗑️</span> Dejar Registro en Cero
         </button>
       </div>
 
@@ -1608,34 +1608,7 @@
     const DB_STORAGE_KEY = 'quimica_panama_calificaciones_db';
     let isLocalServerOnline = false;
 
-    const DEFAULT_SEED_RECORDS = [
-      {
-        datetime: "23/10/2026, 01:15",
-        name: "Estudiante Demostración (Edwin)",
-        group: "10° Ciencias A",
-        correct: 47,
-        total: 50,
-        grade: "4.8",
-        status: "APROBADO",
-        duration: "4m 12s",
-        switches: 0,
-        code: "#QZ-04ED24",
-        authenticity: "VALIDO"
-      },
-      {
-        datetime: "23/10/2026, 01:25",
-        name: "Estudiante Demostración (Edwin)",
-        group: "10° Ciencias A",
-        correct: 47,
-        total: 50,
-        grade: "4.8",
-        status: "APROBADO",
-        duration: "4m 12s",
-        switches: 0,
-        code: "#QZ-05E465",
-        authenticity: "VALIDO"
-      }
-    ];
+    const DEFAULT_SEED_RECORDS = [];
 
     function deduplicateDatabase(records) {
       if (!Array.isArray(records) || records.length === 0) return [];
@@ -1667,9 +1640,9 @@
     function getStoredDatabase() {
       try {
         const data = localStorage.getItem(DB_STORAGE_KEY);
-        if (data) {
+        if (data !== null) {
           const parsed = JSON.parse(data);
-          if (Array.isArray(parsed) && parsed.length > 0) {
+          if (Array.isArray(parsed)) {
             const clean = deduplicateDatabase(parsed);
             if (clean.length !== parsed.length) {
               saveStoredDatabase(clean);
@@ -1677,9 +1650,9 @@
             return clean;
           }
         }
-        return [...DEFAULT_SEED_RECORDS];
+        return [];
       } catch (e) {
-        return [...DEFAULT_SEED_RECORDS];
+        return [];
       }
     }
 
@@ -2021,9 +1994,10 @@
     }
 
     function clearDatabase() {
-      if (confirm("¿Estás seguro de que deseas vaciar el banco de datos de la pantalla?")) {
-        localStorage.removeItem(DB_STORAGE_KEY);
+      if (confirm("¿Estás seguro de que deseas vaciar y dejar en CERO el banco de datos de los estudiantes?")) {
+        localStorage.setItem(DB_STORAGE_KEY, JSON.stringify([]));
         renderDatabaseTable();
+        alert("¡Listo! El registro del docente ha quedado completamente en CERO (0 registros).");
       }
     }
 
