@@ -1103,17 +1103,25 @@
         const now = audioCtx.currentTime;
 
         if (type === 'correct') {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(440, now);
-          osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
-          gain.gain.setValueAtTime(0.15, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-          osc.start(now);
-          osc.stop(now + 0.2);
+          // Fanfarria alegre y cristalina de acierto (Arpegio Do Mayor + Destello)
+          const notes = [
+            { freq: 523.25, delay: 0.00, dur: 0.14 },
+            { freq: 659.25, delay: 0.07, dur: 0.14 },
+            { freq: 783.99, delay: 0.14, dur: 0.16 },
+            { freq: 1046.50, delay: 0.21, dur: 0.34 }
+          ];
+          notes.forEach(n => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(n.freq, now + n.delay);
+            gain.gain.setValueAtTime(0.22, now + n.delay);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + n.delay + n.dur);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + n.delay);
+            osc.stop(now + n.delay + n.dur);
+          });
         } else if (type === 'error') {
           // 1. Silbido cómico de bomba cayendo ("¡Fiuuuuu!")
           const whistle = audioCtx.createOscillator();
@@ -1188,6 +1196,74 @@
           });
         }
       } catch (e) {}
+    }
+
+    let correctCelebrationTimeout = null;
+    function triggerCorrectCelebration() {
+      const qCard = document.getElementById('question-card');
+      if (!qCard) return;
+
+      const existingBoom = document.getElementById('comic-bomb-overlay');
+      if (existingBoom) existingBoom.remove();
+      const existingCel = document.getElementById('correct-celebration-overlay');
+      if (existingCel) existingCel.remove();
+      if (correctCelebrationTimeout) clearTimeout(correctCelebrationTimeout);
+
+      const isEn = typeof currentLang !== 'undefined' && currentLang === 'en';
+      const winMessages = isEn
+        ? [
+            'EXCELLENT! Perfect Reaction! +1 Pt',
+            'BRILLIANT! Chemistry Master! +1 Pt',
+            'AWESOME! Element Identified! +1 Pt',
+            'UNSTOPPABLE! Master Hit! +1 Pt'
+          ]
+        : [
+            '¡EXCELENTE! ¡Reacción Perfecta! +1 Pto',
+            '¡BRILLANTE! ¡Dominas la Química! +1 Pto',
+            '¡GENIAL! ¡Elemento Identificado! +1 Pto',
+            '¡IMPARABLE! ¡Acierto Maestro! +1 Pto'
+          ];
+      const msg = winMessages[Math.floor(Math.random() * winMessages.length)];
+      const badgeWord = isEn ? 'AWESOME!' : '¡GENIAL!';
+
+      const overlay = document.createElement('div');
+      overlay.id = 'correct-celebration-overlay';
+      overlay.className = 'absolute inset-0 z-30 pointer-events-none flex flex-col items-center justify-center bg-emerald-950/45 backdrop-blur-[2px] rounded-2xl overflow-hidden comic-boom-anim';
+
+      overlay.innerHTML = `
+        <div class="relative flex flex-col items-center justify-center">
+          <!-- Estrella Dorada y Esmeralda de Celebración SVG -->
+          <svg viewBox="0 0 260 220" class="w-56 h-48 sm:w-64 sm:h-56 drop-shadow-[0_0_28px_rgba(16,185,129,0.95)]">
+            <!-- Resplandor exterior verde esmeralda / cian -->
+            <polygon points="130,6 156,50 208,24 192,76 250,86 204,124 240,170 182,164 176,214 130,178 84,214 78,164 20,170 56,124 10,86 68,76 52,24 104,50" fill="#10b981" stroke="#a7f3d0" stroke-width="4" />
+            <!-- Estrella interior dorada brillante -->
+            <polygon points="130,28 150,64 192,46 178,86 222,95 186,122 210,156 168,150 162,188 130,160 98,188 92,150 50,156 74,122 38,95 82,86 68,46 110,64" fill="#facc15" stroke="#ffffff" stroke-width="3" />
+            <!-- Medalla / Átomo Triunfal en el Centro -->
+            <circle cx="130" cy="108" r="35" fill="#064e3b" stroke="#fef08a" stroke-width="4" />
+            <!-- Destellos de Confeti Estelar -->
+            <text x="42" y="42" font-size="20" fill="#fef08a">✨</text>
+            <text x="205" y="42" font-size="20" fill="#fef08a">🌟</text>
+            <text x="35" y="145" font-size="18" fill="#6ee7b7">⭐</text>
+            <text x="210" y="145" font-size="18" fill="#6ee7b7">🎉</text>
+            <!-- Check Gigante de Victoria -->
+            <path d="M 113 108 L 125 121 L 150 93" stroke="#34d399" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+            <!-- Texto estilo cómic de victoria -->
+            <text x="130" y="154" font-family="Impact, system-ui, sans-serif" font-size="27" font-weight="900" fill="#059669" stroke="#ffffff" stroke-width="2" text-anchor="middle" transform="rotate(-4 130 154)">${badgeWord}</text>
+          </svg>
+          <!-- Cartel de Celebración Inferior -->
+          <div class="-mt-3 px-4 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 border-2 border-yellow-200 text-white font-black text-xs sm:text-sm shadow-2xl tracking-wide uppercase flex items-center gap-1.5">
+            <span>🏆</span> <span>${msg}</span> <span>✨</span>
+          </div>
+        </div>
+      `;
+
+      qCard.appendChild(overlay);
+
+      correctCelebrationTimeout = setTimeout(() => {
+        if (overlay && overlay.parentNode) {
+          overlay.remove();
+        }
+      }, 1850);
     }
 
     let bombExplosionTimeout = null;
@@ -1407,6 +1483,8 @@
       if (qCard) qCard.classList.remove('pulse-correct', 'shake-error');
       const oldBoom = document.getElementById('comic-bomb-overlay');
       if (oldBoom) oldBoom.remove();
+      const oldCel = document.getElementById('correct-celebration-overlay');
+      if (oldCel) oldCel.remove();
 
       const itemNum = currentItemIndex + 1;
       const percent = Math.round((itemNum / TOTAL_ITEMS) * 100);
@@ -1507,6 +1585,7 @@
         totalCorrect++;
         if (qCard) qCard.classList.add('pulse-correct');
         playSound('correct');
+        triggerCorrectCelebration();
 
         if (feedbackBox) {
           feedbackBox.className = "p-2.5 sm:p-3 rounded-xl border bg-emerald-950/60 border-emerald-500/50 text-emerald-200 flex items-center justify-between gap-3 transition shadow";
@@ -4257,12 +4336,16 @@
       }
 
       modal.classList.remove('hidden');
+      modal.style.display = 'flex';
       speakCurrentElement();
     }
 
     function closeElementDetailModal() {
       const modal = document.getElementById('element-detail-modal');
-      if (modal) modal.classList.add('hidden');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.style.display = '';
+      }
       stopAufbauAnimation();
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -4787,6 +4870,7 @@
     }
 
     function applyFullDOMTranslations() {
+      try {
       const isEn = currentLang === 'en';
 
       // 1. Header & Top Bar
@@ -4980,7 +5064,7 @@
           if (ruleEl && ruleEl.previousElementSibling) {
             ruleEl.previousElementSibling.textContent = isEn ? 'Lewis Behavior: ' : 'Comportamiento de Lewis: ';
           }
-          const legendSpans = lewisCard.querySelectorAll('.flex.items-center.gap-4 span.flex.items-center.gap-1\.5');
+          const legendSpans = lewisCard.querySelectorAll('.flex.items-center.gap-4 > span');
           if (legendSpans.length >= 2) {
             legendSpans[0].innerHTML = isEn
               ? '<span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block shadow-[0_0_6px_#fbbf24]"></span> Unpaired electron (bonding)'
@@ -5147,6 +5231,9 @@
         if (syncBtn) syncBtn.innerHTML = isEn ? '<span class="text-base">☁️</span> Sync Google' : '<span class="text-base">☁️</span> Sincronizar Google';
         const demoBtn = teacherPanel.querySelector('button[onclick="runLiveStudentDemo()"]');
         if (demoBtn) demoBtn.innerHTML = isEn ? '<span>▶️</span> Demo' : '<span>▶️</span> Probar';
+      }
+      } catch (err) {
+        console.warn('Translation sync warning:', err);
       }
     }
 
