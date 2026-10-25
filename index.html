@@ -657,29 +657,29 @@
   </div>
 
   <!-- Modal Ficha de Características del Elemento (Repaso Ampliado con Letras Grandes) -->
-  <div id="element-detail-modal" onclick="if (event.target === this) closeElementDetailModal()" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-5">
-    <div class="bg-slate-900 border-2 border-slate-700 rounded-3xl max-w-xl w-full p-5 sm:p-7 shadow-2xl relative flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
-      <button onclick="closeElementDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl font-black p-1.5 rounded-xl hover:bg-slate-800 transition" title="Cerrar ventana (Esc)">✕</button>
+  <div id="element-detail-modal" onclick="if (event.target === this) closeElementDetailModal()" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-900 border-2 border-slate-700 rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl relative flex flex-col gap-3.5 my-auto max-h-[95vh] overflow-y-auto">
+      <button onclick="closeElementDetailModal()" class="absolute top-3.5 right-4 text-slate-400 hover:text-white text-2xl font-black p-1.5 rounded-xl hover:bg-slate-800 transition" title="Cerrar ventana (Esc)">✕</button>
       
       <!-- Barra Superior de Navegación Rápida -->
-      <div class="flex items-center justify-between border-b border-slate-800 pb-3 pr-10">
-        <span class="text-xs sm:text-sm font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
-          <span class="text-base sm:text-lg">⚛️</span> Ficha Científica del Elemento
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 pr-10">
+        <span class="text-xs sm:text-sm font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+          <span class="text-base sm:text-lg">⚛️</span> Ficha Científica (Clic en cualquier campo para escucharlo)
         </span>
         <div class="flex items-center gap-2 text-xs sm:text-sm">
-          <button onclick="navigateElementDetail(-1)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold transition flex items-center gap-1 active:scale-95 shadow" title="Elemento anterior (Flecha Izquierda)">
+          <button onclick="navigateElementDetail(-1)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold transition flex items-center gap-1 active:scale-95 shadow" title="Elemento anterior (Flecha Izquierda)">
             <span>◀</span> Ant.
           </button>
-          <span id="modal-elem-nav-pos" class="font-mono text-cyan-300 font-black px-2 text-xs sm:text-sm">1 / 118</span>
-          <button onclick="navigateElementDetail(1)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold transition flex items-center gap-1 active:scale-95 shadow" title="Siguiente elemento (Flecha Derecha)">
+          <span id="modal-elem-nav-pos" class="font-mono text-cyan-300 font-black px-1.5 text-xs sm:text-sm">1 / 118</span>
+          <button onclick="navigateElementDetail(1)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold transition flex items-center gap-1 active:scale-95 shadow" title="Siguiente elemento (Flecha Derecha)">
             Sig. <span>▶</span>
           </button>
         </div>
       </div>
 
       <!-- Cabecera de Elemento: Caja Gigante y Nombre en Letras Grandes -->
-      <div class="flex items-center gap-4 sm:gap-5">
-        <div id="modal-elem-box" class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-blue-600/25 border-2 border-blue-400 flex flex-col items-center justify-between p-2.5 shadow-xl flex-shrink-0 transition-all">
+      <div onclick="speakSpecificField('header')" class="flex items-center gap-4 sm:gap-5 cursor-pointer group rounded-2xl p-1.5 -m-1.5 hover:bg-slate-800/40 transition" title="Haz clic para escuchar el nombre y símbolo en español">
+        <div id="modal-elem-box" class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-blue-600/25 border-2 border-blue-400 flex flex-col items-center justify-between p-2.5 shadow-xl flex-shrink-0 transition-all group-hover:scale-105">
           <span id="modal-elem-z" class="text-xs sm:text-sm font-mono text-cyan-300 font-black self-start">#1</span>
           <span id="modal-elem-symbol" class="text-4xl sm:text-5xl font-black text-white leading-none my-auto select-none">H</span>
           <span id="modal-elem-mass" class="text-xs font-mono text-slate-200 font-bold">1.008 u</span>
@@ -689,64 +689,93 @@
             <span id="modal-elem-category" class="px-3 py-1 rounded-full text-xs font-black bg-blue-500/20 text-blue-300 border border-blue-500/40">No metales</span>
             <span id="modal-elem-state" class="px-3 py-1 rounded-full text-xs font-black bg-slate-800 text-slate-200 border border-slate-700">Gas</span>
           </div>
-          <h3 id="modal-elem-name" class="text-2xl sm:text-3xl font-black text-white mt-1.5 leading-tight tracking-wide truncate">Hidrógeno</h3>
+          <h3 id="modal-elem-name" class="text-2xl sm:text-3xl font-black text-white mt-1.5 leading-tight tracking-wide truncate group-hover:text-amber-300 transition">Hidrógeno</h3>
           <p id="modal-elem-period-group" class="text-xs sm:text-sm text-cyan-300 font-bold mt-1">Periodo 1 · Grupo 1</p>
         </div>
       </div>
 
-      <!-- Cuadrícula de 6 Propiedades Físico-Químicas con Letras Claras y Grandes -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs sm:text-sm">
-        <!-- 1. Configuración Electrónica -->
-        <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between shadow-sm">
-          <span class="text-[11px] sm:text-xs text-amber-400/90 font-bold uppercase tracking-wider block mb-1">⚡ Config. Electrónica</span>
-          <strong id="modal-elem-config" class="text-amber-300 font-mono text-xs sm:text-sm font-extrabold tracking-tight">1s¹</strong>
+      <!-- SECCIÓN ESPECIAL: LLENADO DE ELECTRONES EN LOS SUBNIVELES (AUFBAU Y REGLA DE HUND) -->
+      <div class="bg-slate-950/95 border-2 border-amber-500/40 rounded-2xl p-3 sm:p-4 space-y-2.5 shadow-lg">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
+          <div onclick="speakSpecificField('config')" class="cursor-pointer flex items-center gap-1.5 group">
+            <span class="text-xs sm:text-sm font-black text-amber-400 uppercase tracking-wider group-hover:text-amber-300">
+              ⚡ Configuración Electrónica y Llenado de Subniveles 🔊
+            </span>
+          </div>
+          <button onclick="animateSublevelFilling()" id="btn-animate-aufbau" class="px-3 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-300 font-extrabold text-xs flex items-center gap-1.5 transition active:scale-95 shadow">
+            <span>▶️</span> Animar Llenado Paso a Paso
+          </button>
         </div>
 
-        <!-- 2. Electrones de Valencia -->
-        <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between shadow-sm">
-          <span class="text-[11px] sm:text-xs text-emerald-400/90 font-bold uppercase tracking-wider block mb-1">🧪 e⁻ de Valencia</span>
-          <strong id="modal-elem-valence" class="text-emerald-300 font-mono text-xs sm:text-sm font-extrabold">1 e⁻</strong>
+        <!-- Notación Desarrollada Completa por Subniveles y Abreviada -->
+        <div onclick="speakSpecificField('config')" class="cursor-pointer space-y-1 bg-slate-900/90 p-2.5 rounded-xl border border-slate-800 hover:border-amber-400/50 transition" title="Clic para escuchar el llenado de los subniveles en español">
+          <div class="flex flex-wrap items-baseline gap-2">
+            <span class="text-[11px] sm:text-xs text-slate-400 font-bold">Llenado por subniveles (Aufbau):</span>
+            <strong id="modal-elem-config-full" class="text-amber-300 font-mono text-xs sm:text-base font-extrabold tracking-wide break-words">1s¹</strong>
+          </div>
+          <div class="flex flex-wrap items-baseline gap-2">
+            <span class="text-[11px] sm:text-xs text-slate-400 font-semibold">Kernel (Gas noble):</span>
+            <strong id="modal-elem-config" class="text-cyan-300 font-mono text-xs sm:text-sm font-bold">1s¹</strong>
+          </div>
         </div>
 
-        <!-- 3. Geometría / Red Cristalina -->
-        <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between shadow-sm col-span-2 sm:col-span-1">
-          <span class="text-[11px] sm:text-xs text-cyan-400/90 font-bold uppercase tracking-wider block mb-1">📐 Geometría / Red</span>
-          <strong id="modal-elem-geometry" class="text-cyan-200 font-semibold text-[11px] sm:text-xs leading-tight">Diatómica lineal (H₂)</strong>
+        <!-- Diagrama Visual de Cajas de Orbitales y Espines (↑↓ Regla de Hund) -->
+        <div>
+          <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1.5">
+            <span class="font-semibold">Diagrama de Orbitales y Espines (<strong class="text-emerald-400">↑</strong> +½ , <strong class="text-rose-400">↓</strong> -½):</span>
+            <span id="aufbau-progress-label" class="font-mono text-amber-300 font-bold"></span>
+          </div>
+          <div id="modal-elem-orbitals-grid" class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-1.5 bg-slate-900/60 rounded-xl border border-slate-800/80">
+            <!-- Generado dinámicamente con cajas ↑↓ -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Cuadrícula de Propiedades Físico-Químicas con Letras Claras y Grandes (Clicables) -->
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs sm:text-sm">
+        <!-- 1. Electrones de Valencia -->
+        <div onclick="speakSpecificField('valence')" class="bg-slate-950/90 border border-slate-800 hover:border-emerald-400 rounded-2xl p-2.5 flex flex-col justify-between shadow-sm cursor-pointer transition active:scale-95" title="Clic para escuchar los electrones de valencia">
+          <span class="text-[10px] sm:text-xs text-emerald-400 font-bold uppercase block">🧪 Valencia 🔊</span>
+          <strong id="modal-elem-valence" class="text-emerald-300 font-mono text-xs sm:text-sm font-extrabold mt-0.5">1 e⁻</strong>
         </div>
 
-        <!-- 4. Número Atómico (Z) / Protones -->
-        <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-2.5 sm:p-3 shadow-sm">
-          <span class="text-[10px] sm:text-[11px] text-slate-400 font-medium block">Nº Atómico (Z) / Protones:</span>
+        <!-- 2. Geometría / Red Cristalina -->
+        <div onclick="speakSpecificField('geometry')" class="bg-slate-950/90 border border-slate-800 hover:border-cyan-400 rounded-2xl p-2.5 flex flex-col justify-between shadow-sm col-span-1 sm:col-span-2 cursor-pointer transition active:scale-95" title="Clic para escuchar la geometría o estructura cristalina">
+          <span class="text-[10px] sm:text-xs text-cyan-400 font-bold uppercase block">📐 Geometría / Red 🔊</span>
+          <strong id="modal-elem-geometry" class="text-cyan-200 font-semibold text-xs leading-tight mt-0.5">Diatómica lineal (H₂)</strong>
+        </div>
+
+        <!-- 3. Número Atómico (Z) / Protones -->
+        <div onclick="speakSpecificField('z')" class="bg-slate-950/90 border border-slate-800 hover:border-blue-400 rounded-2xl p-2.5 shadow-sm cursor-pointer transition active:scale-95" title="Clic para escuchar el número atómico y protones">
+          <span class="text-[10px] text-slate-400 font-medium block">Z / Protones:</span>
           <strong id="modal-elem-z-detail" class="text-white font-mono text-sm sm:text-base font-black">1</strong>
         </div>
 
-        <!-- 5. Masa Atómica -->
-        <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-2.5 sm:p-3 shadow-sm">
-          <span class="text-[10px] sm:text-[11px] text-slate-400 font-medium block">Masa Atómica:</span>
-          <strong id="modal-elem-m-detail" class="text-white font-mono text-sm sm:text-base font-black">1.008 u</strong>
-        </div>
-
-        <!-- 6. Neutrones Estimados -->
-        <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-2.5 sm:p-3 shadow-sm col-span-2 sm:col-span-1">
-          <span class="text-[10px] sm:text-[11px] text-slate-400 font-medium block">Neutrones Aprox.:</span>
-          <strong id="modal-elem-neutrons" class="text-amber-300 font-mono text-sm sm:text-base font-black">0</strong>
+        <!-- 4. Masa Atómica y Neutrones -->
+        <div onclick="speakSpecificField('mass')" class="bg-slate-950/90 border border-slate-800 hover:border-blue-400 rounded-2xl p-2.5 shadow-sm cursor-pointer transition active:scale-95" title="Clic para escuchar la masa atómica y neutrones">
+          <span class="text-[10px] text-slate-400 font-medium block">Masa / Neutr.:</span>
+          <div class="font-mono text-xs sm:text-sm font-black">
+            <span id="modal-elem-m-detail" class="text-white">1.008 u</span>
+            <span class="text-slate-600">·</span>
+            <span id="modal-elem-neutrons" class="text-amber-300" title="Neutrones aproximados">0n°</span>
+          </div>
         </div>
       </div>
 
       <!-- Sección de Características y Usos con Letras Ampliadas -->
-      <div class="bg-slate-950/95 border border-slate-800 rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm space-y-1.5 shadow-inner">
+      <div onclick="speakSpecificField('desc')" class="bg-slate-950/95 border border-slate-800 hover:border-amber-400/60 rounded-2xl p-3 sm:p-3.5 text-xs sm:text-sm space-y-1 shadow-inner cursor-pointer transition" title="Clic para escuchar la descripción científica">
         <span class="text-amber-400 font-extrabold text-xs sm:text-sm uppercase tracking-wider block flex items-center gap-1.5">
-          <span>💡</span> Descripción y Aplicaciones en el Mundo Real:
+          <span>💡</span> Descripción y Aplicaciones en el Mundo Real: 🔊
         </span>
         <p id="modal-elem-desc" class="text-slate-200 leading-relaxed text-xs sm:text-sm font-normal">El elemento más ligero y abundante del cosmos...</p>
       </div>
 
-      <!-- Acciones: Pronunciar y Cerrar -->
-      <div class="flex items-center gap-3 pt-1">
-        <button onclick="speakCurrentElement()" class="flex-1 py-3 px-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-xl active:scale-95">
-          <span class="text-lg">🔊</span> Escuchar Pronunciación y Datos
+      <!-- Acciones: Pronunciar Todo y Cerrar -->
+      <div class="flex items-center gap-3 pt-0.5">
+        <button onclick="speakCurrentElement()" class="flex-1 py-2.5 sm:py-3 px-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-xl active:scale-95">
+          <span class="text-base sm:text-lg">🔊</span> Escuchar Ficha Completa (Lectura Pausada en Español)
         </button>
-        <button onclick="closeElementDetailModal()" class="py-3 px-6 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs sm:text-sm font-black transition active:scale-95">
+        <button onclick="closeElementDetailModal()" class="py-2.5 sm:py-3 px-6 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs sm:text-sm font-black transition active:scale-95">
           Cerrar
         </button>
       </div>
@@ -2882,6 +2911,273 @@
   }
 };
 
+    // Diccionario fonético español para deletrear símbolos y orbitales químicos
+    const SPANISH_LETTER_NAMES = {
+      a: 'a', b: 'be', c: 'ce', d: 'de', e: 'e', f: 'efe', g: 'ge', h: 'hache',
+      i: 'i', j: 'jota', k: 'ka', l: 'ele', m: 'eme', n: 'ene', o: 'o', p: 'pe',
+      q: 'cu', r: 'erre', s: 'ese', t: 'te', u: 'u', v: 'uve', w: 'doble uve',
+      x: 'equis', y: 'ye', z: 'zeta'
+    };
+
+    const SUPERSCRIPT_DIGITS = {
+      '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4',
+      '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9'
+    };
+
+    const NORMAL_TO_SUPERSCRIPT = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹'];
+
+    const NOBLE_GAS_SPANISH = {
+      He: 'Helio', Ne: 'Neón', Ar: 'Argón', Kr: 'Kriptón', Xe: 'Xenón', Rn: 'Radón'
+    };
+
+    // Orden oficial de llenado de subniveles según el Principio de Aufbau (Regla de las diagonales de Moeller)
+    const AUFBAU_ORDER = [
+      '1s', '2s', '2p', '3s', '3p', '4s', '3d', '4p', '5s', '4d', '5p',
+      '6s', '4f', '5d', '6p', '7s', '5f', '6d', '7p'
+    ];
+
+    const KERNEL_SUBLEVELS = {
+      '[He]': '1s²',
+      '[Ne]': '1s² 2s² 2p⁶',
+      '[Ar]': '1s² 2s² 2p⁶ 3s² 3p⁶',
+      '[Kr]': '1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 3d¹⁰ 4p⁶',
+      '[Xe]': '1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 3d¹⁰ 4p⁶ 5s² 4d¹⁰ 5p⁶',
+      '[Rn]': '1s² 2s² 2p⁶ 3s² 3p⁶ 4s² 3d¹⁰ 4p⁶ 5s² 4d¹⁰ 5p⁶ 6s² 4f¹⁴ 5d¹⁰ 6p⁶'
+    };
+
+    function expandToFullSublevels(ec) {
+      if (!ec) return '';
+      let expanded = ec.trim();
+      for (const [kernel, sublevels] of Object.entries(KERNEL_SUBLEVELS)) {
+        if (expanded.startsWith(kernel)) {
+          expanded = expanded.replace(kernel, sublevels).trim();
+          break;
+        }
+      }
+      // Ordenar los subniveles exactamente en el orden de llenado de Aufbau (Regla de las diagonales)
+      const tokens = expanded.split(/\s+/);
+      tokens.sort((a, b) => {
+        const subA = (a.match(/^\d[spdf]/) || [''])[0];
+        const subB = (b.match(/^\d[spdf]/) || [''])[0];
+        const idxA = AUFBAU_ORDER.indexOf(subA);
+        const idxB = AUFBAU_ORDER.indexOf(subB);
+        return (idxA === -1 ? 99 : idxA) - (idxB === -1 ? 99 : idxB);
+      });
+      return tokens.join(' ');
+    }
+
+    function parseSublevelsHund(fullEc) {
+      if (!fullEc) return [];
+      const tokens = fullEc.trim().split(/\s+/);
+      const capByOrbital = { s: 1, p: 3, d: 5, f: 7 };
+
+      return tokens.map(tok => {
+        const m = tok.match(/^(\d[spdf])([⁰¹²³⁴⁵⁶⁷⁸⁹]+)$/);
+        if (!m) return null;
+        const subName = m[1];
+        const orbType = subName[1];
+        const count = parseInt(m[2].split('').map(c => SUPERSCRIPT_DIGITS[c] ?? c).join(''), 10);
+        const numBoxes = capByOrbital[orbType] || 1;
+        const boxes = Array.from({ length: numBoxes }, () => ({ up: false, down: false }));
+
+        // Regla de máxima multiplicidad de Hund: primero llenar orbitales con espín arriba (↑)
+        let rem = count;
+        for (let i = 0; i < numBoxes && rem > 0; i++) {
+          boxes[i].up = true;
+          rem--;
+        }
+        // Luego aparear con espín abajo (↓)
+        for (let i = 0; i < numBoxes && rem > 0; i++) {
+          boxes[i].down = true;
+          rem--;
+        }
+        return { token: tok, subName, orbType, count, numBoxes, boxes };
+      }).filter(Boolean);
+    }
+
+    function toSuperscriptNumber(num) {
+      return String(num).split('').map(d => NORMAL_TO_SUPERSCRIPT[parseInt(d, 10)] || d).join('');
+    }
+
+    let aufbauAnimTimer = null;
+
+    function renderOrbitalBoxes(fullEc, maxElectronsLimit = null) {
+      const grid = document.getElementById('modal-elem-orbitals-grid');
+      if (!grid) return;
+
+      const parsed = parseSublevelsHund(fullEc);
+      grid.innerHTML = '';
+
+      let remainingTotal = maxElectronsLimit !== null ? maxElectronsLimit : 999;
+
+      const orbColors = {
+        s: 'border-cyan-500/40 bg-cyan-950/30 text-cyan-300',
+        p: 'border-amber-500/40 bg-amber-950/30 text-amber-300',
+        d: 'border-blue-500/40 bg-blue-950/30 text-blue-300',
+        f: 'border-purple-500/40 bg-purple-950/30 text-purple-300'
+      };
+
+      parsed.forEach(sub => {
+        if (remainingTotal <= 0 && maxElectronsLimit !== null) return;
+
+        const actualElectronsInSub = Math.min(sub.count, remainingTotal);
+        remainingTotal -= actualElectronsInSub;
+
+        // Recalcular espines según actualElectronsInSub (Regla de Hund)
+        const boxes = Array.from({ length: sub.numBoxes }, () => ({ up: false, down: false }));
+        let rem = actualElectronsInSub;
+        for (let i = 0; i < sub.numBoxes && rem > 0; i++) {
+          boxes[i].up = true;
+          rem--;
+        }
+        for (let i = 0; i < sub.numBoxes && rem > 0; i++) {
+          boxes[i].down = true;
+          rem--;
+        }
+
+        const subBlock = document.createElement('div');
+        const colorCls = orbColors[sub.orbType] || orbColors.s;
+        subBlock.className = 'px-2 py-1.5 rounded-xl border ' + colorCls + ' flex flex-col items-center gap-1 shadow-sm transition-all';
+        subBlock.title = 'Subnivel ' + sub.subName + ': ' + actualElectronsInSub + ' electrones (clic para escuchar)';
+        subBlock.onclick = (e) => {
+          e.stopPropagation();
+          const letterSpoken = SPANISH_LETTER_NAMES[sub.orbType] || sub.orbType;
+          speakSpanishTextSlowly('Subnivel ' + sub.subName[0] + ' ' + letterSpoken + ', con ' + actualElectronsInSub + (actualElectronsInSub === 1 ? ' electrón.' : ' electrones.'));
+        };
+
+        const boxesHtml = boxes.map(b => {
+          const upArrow = b.up ? '<span class="text-emerald-400 font-black leading-none">↑</span>' : '<span class="text-slate-700 leading-none">·</span>';
+          const downArrow = b.down ? '<span class="text-rose-400 font-black leading-none">↓</span>' : '<span class="text-slate-700 leading-none">·</span>';
+          return '<div class="w-5 h-6 rounded bg-slate-950 border border-slate-700/80 flex items-center justify-center gap-0.5 text-xs font-mono shadow-inner">' + upArrow + downArrow + '</div>';
+        }).join('');
+
+        subBlock.innerHTML = `
+          <span class="text-[11px] font-mono font-extrabold tracking-tight">${sub.subName}${toSuperscriptNumber(actualElectronsInSub)}</span>
+          <div class="flex items-center gap-1">${boxesHtml}</div>
+        `;
+
+        grid.appendChild(subBlock);
+      });
+    }
+
+    function animateSublevelFilling() {
+      const el = ELEMENTS.find(e => e.z === currentDetailZ);
+      if (!el) return;
+      if (aufbauAnimTimer) {
+        clearInterval(aufbauAnimTimer);
+        aufbauAnimTimer = null;
+      }
+
+      const adv = ELEMENT_ADVANCED_DATA[el.z] || { ec: '1s¹' };
+      const fullEc = expandToFullSublevels(adv.ec);
+      const totalE = el.z;
+      let stepE = 0;
+
+      const label = document.getElementById('aufbau-progress-label');
+      speakSpanishTextSlowly('Llenando ' + totalE + (totalE === 1 ? ' electrón' : ' electrones') + ' en los subniveles de ' + el.n + ': ' + formatElectronConfigForSpanishSpeech(fullEc));
+
+      const intervalMs = Math.max(65, Math.min(280, Math.floor(3500 / totalE)));
+
+      renderOrbitalBoxes(fullEc, 0);
+      aufbauAnimTimer = setInterval(() => {
+        stepE++;
+        renderOrbitalBoxes(fullEc, stepE);
+        if (label) {
+          label.textContent = 'Llenando: ' + stepE + ' / ' + totalE + ' e⁻';
+        }
+        if (stepE >= totalE) {
+          clearInterval(aufbauAnimTimer);
+          aufbauAnimTimer = null;
+          if (label) {
+            label.textContent = '✅ ' + totalE + ' e⁻ completados';
+          }
+        }
+      }, intervalMs);
+    }
+
+    function spellSymbolInSpanish(sym) {
+      if (!sym) return '';
+      return sym.split('').map(ch => SPANISH_LETTER_NAMES[ch.toLowerCase()] || ch).join(', ');
+    }
+
+    function formatElectronConfigForSpanishSpeech(ec) {
+      if (!ec) return '';
+      const tokens = ec.trim().split(/\s+/);
+      const spoken = tokens.map(token => {
+        const nobleMatch = token.match(/^\[([A-Za-z]+)\]$/);
+        if (nobleMatch) {
+          const sym = nobleMatch[1];
+          const spelled = spellSymbolInSpanish(sym);
+          const gasName = NOBLE_GAS_SPANISH[sym] || sym;
+          return 'gas noble ' + gasName + ', letras ' + spelled;
+        }
+        const orbMatch = token.match(/^(\d)([spdf])([⁰¹²³⁴⁵⁶⁷⁸⁹]+)$/);
+        if (orbMatch) {
+          const level = orbMatch[1];
+          const subshell = SPANISH_LETTER_NAMES[orbMatch[2].toLowerCase()] || orbMatch[2];
+          const exp = orbMatch[3].split('').map(c => SUPERSCRIPT_DIGITS[c] ?? c).join('');
+          return level + ' ' + subshell + ' ' + exp;
+        }
+        return token;
+      });
+      return spoken.join(', ');
+    }
+
+    function formatValenceForSpanishSpeech(ev) {
+      if (!ev) return '';
+      return ev
+        .replace(/1\s*e⁻/, '1 electrón')
+        .replace(/(\d+)\s*e⁻/g, '$1 electrones')
+        .replace(/ext\./g, 'externo');
+    }
+
+    function formatGeometryForSpanishSpeech(geom) {
+      if (!geom) return '';
+      return geom
+        .replace(/\(H₂\)/g, '(hache 2)')
+        .replace(/\(F₂\)/g, '(efe 2)')
+        .replace(/\(Cl₂\)/g, '(ce, ele, 2)')
+        .replace(/\(Br₂\)/g, '(be, erre, 2)')
+        .replace(/\(I₂\)/g, '(i, 2)')
+        .replace(/\(P₄\)/g, '(pe, 4)')
+        .replace(/\(S₈\)/g, '(ese, 8)')
+        .replace(/\(N≡N\)/g, '(ene, triple enlace, ene)')
+        .replace(/\(O=O\)/g, '(o, doble enlace, o)')
+        .replace(/\(BCC\)/g, '(be, ce, ce)')
+        .replace(/\(FCC\)/g, '(efe, ce, ce)')
+        .replace(/\(HCP\)/g, '(hache, ce, pe)')
+        .replace(/\(DHCP\)/g, '(de, hache, ce, pe)')
+        .replace(/BCC pred\./g, 'be, ce, ce, predicha')
+        .replace(/FCC pred\./g, 'efe, ce, ce, predicha')
+        .replace(/HCP pred\./g, 'hache, ce, pe, predicha')
+        .replace(/-α/g, ' alfa')
+        .replace(/-β/g, ' beta')
+        .replace(/α/g, 'alfa');
+    }
+
+    function speakSpanishTextSlowly(text) {
+      if (!('speechSynthesis' in window)) {
+        playSound('correct');
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'es-ES';
+      utter.rate = 0.75; // Lectura pausada, clara y didáctica
+      utter.pitch = 1.0;
+
+      const voices = window.speechSynthesis.getVoices();
+      const spanishVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('es-pa')) ||
+                           voices.find(v => v.lang && v.lang.toLowerCase().startsWith('es-mx')) ||
+                           voices.find(v => v.lang && v.lang.toLowerCase().startsWith('es-es')) ||
+                           voices.find(v => v.lang && v.lang.toLowerCase().startsWith('es'));
+      if (spanishVoice) {
+        utter.voice = spanishVoice;
+      }
+
+      window.speechSynthesis.speak(utter);
+    }
+
     let currentDetailZ = 1;
 
     function openElementDetailModal(z) {
@@ -2889,10 +3185,16 @@
       if (!el) return;
       currentDetailZ = el.z;
 
+      if (aufbauAnimTimer) {
+        clearInterval(aufbauAnimTimer);
+        aufbauAnimTimer = null;
+      }
+
       const modal = document.getElementById('element-detail-modal');
       if (!modal) return;
 
-      const adv = ELEMENT_ADVANCED_DATA[el.z] || { ec: 'N/D', ev: 'N/D', geom: 'Estándar' };
+      const adv = ELEMENT_ADVANCED_DATA[el.z] || { ec: '1s¹', ev: '1 e⁻', geom: 'Estándar' };
+      const fullEc = expandToFullSublevels(adv.ec);
 
       const zEl = document.getElementById('modal-elem-z');
       const symEl = document.getElementById('modal-elem-symbol');
@@ -2908,8 +3210,10 @@
       const neutronsEl = document.getElementById('modal-elem-neutrons');
       const posEl = document.getElementById('modal-elem-nav-pos');
       const configEl = document.getElementById('modal-elem-config');
+      const configFullEl = document.getElementById('modal-elem-config-full');
       const valenceEl = document.getElementById('modal-elem-valence');
       const geomEl = document.getElementById('modal-elem-geometry');
+      const progressLabel = document.getElementById('aufbau-progress-label');
 
       if (zEl) zEl.textContent = '#' + el.z;
       if (symEl) symEl.textContent = el.s;
@@ -2921,13 +3225,16 @@
       if (descEl) descEl.textContent = el.d;
       if (zDetail) zDetail.textContent = '' + el.z;
       if (mDetail) mDetail.textContent = el.m + ' u';
-      if (neutronsEl) neutronsEl.textContent = '' + Math.max(0, Math.round(el.m - el.z));
+      if (neutronsEl) neutronsEl.textContent = Math.max(0, Math.round(el.m - el.z)) + 'n°';
       if (posEl) posEl.textContent = el.z + ' / ' + ELEMENTS.length;
       if (configEl) configEl.textContent = adv.ec;
+      if (configFullEl) configFullEl.textContent = fullEc;
       if (valenceEl) valenceEl.textContent = adv.ev;
       if (geomEl) geomEl.textContent = adv.geom;
+      if (progressLabel) progressLabel.textContent = el.z + ' e⁻ distribuidos';
 
-      // Colores temáticos por familia química
+      renderOrbitalBoxes(fullEc, null);
+
       const familyColors = {
         "Gases nobles": { border: "border-purple-500", bg: "bg-purple-500/25", badgeBg: "bg-purple-500/20", badgeText: "text-purple-300", badgeBorder: "border-purple-500/40" },
         "Metales alcalinos": { border: "border-rose-500", bg: "bg-rose-500/25", badgeBg: "bg-rose-500/20", badgeText: "text-rose-300", badgeBorder: "border-rose-500/40" },
@@ -2942,19 +3249,23 @@
 
       const style = familyColors[el.c] || { border: "border-blue-500/50", bg: "bg-blue-600/25", badgeBg: "bg-blue-500/20", badgeText: "text-blue-300", badgeBorder: "border-blue-500/30" };
       if (boxEl) {
-        boxEl.className = 'w-24 h-24 sm:w-28 sm:h-28 rounded-2xl ' + style.bg + ' border-2 ' + style.border + ' flex flex-col items-center justify-between p-2.5 shadow-xl flex-shrink-0 transition-all';
+        boxEl.className = 'w-24 h-24 sm:w-28 sm:h-28 rounded-2xl ' + style.bg + ' border-2 ' + style.border + ' flex flex-col items-center justify-between p-2.5 shadow-xl flex-shrink-0 transition-all group-hover:scale-105';
       }
       if (catEl) {
         catEl.className = 'px-3 py-1 rounded-full text-xs font-black ' + style.badgeBg + ' ' + style.badgeText + ' border ' + style.badgeBorder;
       }
 
       modal.classList.remove('hidden');
-      playSound('correct');
+      speakCurrentElement();
     }
 
     function closeElementDetailModal() {
       const modal = document.getElementById('element-detail-modal');
       if (modal) modal.classList.add('hidden');
+      if (aufbauAnimTimer) {
+        clearInterval(aufbauAnimTimer);
+        aufbauAnimTimer = null;
+      }
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
@@ -2967,20 +3278,52 @@
       openElementDetailModal(nextZ);
     }
 
+    function speakSpecificField(field) {
+      const el = ELEMENTS.find(e => e.z === currentDetailZ);
+      if (!el) return;
+      const adv = ELEMENT_ADVANCED_DATA[el.z] || { ec: '', ev: '', geom: '' };
+      const fullEc = expandToFullSublevels(adv.ec);
+      const symSpelled = spellSymbolInSpanish(el.s);
+
+      if (field === 'header') {
+        speakSpanishTextSlowly(el.n + '. Símbolo: ' + symSpelled + '. Familia: ' + el.c + '. Estado: ' + (el.st || 'Sólido') + '. Periodo ' + el.p + ', Grupo ' + el.g + '.');
+      } else if (field === 'config') {
+        speakSpanishTextSlowly('Configuración electrónica de ' + el.n + ' por subniveles: ' + formatElectronConfigForSpanishSpeech(fullEc));
+      } else if (field === 'valence') {
+        speakSpanishTextSlowly('Electrones de valencia de ' + el.n + ': ' + formatValenceForSpanishSpeech(adv.ev));
+      } else if (field === 'geometry') {
+        speakSpanishTextSlowly('Geometría y estructura cristalina: ' + formatGeometryForSpanishSpeech(adv.geom));
+      } else if (field === 'z') {
+        speakSpanishTextSlowly('Número atómico Z igual a ' + el.z + '; ' + el.z + ' protones en el núcleo.');
+      } else if (field === 'mass') {
+        const n = Math.max(0, Math.round(el.m - el.z));
+        speakSpanishTextSlowly('Masa atómica: ' + el.m + ' unidades. Neutrones aproximados: ' + n + '.');
+      } else if (field === 'desc') {
+        speakSpanishTextSlowly(el.d);
+      }
+    }
+
     function speakCurrentElement() {
       const el = ELEMENTS.find(e => e.z === currentDetailZ);
       if (!el) return;
       const adv = ELEMENT_ADVANCED_DATA[el.z] || { ec: '', ev: '', geom: '' };
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const text = el.n + '. Símbolo ' + el.s + '. Número atómico ' + el.z + '. Masa atómica ' + el.m + ' unidades. Configuración electrónica: ' + adv.ec + '. Electrones de valencia: ' + adv.ev + '. Estructura: ' + adv.geom + '. ' + el.d;
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = 'es-ES';
-        utter.rate = 0.92;
-        window.speechSynthesis.speak(utter);
-      } else {
-        playSound('correct');
-      }
+      const fullEc = expandToFullSublevels(adv.ec);
+      const symSpelled = spellSymbolInSpanish(el.s);
+      const ecSpoken = formatElectronConfigForSpanishSpeech(fullEc);
+      const evSpoken = formatValenceForSpanishSpeech(adv.ev);
+      const geomSpoken = formatGeometryForSpanishSpeech(adv.geom);
+
+      const fullSpeech = el.n + '. ' +
+        'Símbolo: ' + symSpelled + '. ' +
+        'Número atómico: ' + el.z + '. ' +
+        'Masa atómica: ' + el.m + ' unidades. ' +
+        'Familia: ' + el.c + '. ' +
+        'Llenado de subniveles: ' + ecSpoken + '. ' +
+        'Electrones de valencia: ' + evSpoken + '. ' +
+        'Geometría: ' + geomSpoken + '. ' +
+        el.d;
+
+      speakSpanishTextSlowly(fullSpeech);
     }
 
     // Atajos de teclado en el modal (Esc para cerrar, Flechas Izq/Der para navegar)
@@ -3020,6 +3363,7 @@
 
       filtered.forEach(el => {
         const adv = ELEMENT_ADVANCED_DATA[el.z] || { ec: '', ev: '', geom: '' };
+        const fullEc = expandToFullSublevels(adv.ec);
         const card = document.createElement('div');
         card.className = "bg-slate-950/80 border border-slate-800 hover:border-cyan-400 rounded-2xl p-3 flex flex-col justify-between transition cursor-pointer hover:bg-slate-900 group shadow-sm hover:scale-[1.02] active:scale-95";
         card.innerHTML = `
@@ -3031,12 +3375,12 @@
             <span class="text-2xl sm:text-3xl font-black text-blue-400 group-hover:text-cyan-300 transition leading-none">${el.s}</span>
             <span class="text-sm font-bold text-slate-100 truncate">${el.n}</span>
           </div>
-          <div class="text-[11px] font-mono text-amber-300/90 font-medium truncate my-0.5">
-            ⚡ ${adv.ec}
+          <div class="text-[11px] font-mono text-amber-300/95 font-semibold truncate my-0.5" title="${fullEc}">
+            ⚡ ${fullEc}
           </div>
           <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mt-1">${el.d}</p>
           <div class="mt-2.5 pt-1.5 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500 group-hover:text-amber-300 transition font-bold">
-            <span class="text-cyan-400 font-semibold">🔍 Ficha completa</span>
+            <span class="text-cyan-400 font-semibold">🔊 Ampliar y llenar subniveles</span>
             <span class="font-mono text-slate-300">${el.m} u</span>
           </div>
         `;
