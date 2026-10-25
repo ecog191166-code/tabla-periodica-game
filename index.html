@@ -3205,7 +3205,10 @@
 
     function stopAufbauAnimation() {
       aufbauAnimSessionId++;
-      stopAufbauAnimation();
+      if (aufbauAnimTimer) {
+        clearInterval(aufbauAnimTimer);
+        aufbauAnimTimer = null;
+      }
     }
 
     function renderOrbitalBoxes(fullEc, maxElectronsLimit = null, activeSubName = null) {
