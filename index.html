@@ -449,7 +449,11 @@
             </div>
           </div>
         </div>
-        <div class="flex-shrink-0">
+                <div class="flex-shrink-0 flex flex-wrap items-center justify-center gap-2">
+          <button onclick="openSubscriptionKeygenModal()" id="btn-open-keygen" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 shadow-lg transition active:scale-95 flex items-center gap-1.5 font-black text-xs sm:text-sm">
+            <span class="text-base">🔑</span>
+            <span id="btn-open-keygen-txt">Generar Clave Suscripción</span>
+          </button>
           <button onclick="openTeacherSettingsModal()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/50 hover:border-cyan-400 text-cyan-300 hover:text-white shadow transition active:scale-95 flex items-center gap-2 font-bold text-xs sm:text-sm">
             <span class="text-base">⚙️</span>
             <span>Configurar Escuela</span>
@@ -853,6 +857,70 @@
     </div>
   </div>
 
+  <!-- Modal Generador de Contraseñas de Suscripción (Exclusivo Docente / Administrador) -->
+  <div id="subscription-keygen-modal" onclick="if (event.target === this) closeSubscriptionKeygenModal()" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-900 border-2 border-amber-500/60 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative text-left my-auto">
+      <button onclick="closeSubscriptionKeygenModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+
+      <div class="flex items-center gap-2.5 border-b border-slate-800 pb-3 mb-3.5">
+        <div class="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-2xl">
+          🔑
+        </div>
+        <div>
+          <h3 id="keygen-modal-title" class="text-base sm:text-lg font-black text-white leading-tight">Generador de Claves de Suscripción</h3>
+          <p id="keygen-modal-sub" class="text-[11px] text-amber-300 font-semibold">Crea contraseñas con vencimiento automático (1 Mes o 1 Año)</p>
+        </div>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label id="keygen-client-label" class="block text-slate-300 font-bold mb-1">Nombre del Cliente o Estudiante (Opcional):</label>
+          <input type="text" id="keygen-client-name" placeholder="Ej. Carlos Mendoza / Colegio San Agustín" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-semibold" />
+        </div>
+
+        <div>
+          <label id="keygen-plan-label" class="block text-slate-300 font-bold mb-1.5">Selecciona el Plan Pagado por el Cliente:</label>
+          <div class="grid grid-cols-2 gap-2.5">
+            <button type="button" id="keygen-btn-1m" onclick="selectKeygenPlan('1M')" class="p-3 rounded-2xl bg-amber-500/20 border-2 border-amber-400 text-left transition flex flex-col justify-between">
+              <span class="text-[10px] font-black uppercase text-amber-300">📅 Plan Mensual</span>
+              <span class="text-base font-black text-white mt-0.5">1 Mes (30 días)</span>
+              <span class="text-[10px] text-slate-300 mt-0.5">Pago: $1.00 USD</span>
+            </button>
+            <button type="button" id="keygen-btn-1a" onclick="selectKeygenPlan('1A')" class="p-3 rounded-2xl bg-slate-950 border-2 border-slate-800 hover:border-amber-400/50 text-left transition flex flex-col justify-between">
+              <span class="text-[10px] font-black uppercase text-cyan-300">🏆 Plan Anual</span>
+              <span class="text-base font-black text-white mt-0.5">1 Año (365 días)</span>
+              <span class="text-[10px] text-slate-400 mt-0.5">Pago: $9.99 USD</span>
+            </button>
+          </div>
+        </div>
+
+        <button type="button" onclick="generateSubscriptionPassword()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-xs sm:text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2">
+          <span>⚡</span> <span id="keygen-generate-btn-txt">Generar Nueva Contraseña de Suscripción</span>
+        </button>
+
+        <!-- Resultado con la Contraseña Criptográfica -->
+        <div id="keygen-result-box" class="bg-slate-950 border border-emerald-500/50 rounded-2xl p-3.5 space-y-2.5">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="text-slate-400 font-bold" id="keygen-res-label">Contraseña para el Suscriptor:</span>
+            <span id="keygen-exp-badge" class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-bold text-[10px]">30 días</span>
+          </div>
+          <input type="text" id="keygen-output-code" readonly class="w-full text-center font-mono font-black text-base sm:text-lg text-amber-300 bg-slate-900 border border-amber-500/40 rounded-xl py-2 px-3 select-all tracking-wider focus:outline-none" value="" />
+          <p id="keygen-exp-detail" class="text-[11px] text-slate-300 text-center"></p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+            <button type="button" onclick="copyGeneratedSubKey(false)" class="py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition active:scale-95 flex items-center justify-center gap-1.5 shadow">
+              <span>📋</span> <span id="keygen-copy-code-txt">Copiar Clave</span>
+            </button>
+            <button type="button" onclick="copyGeneratedSubKey(true)" class="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition active:scale-95 flex items-center justify-center gap-1.5 shadow">
+              <span>📲</span> <span id="keygen-copy-wa-txt">Copiar Mensaje WhatsApp</span>
+            </button>
+          </div>
+          <div id="keygen-copy-feedback" class="hidden text-center text-[11px] font-bold text-emerald-400"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal de Licencia / Paywall Internacional (Suscripción tras 10 elementos) -->
   <div id="license-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
     <div class="bg-slate-900 border-2 border-amber-500/60 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative text-center my-auto">
@@ -903,7 +971,7 @@
       <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800 text-left">
         <label id="lic-key-label" class="block text-slate-300 font-bold text-xs mb-1.5">¿Ya adquiriste tu suscripción? Ingresa tu clave de activación:</label>
         <div class="flex gap-2">
-          <input type="text" id="license-key-input" placeholder="Ej. PRO-2026-GLOBAL" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-amber-300 font-mono text-xs placeholder-slate-600 focus:outline-none focus:border-amber-500 uppercase tracking-wider" />
+          <input type="text" id="license-key-input" placeholder="Ej. QZM-20261124-XXXXXX" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-amber-300 font-mono text-xs placeholder-slate-600 focus:outline-none focus:border-amber-500 uppercase tracking-wider" />
           <button id="lic-activate-btn" onclick="activateLicenseKey()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition active:scale-95 shadow whitespace-nowrap">
             Activar
           </button>
@@ -1385,7 +1453,9 @@
 
     let activeGradingScale = localStorage.getItem('quimiquiz_scale') || 'panama';
     const FREE_TRIAL_LIMIT = 10;
-    let isProLicenseActive = localStorage.getItem('quimiquiz_pro_sub_v2') === 'true';
+    let proExpirationTimestamp = parseInt(localStorage.getItem('quimiquiz_pro_exp_ts') || '0', 10);
+    let proPlanType = localStorage.getItem('quimiquiz_pro_plan_type') || '';
+    let isProLicenseActive = localStorage.getItem('quimiquiz_pro_sub_v2') === 'true' && proExpirationTimestamp > Date.now();
     let isTrialExhausted = localStorage.getItem('quimiquiz_trial_exhausted_v2') === 'true';
 
     let teacherProfile = {
@@ -1483,7 +1553,194 @@
       if (tName) tName.textContent = `${scale.name} (${scale.badge})`;
     }
 
-    // Modal de Licencias y Bloqueo tras 10 elementos de prueba
+    // Modal de Licencias, Generador de Contraseñas (1 Mes / 1 Año) y Bloqueo tras 10 elementos
+    let selectedKeygenPlan = '1M';
+
+    function formatYYYYMMDD(dateObj) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}${m}${d}`;
+    }
+
+    function formatReadableDate(ts) {
+      if (!ts) return '';
+      const d = new Date(ts);
+      const day = String(d.getDate()).padStart(2, '0');
+      const mon = String(d.getMonth() + 1).padStart(2, '0');
+      const yr = d.getFullYear();
+      return `${day}/${mon}/${yr}`;
+    }
+
+    function createSignedSubscriptionKey(planCode, daysCount) {
+      const prefix = planCode === '1A' ? 'QZA' : 'QZM';
+      const expDate = new Date(Date.now() + daysCount * 86400000);
+      const ymd = formatYYYYMMDD(expDate);
+      // Incorporar 2 caracteres aleatorios para que cada cliente tenga una clave única
+      const nonce = Math.floor(10 + Math.random() * 89).toString();
+      const rawToSign = `SUB|${prefix}|${ymd}|${nonce}`;
+      const sig = generateSignature(rawToSign, PROF_SECRET_SALT).slice(0, 6);
+      return {
+        key: `${prefix}-${ymd}-${nonce}${sig}`,
+        expDate,
+        daysCount,
+        planCode
+      };
+    }
+
+    function verifySubscriptionKeyString(rawKey) {
+      const clean = (rawKey || '').trim().toUpperCase();
+      if (!clean) return { valid: false, reason: 'empty' };
+
+      // 1. Verificar formato criptográfico con fecha de vencimiento: QZM-YYYYMMDD-NNXXXXXX o QZA-YYYYMMDD-NNXXXXXX
+      const match = clean.match(/^(QZM|QZA)-(\d{4})(\d{2})(\d{2})-(\d{2})([A-Z0-9]{6})$/);
+      if (match) {
+        const prefix = match[1];
+        const yr = parseInt(match[2], 10);
+        const mo = parseInt(match[3], 10);
+        const da = parseInt(match[4], 10);
+        const nonce = match[5];
+        const sigProvided = match[6];
+        const ymd = `${match[2]}${match[3]}${match[4]}`;
+
+        const expectedSig = generateSignature(`SUB|${prefix}|${ymd}|${nonce}`, PROF_SECRET_SALT).slice(0, 6);
+        if (sigProvided !== expectedSig) {
+          return { valid: false, reason: 'invalid_sig' };
+        }
+
+        // Fecha de expiración al final de ese día (23:59:59.999)
+        const expTs = new Date(yr, mo - 1, da, 23, 59, 59, 999).getTime();
+        if (Date.now() > expTs) {
+          return { valid: false, reason: 'expired', expTs };
+        }
+
+        return {
+          valid: true,
+          planCode: prefix === 'QZA' ? '1A' : '1M',
+          expTs,
+          days: prefix === 'QZA' ? 365 : 30
+        };
+      }
+
+      // 2. Claves maestras rápidas (activan 1 mes para códigos MENSUAL y 1 año para códigos ANUAL/PRO)
+      if (clean === 'MES-2026' || clean === 'QZM-PRO-MES') {
+        return {
+          valid: true,
+          planCode: '1M',
+          expTs: Date.now() + 30 * 86400000,
+          days: 30
+        };
+      }
+      const annualMasterKeys = ['PRO-2026-GLOBAL', 'QUIMICA-PRO-2026', 'QUIMIQUIZ-PRO', 'EDWIN-PRO-2026', 'DEMO-PRO'];
+      if (annualMasterKeys.includes(clean) || (clean.startsWith('QZPR-') && clean.length >= 10)) {
+        return {
+          valid: true,
+          planCode: '1A',
+          expTs: Date.now() + 365 * 86400000,
+          days: 365
+        };
+      }
+
+      return { valid: false, reason: 'invalid' };
+    }
+
+    function checkSubscriptionValidity() {
+      if (!isProLicenseActive) return false;
+      if (!proExpirationTimestamp || Date.now() > proExpirationTimestamp) {
+        // El tiempo pagado (1 mes o 1 año) ha expirado automáticamente
+        isProLicenseActive = false;
+        isTrialExhausted = true;
+        localStorage.removeItem('quimiquiz_pro_sub_v2');
+        localStorage.removeItem('quimiquiz_pro_exp_ts');
+        localStorage.setItem('quimiquiz_trial_exhausted_v2', 'true');
+        updateLicenseBadgeUI();
+        return false;
+      }
+      return true;
+    }
+
+    function openSubscriptionKeygenModal() {
+      const modal = document.getElementById('subscription-keygen-modal');
+      if (modal) modal.classList.remove('hidden');
+      selectKeygenPlan(selectedKeygenPlan || '1M');
+      generateSubscriptionPassword();
+    }
+
+    function closeSubscriptionKeygenModal() {
+      const modal = document.getElementById('subscription-keygen-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function selectKeygenPlan(plan) {
+      selectedKeygenPlan = plan === '1A' ? '1A' : '1M';
+      const btn1m = document.getElementById('keygen-btn-1m');
+      const btn1a = document.getElementById('keygen-btn-1a');
+      if (btn1m && btn1a) {
+        if (selectedKeygenPlan === '1M') {
+          btn1m.className = "p-3 rounded-2xl bg-amber-500/20 border-2 border-amber-400 text-left transition flex flex-col justify-between shadow-lg";
+          btn1a.className = "p-3 rounded-2xl bg-slate-950 border-2 border-slate-800 hover:border-amber-400/50 text-left transition flex flex-col justify-between";
+        } else {
+          btn1a.className = "p-3 rounded-2xl bg-amber-500/20 border-2 border-amber-400 text-left transition flex flex-col justify-between shadow-lg";
+          btn1m.className = "p-3 rounded-2xl bg-slate-950 border-2 border-slate-800 hover:border-amber-400/50 text-left transition flex flex-col justify-between";
+        }
+      }
+      generateSubscriptionPassword();
+    }
+
+    function generateSubscriptionPassword() {
+      const days = selectedKeygenPlan === '1A' ? 365 : 30;
+      const generated = createSignedSubscriptionKey(selectedKeygenPlan, days);
+      const outInput = document.getElementById('keygen-output-code');
+      const expBadge = document.getElementById('keygen-exp-badge');
+      const expDetail = document.getElementById('keygen-exp-detail');
+      const isEn = typeof currentLang !== 'undefined' && currentLang === 'en';
+
+      if (outInput) outInput.value = generated.key;
+      if (expBadge) {
+        expBadge.textContent = selectedKeygenPlan === '1A'
+          ? (isEn ? '1 Year (365 days)' : '1 Año (365 días)')
+          : (isEn ? '1 Month (30 days)' : '1 Mes (30 días)');
+      }
+      if (expDetail) {
+        const expStr = formatReadableDate(generated.expDate.getTime());
+        expDetail.textContent = isEn
+          ? `Valid until ${expStr} · Automatically locks after expiration`
+          : `Válida hasta el ${expStr} · Se bloquea automáticamente al vencer`;
+      }
+    }
+
+    function copyGeneratedSubKey(includeWhatsAppMessage = false) {
+      const outInput = document.getElementById('keygen-output-code');
+      const clientInput = document.getElementById('keygen-client-name');
+      const fb = document.getElementById('keygen-copy-feedback');
+      const key = outInput ? outInput.value : '';
+      if (!key) return;
+
+      const clientName = (clientInput ? clientInput.value : '').trim();
+      const isEn = typeof currentLang !== 'undefined' && currentLang === 'en';
+      const parsed = verifySubscriptionKeyString(key);
+      const expStr = parsed.expTs ? formatReadableDate(parsed.expTs) : '';
+      const planLabel = selectedKeygenPlan === '1A'
+        ? (isEn ? '1 Year (365 days)' : '1 Año (365 días)')
+        : (isEn ? '1 Month (30 days)' : '1 Mes (30 días)');
+
+      let textToCopy = key;
+      if (includeWhatsAppMessage) {
+        textToCopy = isEn
+          ? `Hello${clientName ? ' ' + clientName : ''}! Thank you for your payment. Here is your official QuimiQuiz Pro activation password (${planLabel}, valid until ${expStr}):\n\n🔑 ${key}\n\nOpen the app at https://ecog191166-code.github.io/tabla-periodica-game/ , click "Activate PRO" and paste your key.`
+          : `¡Hola${clientName ? ' ' + clientName : ''}! Gracias por tu pago. Aquí tienes tu contraseña oficial de activación de QuimiQuiz Pro (Plan ${planLabel}, válida hasta el ${expStr}):\n\n🔑 ${key}\n\nAbre la app en https://ecog191166-code.github.io/tabla-periodica-game/ , toca en "Activar PRO" y pega tu clave.`;
+      }
+
+      navigator.clipboard.writeText(textToCopy).catch(() => {});
+      if (fb) {
+        fb.textContent = includeWhatsAppMessage
+          ? (isEn ? '✅ Complete WhatsApp message copied!' : '✅ ¡Mensaje completo para WhatsApp copiado!')
+          : (isEn ? '✅ Subscription key copied!' : '✅ ¡Clave de suscripción copiada!');
+        fb.classList.remove('hidden');
+        setTimeout(() => fb.classList.add('hidden'), 2800);
+      }
+    }
+
     function openLicenseModal(isLockedByTrial = false) {
       const modal = document.getElementById('license-modal');
       const banner = document.getElementById('trial-limit-reached-banner');
@@ -1502,8 +1759,7 @@
     function closeLicenseModal() {
       const modal = document.getElementById('license-modal');
       if (modal) modal.classList.add('hidden');
-      // Si ya agotó los 10 elementos de prueba y no ha activado PRO, mantener bloqueado el panel de juego
-      if (!isProLicenseActive && (isTrialExhausted || currentItemIndex >= FREE_TRIAL_LIMIT)) {
+      if (!checkSubscriptionValidity() && (isTrialExhausted || currentItemIndex >= FREE_TRIAL_LIMIT)) {
         renderTrialPaywallOverlay();
       }
     }
@@ -1533,8 +1789,8 @@
           </h3>
           <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
             ${isEn
-              ? `You have completed the 10 free trial elements (Score so far: ${totalCorrect}/10). Activate your QuimiQuiz Pro subscription to unlock all 50 challenge items, all 118 Periodic Table elements, and the official evaluation certificate.`
-              : `Has completado los 10 elementos de prueba gratuita (Aciertos hasta ahora: ${totalCorrect}/10). Activa tu suscripción de QuimiQuiz Pro para desbloquear los 50 ítems del desafío, los 118 elementos de la Tabla Periódica y el certificado oficial.`}
+              ? `You have completed the 10 free trial elements (Score so far: ${totalCorrect}/10). Activate your QuimiQuiz Pro subscription (1 Month or 1 Year) to continue from Item 11 to 50 and unlock all 118 Periodic Table elements.`
+              : `Has completado los 10 elementos de prueba gratuita (Aciertos: ${totalCorrect}/10). Activa tu suscripción de QuimiQuiz Pro (1 Mes o 1 Año) para continuar del ítem 11 al 50 y desbloquear los 118 elementos.`}
           </p>
           <div class="w-full flex flex-col gap-2.5 pt-1">
             <button onclick="openLicenseModal(true)" class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-sm sm:text-base shadow-xl transition active:scale-95 flex items-center justify-center gap-2">
@@ -1560,65 +1816,83 @@
       const key = (input ? input.value : '').trim().toUpperCase();
       const isEn = typeof currentLang !== 'undefined' && currentLang === 'en';
 
-      if (!key) {
+      const check = verifySubscriptionKeyString(key);
+      if (!check.valid) {
         if (feedback) {
-          feedback.textContent = isEn ? "Please enter a subscription license key." : "Por favor ingresa una clave de suscripción.";
+          if (check.reason === 'empty') {
+            feedback.textContent = isEn ? "Please enter your subscription password." : "Por favor ingresa tu contraseña de suscripción.";
+          } else if (check.reason === 'expired') {
+            const expStr = formatReadableDate(check.expTs);
+            feedback.textContent = isEn
+              ? `⚠️ This subscription password expired on ${expStr}. Please renew your subscription.`
+              : `⚠️ Esta contraseña de suscripción venció el ${expStr}. Por favor renueva tu suscripción.`;
+          } else {
+            feedback.textContent = isEn
+              ? "❌ Invalid or altered subscription password. Please check your key."
+              : "❌ Contraseña de suscripción inválida o alterada. Verifica que esté bien escrita.";
+          }
           feedback.className = "text-[11px] font-semibold text-rose-400 mt-2";
           feedback.classList.remove('hidden');
         }
         return;
       }
 
-      const validKeys = ['PRO-2026-GLOBAL', 'QUIMICA-PRO-2026', 'QUIMIQUIZ-PRO', 'EDWIN-PRO-2026', 'DEMO-PRO'];
-      if (validKeys.includes(key) || (key.startsWith('QZPR-') && key.length >= 10)) {
-        isProLicenseActive = true;
-        isTrialExhausted = false;
-        localStorage.setItem('quimiquiz_pro_sub_v2', 'true');
-        localStorage.removeItem('quimiquiz_trial_exhausted_v2');
-        localStorage.setItem('quimiquiz_license_key', key);
-        removeTrialPaywallOverlay();
-        updateLicenseBadgeUI();
-        filterElements();
-        playSound('fanfare');
+      isProLicenseActive = true;
+      isTrialExhausted = false;
+      proExpirationTimestamp = check.expTs;
+      proPlanType = check.planCode;
+      localStorage.setItem('quimiquiz_pro_sub_v2', 'true');
+      localStorage.setItem('quimiquiz_pro_exp_ts', String(proExpirationTimestamp));
+      localStorage.setItem('quimiquiz_pro_plan_type', proPlanType);
+      localStorage.removeItem('quimiquiz_trial_exhausted_v2');
+      localStorage.setItem('quimiquiz_license_key', key);
 
-        if (feedback) {
-          feedback.textContent = isEn
-            ? "✅ PRO Subscription activated! Full 50-item challenge & 118 elements unlocked."
-            : "✅ ¡Suscripción PRO activada con éxito! Desafío de 50 ítems y 118 elementos desbloqueados.";
-          feedback.className = "text-[11px] font-semibold text-emerald-400 mt-2";
-          feedback.classList.remove('hidden');
-        }
+      removeTrialPaywallOverlay();
+      updateLicenseBadgeUI();
+      filterElements();
+      playSound('fanfare');
 
-        setTimeout(() => {
-          closeLicenseModal();
-          if (currentItemIndex < TOTAL_ITEMS && !isAnswered) {
-            generateCurrentItem();
-          }
-          alert(isEn
-            ? "Congratulations! You have activated QuimiQuiz Pro with unlimited access to all 50 items and 118 elements."
-            : "¡Felicitaciones! Has activado la versión completa de QuimiQuiz Pro con acceso ilimitado a los 50 ítems y los 118 elementos.");
-        }, 900);
-      } else {
-        if (feedback) {
-          feedback.textContent = isEn
-            ? "❌ Invalid subscription key. Please check your key or subscribe above."
-            : "❌ Clave de suscripción inválida. Verifica que esté bien escrita o adquiere tu plan arriba.";
-          feedback.className = "text-[11px] font-semibold text-rose-400 mt-2";
-          feedback.classList.remove('hidden');
-        }
+      const expStr = formatReadableDate(proExpirationTimestamp);
+      const planName = proPlanType === '1A'
+        ? (isEn ? '1 Year (365 days)' : '1 Año (365 días)')
+        : (isEn ? '1 Month (30 days)' : '1 Mes (30 días)');
+
+      if (feedback) {
+        feedback.textContent = isEn
+          ? `✅ Subscription activated (${planName})! Valid until ${expStr}.`
+          : `✅ ¡Suscripción activada (${planName})! Válida hasta el ${expStr}.`;
+        feedback.className = "text-[11px] font-semibold text-emerald-400 mt-2";
+        feedback.classList.remove('hidden');
       }
+
+      setTimeout(() => {
+        closeLicenseModal();
+        if (currentItemIndex < TOTAL_ITEMS && !isAnswered) {
+          generateCurrentItem();
+        }
+        alert(isEn
+          ? `Congratulations! Your QuimiQuiz Pro subscription (${planName}) is now active until ${expStr}.`
+          : `¡Felicitaciones! Tu suscripción de QuimiQuiz Pro (${planName}) ha quedado activa hasta el ${expStr}.`);
+      }, 900);
     }
 
     function handleHeaderLicenseClick() {
       const isEn = typeof currentLang !== 'undefined' && currentLang === 'en';
-      if (isProLicenseActive) {
+      if (checkSubscriptionValidity()) {
+        const expStr = formatReadableDate(proExpirationTimestamp);
+        const daysLeft = Math.max(1, Math.ceil((proExpirationTimestamp - Date.now()) / 86400000));
+        const planName = proPlanType === '1A'
+          ? (isEn ? 'Annual Plan (1 Year)' : 'Plan Anual (1 Año)')
+          : (isEn ? 'Monthly Plan (1 Month)' : 'Plan Mensual (1 Mes)');
         const wantReset = confirm(isEn
-          ? "✅ Your QuimiQuiz Pro subscription is ACTIVE.\n\nDo you want to lock it again and return to the 10-element Free Trial mode (for client testing/demo)?"
-          : "✅ Tu Suscripción QuimiQuiz Pro está ACTIVA.\n\n¿Deseas volver a activar el bloqueo de Prueba de 10 Elementos (para probar o demostrar la app a un cliente)?");
+          ? `✅ Active Subscription: ${planName}\n📅 Valid until: ${expStr} (${daysLeft} days remaining)\n\nDo you want to lock the app again into 10-Element Free Trial mode (for testing/demo)?`
+          : `✅ Suscripción Activa: ${planName}\n📅 Válida hasta el: ${expStr} (${daysLeft} días restantes)\n\n¿Deseas volver a poner la app en Modo Prueba de 10 Elementos (para probar el bloqueo)?`);
         if (wantReset) {
           isProLicenseActive = false;
           isTrialExhausted = false;
+          proExpirationTimestamp = 0;
           localStorage.removeItem('quimiquiz_pro_sub_v2');
+          localStorage.removeItem('quimiquiz_pro_exp_ts');
           localStorage.removeItem('quimiquiz_trial_exhausted_v2');
           removeTrialPaywallOverlay();
           updateLicenseBadgeUI();
@@ -1637,9 +1911,11 @@
       if (badgeBtn) {
         badgeBtn.onclick = handleHeaderLicenseClick;
       }
-      if (isProLicenseActive) {
-        if (badgeTxt) badgeTxt.textContent = isEn ? "PRO Active" : "PRO Activo";
+      if (isProLicenseActive && proExpirationTimestamp > Date.now()) {
+        const daysLeft = Math.max(1, Math.ceil((proExpirationTimestamp - Date.now()) / 86400000));
+        if (badgeTxt) badgeTxt.textContent = isEn ? `PRO (${daysLeft}d)` : `PRO (${daysLeft}d)`;
         if (badgeBtn) {
+          badgeBtn.title = (isEn ? 'Active until ' : 'Activa hasta el ') + formatReadableDate(proExpirationTimestamp);
           badgeBtn.className = "px-2.5 py-1 rounded-lg bg-emerald-600/30 border border-emerald-500 text-emerald-300 font-bold text-xs shadow-sm flex items-center gap-1 cursor-pointer";
         }
       } else {
@@ -2128,7 +2404,7 @@
     }
 
     function generateCurrentItem() {
-      if (!isProLicenseActive && (isTrialExhausted || currentItemIndex >= FREE_TRIAL_LIMIT)) {
+      if (!checkSubscriptionValidity() && (isTrialExhausted || currentItemIndex >= FREE_TRIAL_LIMIT)) {
         if (isChallengeStarted) {
           renderTrialPaywallOverlay();
           openLicenseModal(true);
@@ -2284,7 +2560,7 @@
       stopAutoNextCountdown();
       recordHistoryAction('Avance al Ítem ' + (currentItemIndex + 2));
       currentItemIndex++;
-      if (!isProLicenseActive && currentItemIndex >= FREE_TRIAL_LIMIT) {
+      if (!checkSubscriptionValidity() && currentItemIndex >= FREE_TRIAL_LIMIT) {
         isTrialExhausted = true;
         localStorage.setItem('quimiquiz_trial_exhausted_v2', 'true');
         playSound('error');
@@ -5987,6 +6263,8 @@ Ha quedado registrado en el panel oficial del docente.`);
       // 10. Panel Docente (#teacher-panel)
       const teacherPanel = document.getElementById('teacher-panel');
       if (teacherPanel) {
+        const keygenBtnTxt = document.getElementById('btn-open-keygen-txt');
+        if (keygenBtnTxt) keygenBtnTxt.textContent = isEn ? 'Generate Subscription Key' : 'Generar Clave Suscripción';
         const cfgBtn = teacherPanel.querySelector('button[onclick="openTeacherSettingsModal()"] span:last-child');
         if (cfgBtn) cfgBtn.textContent = isEn ? 'Configure School' : 'Configurar Escuela';
 
