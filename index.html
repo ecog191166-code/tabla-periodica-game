@@ -118,7 +118,11 @@
             <span>👨‍🏫</span> Panel Docente
           </button>
         </div>
-                <!-- Botones Deshacer y Rehacer -->
+                <!-- Selector de Idioma ES / EN -->
+        <button id="btn-lang-toggle" onclick="toggleAppLanguage()" title="Cambiar idioma Español / English" class="px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-slate-800 border border-cyan-500/40 text-cyan-300 hover:text-white font-black transition text-xs flex items-center gap-1 shadow-sm active:scale-95">
+          <span id="lang-flag-icon">🇪🇸</span> <span id="lang-code-txt">ES / EN</span>
+        </button>
+        <!-- Botones Deshacer y Rehacer -->
         <div class="flex items-center gap-1 bg-slate-950 p-0.5 rounded-lg border border-slate-800">
           <button id="btn-undo" onclick="performUndo()" disabled title="Deshacer última acción (Ctrl+Z)" class="px-2 py-1 rounded-md text-slate-600 opacity-50 cursor-not-allowed font-bold transition text-[11px] sm:text-xs flex items-center gap-1">
             <span>↩️</span> <span class="hidden md:inline">Deshacer</span>
@@ -903,26 +907,36 @@
   <!-- Ventana de Bienvenida al Usuario e Inicio del Desafío -->
   <div id="welcome-start-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-slate-900 border-2 border-blue-500/50 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl relative text-center flex flex-col items-center gap-5">
+      <!-- Selector rápido de idioma en la bienvenida -->
+      <div class="flex items-center gap-2 bg-slate-950 p-1 rounded-2xl border border-slate-800 text-xs">
+        <button id="welcome-lang-es" onclick="setAppLanguage('es')" class="px-3 py-1 rounded-xl bg-blue-600 text-white font-black transition flex items-center gap-1.5">
+          <span>🇪🇸</span> <span>Español</span>
+        </button>
+        <button id="welcome-lang-en" onclick="setAppLanguage('en')" class="px-3 py-1 rounded-xl text-slate-400 hover:text-white font-bold transition flex items-center gap-1.5">
+          <span>🇺🇸</span> <span>English</span>
+        </button>
+      </div>
+
       <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-600/30 via-cyan-500/20 to-emerald-500/20 border-2 border-blue-400/60 flex items-center justify-center text-5xl shadow-xl">
         ⚛️
       </div>
 
       <div class="space-y-1.5">
-        <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+        <h2 id="welcome-title-txt" class="text-2xl sm:text-3xl font-black text-white tracking-tight">
           Bienvenido a QuimiQuiz Pro
         </h2>
-        <p class="text-base sm:text-lg text-cyan-300 font-extrabold tracking-wide">
+        <p id="welcome-subtitle-txt" class="text-base sm:text-lg text-cyan-300 font-extrabold tracking-wide">
           (Tabla Periódica)
         </p>
       </div>
 
       <div class="w-full flex flex-col gap-3 pt-1">
         <button onclick="startChallengeFromWelcome()" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-sm sm:text-base transition flex items-center justify-center gap-2 shadow-xl shadow-emerald-950/60 active:scale-95 border-2 border-emerald-300/60">
-          <span class="text-lg">🚀</span> <span>Comienza el Desafío</span>
+          <span class="text-lg">🚀</span> <span id="welcome-btn-start-txt">Comienza el Desafío</span>
         </button>
 
         <button onclick="openExploreFromWelcome()" class="w-full py-3 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 active:scale-95 border border-slate-700">
-          <span>📖</span> <span>Ir primero a Repaso de la Tabla Periódica</span>
+          <span>📖</span> <span id="welcome-btn-explore-txt">Ir primero a Repaso de la Tabla Periódica</span>
         </button>
       </div>
     </div>
@@ -1334,7 +1348,7 @@
       const ind = document.getElementById('auto-next-indicator');
       const isLast = currentItemIndex === TOTAL_ITEMS - 1;
       if (ind) {
-        ind.textContent = (isLast ? 'Certificado en ' : 'Siguiente en ') + autoNextSecondsLeft + 's...';
+        ind.textContent = (currentLang === 'en' ? (isLast ? 'Certificate in ' : 'Next in ') : (isLast ? 'Certificado en ' : 'Siguiente en ')) + autoNextSecondsLeft + 's...';
       }
 
       autoNextTimerInterval = setInterval(() => {
@@ -1407,25 +1421,25 @@
 
       if (atomicNumberEl) atomicNumberEl.textContent = `Z = ${currentElement.z}`;
       if (atomicMassEl) atomicMassEl.textContent = currentElement.m ? `${currentElement.m.toFixed(2)} u` : '-';
-      if (categoryBadge) categoryBadge.textContent = currentElement.c;
+      if (categoryBadge) categoryBadge.textContent = getElCategory(currentElement);
       if (hintText) {
-        hintText.innerHTML = `💡 <strong class="text-blue-400 not-italic">Pista:</strong> ${currentElement.d}`;
+        hintText.innerHTML = currentLang === 'en' ? `💡 <strong class="text-blue-400 not-italic">Hint:</strong> ${getElDesc(currentElement)}` : `💡 <strong class="text-blue-400 not-italic">Pista:</strong> ${currentElement.d}`;
       }
 
       if (currentType === 'sym-to-name') {
-        typeBadge.textContent = "Símbolo ➔ Nombre";
+        typeBadge.textContent = currentLang === 'en' ? "Symbol ➔ Name" : "Símbolo ➔ Nombre";
         typeBadge.className = "px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30";
-        promptQuestion.innerHTML = `¿Cuál es el <strong>nombre</strong> del elemento con símbolo <span class="text-blue-400 font-black text-sm sm:text-base md:text-lg">${currentElement.s}</span>?`;
+        promptQuestion.innerHTML = currentLang === 'en' ? `What is the <strong>name</strong> of the element with symbol <span class="text-blue-400 font-black text-sm sm:text-base md:text-lg">${currentElement.s}</span>?` : `¿Cuál es el <strong>nombre</strong> del elemento con símbolo <span class="text-blue-400 font-black text-sm sm:text-base md:text-lg">${currentElement.s}</span>?`;
         elementDisplayEl.textContent = currentElement.s;
         elementDisplayEl.className = "element-symbol-txt text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 tracking-tight my-auto select-none";
-        elementSubtextEl.textContent = "Símbolo Químico";
+        elementSubtextEl.textContent = currentLang === 'en' ? "Chemical Symbol" : "Símbolo Químico";
       } else {
-        typeBadge.textContent = "Nombre ➔ Símbolo";
+        typeBadge.textContent = currentLang === 'en' ? "Name ➔ Symbol" : "Nombre ➔ Símbolo";
         typeBadge.className = "px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30";
-        promptQuestion.innerHTML = `¿Cuál es el <strong>símbolo químico</strong> de <span class="text-teal-300 font-black text-sm sm:text-base md:text-lg">${currentElement.n}</span>?`;
-        elementDisplayEl.textContent = currentElement.n;
+        promptQuestion.innerHTML = currentLang === 'en' ? `What is the <strong>chemical symbol</strong> for <span class="text-teal-300 font-black text-sm sm:text-base md:text-lg">${getElName(currentElement)}</span>?` : `¿Cuál es el <strong>símbolo químico</strong> de <span class="text-teal-300 font-black text-sm sm:text-base md:text-lg">${currentElement.n}</span>?`;
+        elementDisplayEl.textContent = getElName(currentElement);
         elementDisplayEl.className = "element-symbol-txt text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-cyan-300 to-blue-400 tracking-tight my-auto px-1 select-none text-center";
-        elementSubtextEl.textContent = "¿Cuál es su símbolo?";
+        elementSubtextEl.textContent = currentLang === 'en' ? "What is its symbol?" : "¿Cuál es su símbolo?";
       }
 
       const options = [currentElement];
@@ -1444,7 +1458,7 @@
 
       options.forEach(opt => {
         const btn = document.createElement('button');
-        const textToDisplay = currentType === 'sym-to-name' ? opt.n : opt.s;
+        const textToDisplay = currentType === 'sym-to-name' ? getElName(opt) : opt.s;
 
         btn.className = "flex items-center justify-center p-2.5 sm:p-3.5 rounded-xl bg-slate-950/80 border border-slate-800 text-center hover:border-blue-500 hover:bg-slate-800/80 font-bold text-sm sm:text-base text-slate-100 transition shadow active:scale-95";
         btn.textContent = textToDisplay;
@@ -1490,7 +1504,7 @@
         if (feedbackBox) {
           feedbackBox.className = "p-2.5 sm:p-3 rounded-xl border bg-emerald-950/60 border-emerald-500/50 text-emerald-200 flex items-center justify-between gap-3 transition shadow";
           if (feedbackIcon) feedbackIcon.textContent = "✅";
-          if (feedbackTitle) feedbackTitle.textContent = `¡Correcto! +1 pto: ${currentElement.n} (${currentElement.s})`;
+          if (feedbackTitle) feedbackTitle.textContent = currentLang === 'en' ? `Correct! +1 pt: ${getElName(currentElement)} (${currentElement.s})` : `¡Correcto! +1 pto: ${currentElement.n} (${currentElement.s})`;
           if (feedbackDetail) feedbackDetail.textContent = `Z = ${currentElement.z}, Masa = ${currentElement.m} u`;
         }
       } else {
@@ -1502,7 +1516,7 @@
         if (feedbackBox) {
           feedbackBox.className = "p-2.5 sm:p-3 rounded-xl border bg-rose-950/60 border-rose-500/50 text-rose-200 flex items-center justify-between gap-3 transition shadow";
           if (feedbackIcon) feedbackIcon.textContent = isTimeout ? "⏱️💥" : "💣💥";
-          if (feedbackTitle) feedbackTitle.textContent = isTimeout ? `¡Tiempo Agotado! (20s excedidos)` : `Desacierto. Era ${currentElement.n} (${currentElement.s})`;
+          if (feedbackTitle) feedbackTitle.textContent = currentLang === 'en' ? (isTimeout ? 'Time is up! (20s exceeded)' : `Incorrect. It was ${getElName(currentElement)} (${currentElement.s})`) : (isTimeout ? `¡Tiempo Agotado! (20s excedidos)` : `Desacierto. Era ${currentElement.n} (${currentElement.s})`);
           if (feedbackDetail) feedbackDetail.textContent = isTimeout ? `La respuesta correcta era ${currentElement.n} (${currentElement.s})` : `Marcaste: ${selectedOpt.n} (${selectedOpt.s})`;
         }
       }
@@ -3380,16 +3394,16 @@
         // Guardar referencia global para evitar que el recolector de basura de Chrome/Edge corte el audio
         window._activeAufbauUtterance = utter;
 
-        const chosenVoice = selectBestRealisticSpanishVoice();
+        const chosenVoice = (typeof currentLang !== 'undefined' && currentLang === 'en') ? selectBestRealisticEnglishVoice() : selectBestRealisticSpanishVoice();
         if (chosenVoice) {
           utter.voice = chosenVoice;
-          utter.lang = chosenVoice.lang || 'es-ES';
+          utter.lang = chosenVoice.lang || ((typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en-US' : 'es-ES');
           const vName = (chosenVoice.name || '').toLowerCase();
           const isNeuralOrGoogle = vName.includes('natural') || vName.includes('online') || vName.includes('google');
           utter.rate = customRate;
           utter.pitch = isNeuralOrGoogle ? 0.96 : 0.84;
         } else {
-          utter.lang = 'es-ES';
+          utter.lang = (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en-US' : 'es-ES';
           utter.rate = customRate;
           utter.pitch = 0.86;
         }
@@ -3643,11 +3657,11 @@
         .trim();
 
       const utter = new SpeechSynthesisUtterance(naturalText);
-      const chosenVoice = selectBestRealisticSpanishVoice();
+      const chosenVoice = (typeof currentLang !== 'undefined' && currentLang === 'en') ? selectBestRealisticEnglishVoice() : selectBestRealisticSpanishVoice();
 
       if (chosenVoice) {
         utter.voice = chosenVoice;
-        utter.lang = chosenVoice.lang || 'es-ES';
+        utter.lang = chosenVoice.lang || ((typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en-US' : 'es-ES');
         const vName = (chosenVoice.name || '').toLowerCase();
         const isNeuralOrGoogle = vName.includes('natural') || vName.includes('online') || vName.includes('google');
 
@@ -3661,7 +3675,7 @@
           utter.pitch = 0.84;
         }
       } else {
-        utter.lang = 'es-ES';
+        utter.lang = (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'en-US' : 'es-ES';
         utter.rate = customRate !== null ? customRate : 0.82;
         utter.pitch = 0.86;
       }
@@ -4156,11 +4170,11 @@
       if (zEl) zEl.textContent = '#' + el.z;
       if (symEl) symEl.textContent = el.s;
       if (massEl) massEl.textContent = el.m + ' u';
-      if (catEl) catEl.textContent = el.c;
-      if (stateEl) stateEl.textContent = el.st || 'Sólido';
-      if (nameEl) nameEl.textContent = el.n;
-      if (pgEl) pgEl.textContent = 'Periodo ' + (el.p || '-') + ' · Grupo ' + (el.g || '-');
-      if (descEl) descEl.textContent = el.d;
+      if (catEl) catEl.textContent = getElCategory(el);
+      if (stateEl) stateEl.textContent = getElState(el);
+      if (nameEl) nameEl.textContent = getElName(el);
+      if (pgEl) pgEl.textContent = (currentLang === 'en' ? 'Period ' : 'Periodo ') + (el.p || '-') + ' · ' + (currentLang === 'en' ? 'Group ' : 'Grupo ') + (el.g || '-');
+      if (descEl) descEl.textContent = getElDesc(el);
       if (zDetail) zDetail.textContent = '' + el.z;
       if (mDetail) mDetail.textContent = el.m + ' u';
       if (neutronsEl) neutronsEl.textContent = Math.max(0, Math.round(el.m - el.z)) + 'n°';
@@ -4168,7 +4182,7 @@
       if (configEl) configEl.textContent = adv.ec;
       if (configFullEl) configFullEl.textContent = fullEc;
       if (valenceEl) valenceEl.textContent = adv.ev;
-      if (geomEl) geomEl.textContent = adv.geom;
+      if (geomEl) geomEl.textContent = translateGeometryToEn(adv.geom);
       if (progressLabel) progressLabel.textContent = el.z + ' e⁻ distribuidos';
 
       renderOrbitalBoxes(fullEc, null);
@@ -4272,6 +4286,11 @@
       const evSpoken = formatValenceForSpanishSpeech(adv.ev);
       const geomSpoken = formatGeometryForSpanishSpeech(adv.geom);
 
+      if (currentLang === 'en') {
+        const enSpeech = getElName(el) + '. Symbol: ' + el.s.split('').join(', ') + '. Atomic number: ' + el.z + '. Atomic mass: ' + el.m + ' units. Category: ' + getElCategory(el) + '. Lewis structure: ' + getLewisStructureData(el, fullEc).dots + ' valence dots. Geometry: ' + translateGeometryToEn(adv.geom) + '. ' + getElDesc(el);
+        speakSpanishTextSlowly(enSpeech);
+        return;
+      }
       const fullSpeech = el.n + '. ' +
         'Símbolo: ' + symSpelled + '. ' +
         'Número atómico: ' + el.z + '. ' +
@@ -4311,7 +4330,7 @@
       const cat = catSelect ? catSelect.value : 'all';
 
       const filtered = ELEMENTS.filter(el => {
-        const matchesQuery = el.n.toLowerCase().includes(query) || 
+        const matchesQuery = el.n.toLowerCase().includes(query) || (ELEMENT_NAMES_EN[el.z] || '').toLowerCase().includes(query) || 
                              el.s.toLowerCase().includes(query) || 
                              el.z.toString() === query;
         const matchesCat = cat === 'all' || el.c === cat;
@@ -4329,16 +4348,16 @@
         card.innerHTML = `
           <div class="flex justify-between items-center text-xs text-slate-400 mb-1">
             <span class="font-mono font-black text-cyan-300">#${el.z}</span>
-            <span class="text-slate-400 font-semibold truncate max-w-[85px]">${el.c}</span>
+            <span class="text-slate-400 font-semibold truncate max-w-[85px]">${getElCategory(el)}</span>
           </div>
           <div class="my-1 flex items-baseline gap-2">
             <span class="text-2xl sm:text-3xl font-black text-blue-400 group-hover:text-cyan-300 transition leading-none">${el.s}</span>
-            <span class="text-sm font-bold text-slate-100 truncate">${el.n}</span>
+            <span class="text-sm font-bold text-slate-100 truncate">${getElName(el)}</span>
           </div>
           <div class="text-[11px] font-mono text-amber-300/95 font-semibold truncate my-0.5" title="${fullEc}">
             ⚡ ${fullEc}
           </div>
-          <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mt-1">${el.d}</p>
+          <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mt-1">${getElDesc(el)}</p>
           <div class="mt-2.5 pt-1.5 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500 group-hover:text-amber-300 transition font-bold">
             <span class="text-cyan-400 font-semibold">🔊 Ampliar y llenar subniveles</span>
             <span class="font-mono text-slate-300">${el.m} u</span>
@@ -4526,6 +4545,197 @@
     let undoStack = [];
     let redoStack = [];
     let isRestoringHistory = false;
+
+
+    // ==========================================
+    // MOTOR BILINGÜE ESPAÑOL / INGLÉS (ES / EN)
+    // ==========================================
+    let currentLang = localStorage.getItem('quimiquiz_lang') || 'es';
+
+    const ELEMENT_NAMES_EN = {
+      1:"Hydrogen",2:"Helium",3:"Lithium",4:"Beryllium",5:"Boron",6:"Carbon",7:"Nitrogen",8:"Oxygen",9:"Fluorine",10:"Neon",
+      11:"Sodium",12:"Magnesium",13:"Aluminum",14:"Silicon",15:"Phosphorus",16:"Sulfur",17:"Chlorine",18:"Argon",19:"Potassium",20:"Calcium",
+      21:"Scandium",22:"Titanium",23:"Vanadium",24:"Chromium",25:"Manganese",26:"Iron",27:"Cobalt",28:"Nickel",29:"Copper",30:"Zinc",
+      31:"Gallium",32:"Germanium",33:"Arsenic",34:"Selenium",35:"Bromine",36:"Krypton",37:"Rubidium",38:"Strontium",39:"Yttrium",40:"Zirconium",
+      41:"Niobium",42:"Molybdenum",43:"Technetium",44:"Ruthenium",45:"Rhodium",46:"Palladium",47:"Silver",48:"Cadmium",49:"Indium",50:"Tin",
+      51:"Antimony",52:"Tellurium",53:"Iodine",54:"Xenon",55:"Cesium",56:"Barium",57:"Lanthanum",58:"Cerium",59:"Praseodymium",60:"Neodymium",
+      61:"Promethium",62:"Samarium",63:"Europium",64:"Gadolinium",65:"Terbium",66:"Dysprosium",67:"Holmium",68:"Erbium",69:"Thulium",70:"Ytterbium",
+      71:"Lutetium",72:"Hafnium",73:"Tantalum",74:"Tungsten",75:"Rhenium",76:"Osmium",77:"Iridium",78:"Platinum",79:"Gold",80:"Mercury",
+      81:"Thallium",82:"Lead",83:"Bismuth",84:"Polonium",85:"Astatine",86:"Radon",87:"Francium",88:"Radium",89:"Actinium",90:"Thorium",
+      91:"Protactinium",92:"Uranium",93:"Neptunium",94:"Plutonium",95:"Americium",96:"Curium",97:"Berkelium",98:"Californium",99:"Einsteinium",100:"Fermium",
+      101:"Mendelevium",102:"Nobelium",103:"Lawrencium",104:"Rutherfordium",105:"Dubnium",106:"Seaborgium",107:"Bohrium",108:"Hassium",109:"Meitnerium",110:"Darmstadtium",
+      111:"Roentgenium",112:"Copernicium",113:"Nihonium",114:"Flerovium",115:"Moscovium",116:"Livermorium",117:"Tennessine",118:"Oganesson"
+    };
+
+    const CATEGORY_EN_MAP = {
+      "No metales": "Nonmetals",
+      "Gases nobles": "Noble gases",
+      "Metales alcalinos": "Alkali metals",
+      "Alcalinotérreos": "Alkaline earth metals",
+      "Metaloides": "Metalloids",
+      "Halógenos": "Halogens",
+      "Otros metales": "Post-transition metals",
+      "Metales de transición": "Transition metals",
+      "Lantánidos": "Lanthanides",
+      "Actínidos": "Actinides",
+      "Lantánidos y Actínidos": "Lanthanides & Actinides"
+    };
+
+    const STATE_EN_MAP = {
+      "Sólido": "Solid",
+      "Gas": "Gas",
+      "Líquido": "Liquid",
+      "Sintético": "Synthetic"
+    };
+
+    function getElName(el) {
+      if (!el) return '';
+      return currentLang === 'en' ? (ELEMENT_NAMES_EN[el.z] || el.n) : el.n;
+    }
+
+    function getElCategory(el) {
+      if (!el) return '';
+      return currentLang === 'en' ? (CATEGORY_EN_MAP[el.c] || el.c) : el.c;
+    }
+
+    function getElState(el) {
+      if (!el) return '';
+      const st = el.st || 'Sólido';
+      return currentLang === 'en' ? (STATE_EN_MAP[st] || st) : st;
+    }
+
+    function translateGeometryToEn(geom) {
+      if (!geom || currentLang !== 'en') return geom;
+      return geom
+        .replace(/Diatómica lineal/g, 'Linear diatomic')
+        .replace(/Monoatómica \/ Hexagonal compacta/g, 'Monatomic / Hexagonal close-packed')
+        .replace(/Monoatómica \/ Cúbica/g, 'Monatomic / Cubic')
+        .replace(/Cúbica centrada en el cuerpo/g, 'Body-centered cubic')
+        .replace(/Cúbica centrada cuerpo/g, 'Body-centered cubic')
+        .replace(/Cúbica centrada en las caras/g, 'Face-centered cubic')
+        .replace(/Cúbica centrada caras/g, 'Face-centered cubic')
+        .replace(/Hexagonal compacta/g, 'Hexagonal close-packed')
+        .replace(/Doble hexagonal compacta/g, 'Double hexagonal close-packed')
+        .replace(/Romboédrica/g, 'Rhombohedral')
+        .replace(/Ortorrómbica/g, 'Orthorhombic')
+        .replace(/Tetragonal/g, 'Tetragonal')
+        .replace(/Monoclínica/g, 'Monoclinic')
+        .replace(/Cúbica diamante/g, 'Diamond cubic')
+        .replace(/Tetraédrica/g, 'Tetrahedral')
+        .replace(/Cúbica simple/g, 'Simple cubic')
+        .replace(/pred./g, 'pred.');
+    }
+
+    function getElDesc(el) {
+      if (!el) return '';
+      if (currentLang !== 'en') return el.d;
+      const enName = ELEMENT_NAMES_EN[el.z] || el.n;
+      const enCat = CATEGORY_EN_MAP[el.c] || el.c;
+      const enState = STATE_EN_MAP[el.st || 'Sólido'] || 'Solid';
+      const adv = ELEMENT_ADVANCED_DATA[el.z] || { ec: '', ev: '' };
+      return enName + ' (symbol ' + el.s + ', atomic number Z = ' + el.z + ') is a ' + enState.toLowerCase() + ' element in the ' + enCat + ' family (Period ' + (el.p || '-') + ', Group ' + (el.g || '-') + ') with electron configuration ' + adv.ec + '.';
+    }
+
+    let cachedEnglishVoices = [];
+    function loadAvailableEnglishVoices() {
+      if (!('speechSynthesis' in window)) return;
+      const all = window.speechSynthesis.getVoices() || [];
+      cachedEnglishVoices = all.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+    }
+    if ('speechSynthesis' in window) {
+      loadAvailableEnglishVoices();
+    }
+
+    function selectBestRealisticEnglishVoice() {
+      if (!cachedEnglishVoices.length) loadAvailableEnglishVoices();
+      if (!cachedEnglishVoices.length) return null;
+      let bestVoice = null;
+      let bestScore = -999;
+      cachedEnglishVoices.forEach(v => {
+        const name = (v.name || '').toLowerCase();
+        const lang = (v.lang || '').toLowerCase();
+        let score = 0;
+        if (name.includes('natural') || name.includes('neural') || name.includes('online')) score += 100;
+        if (name.includes('google')) score += 75;
+        if (name.includes('guy') || name.includes('christopher') || name.includes('andrew') || name.includes('brian') || name.includes('eric') || name.includes('ryan') || name.includes('david')) score += 40;
+        if (name.includes('aria') || name.includes('jenny') || name.includes('ava') || name.includes('emma')) score += 30;
+        if (name.includes('desktop') || name.includes('zira')) score -= 30;
+        if (lang.includes('en-us') || lang.includes('en-gb')) score += 10;
+        if (score > bestScore) {
+          bestScore = score;
+          bestVoice = v;
+        }
+      });
+      return bestVoice || cachedEnglishVoices[0];
+    }
+
+    function toggleAppLanguage() {
+      setAppLanguage(currentLang === 'es' ? 'en' : 'es');
+    }
+
+    function setAppLanguage(lang) {
+      currentLang = lang === 'en' ? 'en' : 'es';
+      try { localStorage.setItem('quimiquiz_lang', currentLang); } catch (e) {}
+
+      const isEn = currentLang === 'en';
+
+      // Actualizar botones de idioma en Bienvenida y Header
+      const wEs = document.getElementById('welcome-lang-es');
+      const wEn = document.getElementById('welcome-lang-en');
+      if (wEs && wEn) {
+        wEs.className = !isEn
+          ? 'px-3 py-1 rounded-xl bg-blue-600 text-white font-black transition flex items-center gap-1.5 shadow'
+          : 'px-3 py-1 rounded-xl text-slate-400 hover:text-white font-bold transition flex items-center gap-1.5';
+        wEn.className = isEn
+          ? 'px-3 py-1 rounded-xl bg-blue-600 text-white font-black transition flex items-center gap-1.5 shadow'
+          : 'px-3 py-1 rounded-xl text-slate-400 hover:text-white font-bold transition flex items-center gap-1.5';
+      }
+
+      const flagEl = document.getElementById('lang-flag-icon');
+      const codeEl = document.getElementById('lang-code-txt');
+      if (flagEl) flagEl.textContent = isEn ? '🇺🇸' : '🇪🇸';
+      if (codeEl) codeEl.textContent = isEn ? 'EN' : 'ES';
+
+      // Textos de la Ventana de Bienvenida
+      const wTitle = document.getElementById('welcome-title-txt');
+      const wSub = document.getElementById('welcome-subtitle-txt');
+      const wStart = document.getElementById('welcome-btn-start-txt');
+      const wExplore = document.getElementById('welcome-btn-explore-txt');
+      if (wTitle) wTitle.textContent = isEn ? 'Welcome to QuimiQuiz Pro' : 'Bienvenido a QuimiQuiz Pro';
+      if (wSub) wSub.textContent = isEn ? '(Periodic Table)' : '(Tabla Periódica)';
+      if (wStart) wStart.textContent = isEn ? 'Start the Challenge' : 'Comienza el Desafío';
+      if (wExplore) wExplore.textContent = isEn ? 'Go to Periodic Table Review First' : 'Ir primero a Repaso de la Tabla Periódica';
+
+      // Pestañas y botones principales
+      const tabPlay = document.getElementById('tab-play-btn');
+      const tabExp = document.getElementById('tab-explore-btn');
+      const tabTeach = document.getElementById('tab-teacher-btn');
+      if (tabPlay) tabPlay.innerHTML = isEn ? '🎮 Challenge' : '🎮 Evaluación';
+      if (tabExp) tabExp.innerHTML = isEn ? '📖 Review' : '📖 Repaso';
+      if (tabTeach) tabTeach.innerHTML = isEn ? '<span>👨‍🏫</span> Teacher Panel' : '<span>👨‍🏫</span> Panel Docente';
+
+      const mSym = document.getElementById('mode-sym-to-name');
+      const mName = document.getElementById('mode-name-to-sym');
+      const mMix = document.getElementById('mode-mixed');
+      if (mSym) mSym.textContent = isEn ? 'Symbol ➔ Name' : 'Símbolo ➔ Nombre';
+      if (mName) mName.textContent = isEn ? 'Name ➔ Symbol' : 'Nombre ➔ Símbolo';
+      if (mMix) mMix.textContent = isEn ? '🎲 Mixed' : '🎲 Mixto';
+
+      const searchInp = document.getElementById('search-input');
+      if (searchInp) searchInp.placeholder = isEn ? 'Search element by name, symbol or atomic number...' : 'Buscar por nombre, símbolo o número atómico (Z)...';
+
+      // Refrescar pregunta actual si no ha sido respondida
+      if (!isAnswered && currentItemIndex < TOTAL_ITEMS) {
+        generateCurrentItem();
+      }
+      filterElements();
+
+      // Si el modal de detalle está abierto, refrescarlo en el nuevo idioma
+      const detailModal = document.getElementById('element-detail-modal');
+      if (detailModal && !detailModal.classList.contains('hidden')) {
+        openElementDetailModal(currentDetailZ, true);
+      }
+    }
 
     function openWelcomeModal() {
       isChallengeStarted = false;
@@ -4868,6 +5078,7 @@
       } else {
         isChallengeStarted = false;
         restartFullExam();
+        setAppLanguage(currentLang);
         openWelcomeModal();
       }
     }
