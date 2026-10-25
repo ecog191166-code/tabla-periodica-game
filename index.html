@@ -1199,12 +1199,19 @@
       if (existing) existing.remove();
       if (bombExplosionTimeout) clearTimeout(bombExplosionTimeout);
 
-      const funnyMessages = [
-        '¡KABOOM! ¡Voló el Laboratorio!',
-        '¡BUM! ¡Mezcla Explosiva!',
-        '¡PUM! ¡Estalló el Matraz!',
-        '¡BOING! ¡Reacción Equivocada!'
-      ];
+      const funnyMessages = currentLang === 'en'
+        ? [
+            'KABOOM! The Lab Blew Up!',
+            'BOOM! Explosive Mixture!',
+            'POW! The Flask Burst!',
+            'BOING! Wrong Reaction!'
+          ]
+        : [
+            '¡KABOOM! ¡Voló el Laboratorio!',
+            '¡BUM! ¡Mezcla Explosiva!',
+            '¡PUM! ¡Estalló el Matraz!',
+            '¡BOING! ¡Reacción Equivocada!'
+          ];
       const msg = funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
 
       const overlay = document.createElement('div');
@@ -1403,7 +1410,7 @@
 
       const itemNum = currentItemIndex + 1;
       const percent = Math.round((itemNum / TOTAL_ITEMS) * 100);
-      document.getElementById('item-counter').textContent = `Ítem ${itemNum} de ${TOTAL_ITEMS}`;
+      document.getElementById('item-counter').textContent = currentLang === 'en' ? `Item ${itemNum} of ${TOTAL_ITEMS}` : `Ítem ${itemNum} de ${TOTAL_ITEMS}`;
       document.getElementById('progress-bar').style.width = `${percent}%`;
       document.getElementById('progress-percent').textContent = `${percent}%`;
 
@@ -1517,7 +1524,7 @@
           feedbackBox.className = "p-2.5 sm:p-3 rounded-xl border bg-rose-950/60 border-rose-500/50 text-rose-200 flex items-center justify-between gap-3 transition shadow";
           if (feedbackIcon) feedbackIcon.textContent = isTimeout ? "⏱️💥" : "💣💥";
           if (feedbackTitle) feedbackTitle.textContent = currentLang === 'en' ? (isTimeout ? 'Time is up! (20s exceeded)' : `Incorrect. It was ${getElName(currentElement)} (${currentElement.s})`) : (isTimeout ? `¡Tiempo Agotado! (20s excedidos)` : `Desacierto. Era ${currentElement.n} (${currentElement.s})`);
-          if (feedbackDetail) feedbackDetail.textContent = isTimeout ? `La respuesta correcta era ${currentElement.n} (${currentElement.s})` : `Marcaste: ${selectedOpt.n} (${selectedOpt.s})`;
+          if (feedbackDetail) feedbackDetail.textContent = currentLang === 'en' ? (isTimeout ? `The correct answer was ${getElName(currentElement)} (${currentElement.s})` : `You selected: ${getElName(selectedOpt)} (${selectedOpt.s})`) : (isTimeout ? `La respuesta correcta era ${currentElement.n} (${currentElement.s})` : `Marcaste: ${selectedOpt.n} (${selectedOpt.s})`);
         }
       }
 
@@ -3361,7 +3368,8 @@
         subBlock.onclick = (e) => {
           e.stopPropagation();
           const letterSpoken = SPANISH_LETTER_NAMES[sub.orbType] || sub.orbType;
-          speakSpanishTextSlowly('Subnivel ' + sub.subName[0] + ' ' + letterSpoken + ', con ' + actualElectronsInSub + (actualElectronsInSub === 1 ? ' electrón.' : ' electrones.'), 0.78);
+          const msg = currentLang === 'en' ? ('Sublevel ' + sub.subName[0] + ' ' + sub.orbType + ', with ' + actualElectronsInSub + (actualElectronsInSub === 1 ? ' electron.' : ' electrons.')) : ('Subnivel ' + sub.subName[0] + ' ' + letterSpoken + ', con ' + actualElectronsInSub + (actualElectronsInSub === 1 ? ' electrón.' : ' electrones.'));
+          speakSpanishTextSlowly(msg, 0.78);
         };
 
         const boxesHtml = boxes.map(b => {
@@ -3463,7 +3471,7 @@
       renderOrbitalBoxes(fullEc, 0, null);
       if (typeof renderMoellerDiagonalsSVG === 'function') renderMoellerDiagonalsSVG(fullEc, 0, null);
       if (label) {
-        label.textContent = 'Preparando llenado de ' + totalE + ' e⁻...';
+        label.textContent = currentLang === 'en' ? ('Preparing ' + totalE + ' e⁻ filling...') : ('Preparando llenado de ' + totalE + ' e⁻...');
       }
 
       // Pequeño respiro tras limpiar la cola de audio antes de iniciar la narración
@@ -3471,7 +3479,7 @@
       if (mySession !== aufbauAnimSessionId) return;
 
       // 1. Intro hablada completa antes de empezar a llenar el primer subnivel
-      await speakTextWaitPromise('Llenado de subniveles de ' + el.n + '.', 0.84);
+      await speakTextWaitPromise(currentLang === 'en' ? ('Sublevel filling for ' + getElName(el) + '.') : ('Llenado de subniveles de ' + el.n + '.'), 0.84);
       if (mySession !== aufbauAnimSessionId) return;
 
       const perSpinMs = totalE <= 18 ? 780 : (totalE <= 36 ? 620 : 480);
@@ -3483,7 +3491,9 @@
 
         const levelNum = sub.subName[0];
         const orbLetter = SPANISH_LETTER_NAMES[sub.orbType] || sub.orbType;
-        const subSpoken = 'Subnivel ' + levelNum + ' ' + orbLetter + ', ' + sub.count + (sub.count === 1 ? ' electrón.' : ' electrones.');
+        const subSpoken = currentLang === 'en'
+          ? ('Sublevel ' + levelNum + ' ' + sub.orbType + ', ' + sub.count + (sub.count === 1 ? ' electron.' : ' electrons.'))
+          : ('Subnivel ' + levelNum + ' ' + orbLetter + ', ' + sub.count + (sub.count === 1 ? ' electrón.' : ' electrones.'));
 
         // Iniciar la narración completa de este subnivel mientras se dibujan sus espines ↑ y ↓
         const speechPromise = speakTextWaitPromise(subSpoken, 0.78);
@@ -3495,7 +3505,7 @@
             renderOrbitalBoxes(fullEc, currentCount, sub.subName);
             if (typeof renderMoellerDiagonalsSVG === 'function') renderMoellerDiagonalsSVG(fullEc, currentCount, sub.subName);
             if (label) {
-              label.textContent = 'Subnivel ' + sub.subName + toSuperscriptNumber(i) + ' (' + currentCount + ' / ' + totalE + ' e⁻)';
+              label.textContent = (currentLang === 'en' ? 'Sublevel ' : 'Subnivel ') + sub.subName + toSuperscriptNumber(i) + ' (' + currentCount + ' / ' + totalE + ' e⁻)';
             }
             await new Promise(r => setTimeout(r, perSpinMs));
           }
@@ -3514,7 +3524,7 @@
       renderOrbitalBoxes(fullEc, totalE, null);
       if (typeof renderMoellerDiagonalsSVG === 'function') renderMoellerDiagonalsSVG(fullEc, totalE, null);
       if (label) {
-        label.textContent = '✅ ' + totalE + ' e⁻ completados';
+        label.textContent = '✅ ' + totalE + (currentLang === 'en' ? ' e⁻ completed' : ' e⁻ completados');
       }
     }
 
@@ -3821,6 +3831,14 @@
     function speakMoellerNode(subName, currentCount, maxCap, diagNum) {
       const levelNum = subName[0];
       const orbLetter = SPANISH_LETTER_NAMES[subName[1]] || subName[1];
+      if (currentLang === 'en') {
+        if (currentCount > 0) {
+          speakSpanishTextSlowly('Diagonal ' + diagNum + ': sublevel ' + levelNum + ' ' + subName[1] + ', has ' + currentCount + (currentCount === 1 ? ' electron' : ' electrons') + ' out of a maximum of ' + maxCap + '.', 0.80);
+        } else {
+          speakSpanishTextSlowly('Diagonal ' + diagNum + ': sublevel ' + levelNum + ' ' + subName[1] + ', empty in this element. Maximum capacity: ' + maxCap + ' electrons.', 0.80);
+        }
+        return;
+      }
       if (currentCount > 0) {
         speakSpanishTextSlowly('Diagonal ' + diagNum + ': subnivel ' + levelNum + ' ' + orbLetter + ', tiene ' + currentCount + (currentCount === 1 ? ' electrón' : ' electrones') + ' de un máximo de ' + maxCap + '.', 0.80);
       } else {
@@ -3849,13 +3867,13 @@
       renderMoellerDiagonalsSVG(fullEc, 0, null);
 
       if (diagBadge) {
-        diagBadge.textContent = 'Preparando Regla de las Diagonales...';
+        diagBadge.textContent = currentLang === 'en' ? 'Preparing Diagonal Rule...' : 'Preparando Regla de las Diagonales...';
       }
 
       await new Promise(r => setTimeout(r, 180));
       if (mySession !== aufbauAnimSessionId) return;
 
-      await speakTextWaitPromise('Llenado por la Regla de las Diagonales para ' + el.n + '.', 0.84);
+      await speakTextWaitPromise(currentLang === 'en' ? ('Diagonal Rule filling for ' + getElName(el) + '.') : ('Llenado por la Regla de las Diagonales para ' + el.n + '.'), 0.84);
       if (mySession !== aufbauAnimSessionId) return;
 
       const perSpinMs = totalE <= 18 ? 780 : (totalE <= 36 ? 620 : 480);
@@ -3868,10 +3886,14 @@
         const nodeInfo = MOELLER_NODES.find(n => n.sub === sub.subName) || { diag: 1 };
         const levelNum = sub.subName[0];
         const orbLetter = SPANISH_LETTER_NAMES[sub.orbType] || sub.orbType;
-        const diagPrefix = nodeInfo.diag !== lastDiag ? ('Diagonal ' + nodeInfo.diag + ': ') : ('Sigue en diagonal a ');
+        const diagPrefix = currentLang === 'en'
+          ? (nodeInfo.diag !== lastDiag ? ('Diagonal ' + nodeInfo.diag + ': ') : ('Continues diagonally to '))
+          : (nodeInfo.diag !== lastDiag ? ('Diagonal ' + nodeInfo.diag + ': ') : ('Sigue en diagonal a '));
         lastDiag = nodeInfo.diag;
 
-        const subSpoken = diagPrefix + 'subnivel ' + levelNum + ' ' + orbLetter + ', ' + sub.count + (sub.count === 1 ? ' electrón.' : ' electrones.');
+        const subSpoken = currentLang === 'en'
+          ? (diagPrefix + 'sublevel ' + levelNum + ' ' + sub.orbType + ', ' + sub.count + (sub.count === 1 ? ' electron.' : ' electrons.'))
+          : (diagPrefix + 'subnivel ' + levelNum + ' ' + orbLetter + ', ' + sub.count + (sub.count === 1 ? ' electrón.' : ' electrones.'));
 
         if (diagBadge) {
           diagBadge.textContent = '↙ Diagonal ' + nodeInfo.diag + ' → ' + sub.subName + toSuperscriptNumber(sub.count);
@@ -3903,10 +3925,10 @@
       renderOrbitalBoxes(fullEc, totalE, null);
       renderMoellerDiagonalsSVG(fullEc, totalE, null);
       if (diagBadge) {
-        diagBadge.textContent = '✅ Diagonales completadas (' + totalE + ' e⁻)';
+        diagBadge.textContent = currentLang === 'en' ? ('✅ Diagonals completed (' + totalE + ' e⁻)') : ('✅ Diagonales completadas (' + totalE + ' e⁻)');
       }
       if (label) {
-        label.textContent = '✅ ' + totalE + ' e⁻ completados';
+        label.textContent = '✅ ' + totalE + (currentLang === 'en' ? ' e⁻ completed' : ' e⁻ completados');
       }
     }
 
@@ -4120,12 +4142,12 @@
             <div class="w-20 h-20 rounded-3xl bg-blue-600/20 border-2 border-blue-500/40 flex items-center justify-center text-5xl shadow-inner">
               ⚛️
             </div>
-            <h1 class="text-2xl font-black text-white tracking-wide">Has salido de la aplicación</h1>
+            <h1 class="text-2xl font-black text-white tracking-wide">${currentLang === 'en' ? 'You have exited the application' : 'Has salido de la aplicación'}</h1>
             <p class="text-sm text-slate-400 leading-relaxed">
-              La sesión de Química ha finalizado correctamente. Ya puedes cerrar esta ventana o volver a iniciar cuando lo desees.
+              ${currentLang === 'en' ? 'Your Chemistry session has ended properly. You may now close this window or reopen it whenever you wish.' : 'La sesión de Química ha finalizado correctamente. Ya puedes cerrar esta ventana o volver a iniciar cuando lo desees.'}
             </p>
             <button onclick="window.location.reload()" class="mt-2 w-full py-3 px-6 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-sm transition flex items-center justify-center gap-2 shadow-xl active:scale-95">
-              <span>🔄</span> Volver a Abrir la Aplicación
+              <span>🔄</span> ${currentLang === 'en' ? 'Reopen Application' : 'Volver a Abrir la Aplicación'}
             </button>
           </div>
         </div>
@@ -4181,29 +4203,38 @@
       if (posEl) posEl.textContent = el.z + ' / ' + ELEMENTS.length;
       if (configEl) configEl.textContent = adv.ec;
       if (configFullEl) configFullEl.textContent = fullEc;
-      if (valenceEl) valenceEl.textContent = adv.ev;
+      if (valenceEl) valenceEl.textContent = translateValenceToEn(adv.ev);
       if (geomEl) geomEl.textContent = translateGeometryToEn(adv.geom);
-      if (progressLabel) progressLabel.textContent = el.z + ' e⁻ distribuidos';
+      if (progressLabel) progressLabel.textContent = el.z + (currentLang === 'en' ? ' e⁻ distributed' : ' e⁻ distribuidos');
 
       renderOrbitalBoxes(fullEc, null);
       renderMoellerDiagonalsSVG(fullEc, null, null);
       const diagBadgeEl = document.getElementById('diagonals-active-step-badge');
-      if (diagBadgeEl) diagBadgeEl.textContent = 'Orden: 1s ↙ 2s ↙ 2p→3s ↙ 3p→4s...';
+      if (diagBadgeEl) diagBadgeEl.textContent = (currentLang === 'en' ? 'Order: ' : 'Orden: ') + '1s ↙ 2s ↙ 2p→3s ↙ 3p→4s...';
 
-      const lewisData = getLewisStructureData(el, fullEc);
+      const lewisData = getLewisDataBilingual(el, fullEc);
       renderLewisDiagramSVG(el.s, lewisData);
       const lewisBadgeEl = document.getElementById('modal-elem-lewis-badge');
       const lewisDotsEl = document.getElementById('modal-elem-lewis-dots-text');
       const lewisPairsEl = document.getElementById('modal-elem-lewis-pairs-text');
       const lewisRuleEl = document.getElementById('modal-elem-lewis-rule');
       if (lewisBadgeEl) lewisBadgeEl.textContent = lewisData.badgeText;
-      if (lewisDotsEl) lewisDotsEl.textContent = lewisData.dots + (lewisData.dots === 1 ? ' punto (' : ' puntos (') + lewisData.outerShellLabel + ')';
+      if (lewisDotsEl) {
+        lewisDotsEl.textContent = currentLang === 'en'
+          ? (lewisData.dots + (lewisData.dots === 1 ? ' dot (' : ' dots (') + lewisData.outerShellLabel + ')')
+          : (lewisData.dots + (lewisData.dots === 1 ? ' punto (' : ' puntos (') + lewisData.outerShellLabel + ')');
+      }
       if (lewisPairsEl) {
-        const pTxt = lewisData.lonePairs + (lewisData.lonePairs === 1 ? ' par libre' : ' pares libres');
-        const uTxt = lewisData.unpaired + (lewisData.unpaired === 1 ? ' e⁻ desapareado' : ' e⁻ desapareados');
+        const pTxt = currentLang === 'en'
+          ? (lewisData.lonePairs + (lewisData.lonePairs === 1 ? ' lone pair' : ' lone pairs'))
+          : (lewisData.lonePairs + (lewisData.lonePairs === 1 ? ' par libre' : ' pares libres'));
+        const uTxt = currentLang === 'en'
+          ? (lewisData.unpaired + ' unpaired e⁻')
+          : (lewisData.unpaired + (lewisData.unpaired === 1 ? ' e⁻ desapareado' : ' e⁻ desapareados'));
         lewisPairsEl.textContent = pTxt + ' · ' + uTxt;
       }
       if (lewisRuleEl) lewisRuleEl.textContent = lewisData.ruleDesc;
+      applyFullDOMTranslations();
 
       const familyColors = {
         "Gases nobles": { border: "border-purple-500", bg: "bg-purple-500/25", badgeBg: "bg-purple-500/20", badgeText: "text-purple-300", badgeBorder: "border-purple-500/40" },
@@ -4252,6 +4283,29 @@
       const fullEc = expandToFullSublevels(adv.ec);
       const symSpelled = spellSymbolInSpanish(el.s);
 
+      if (currentLang === 'en') {
+        const lewisData = getLewisDataBilingual(el, fullEc);
+        if (field === 'header') {
+          speakSpanishTextSlowly(getElName(el) + '. Symbol: ' + el.s.split('').join(', ') + '. Family: ' + getElCategory(el) + '. State: ' + getElState(el) + '. Period ' + el.p + ', Group ' + el.g + '.');
+        } else if (field === 'config') {
+          animateSublevelFilling();
+        } else if (field === 'lewis') {
+          stopAufbauAnimation();
+          speakSpanishTextSlowly('Lewis structure of ' + getElName(el) + ': represented with ' + lewisData.dots + (lewisData.dots === 1 ? ' valence dot' : ' valence dots') + ' around symbol ' + el.s + '. ' + lewisData.ruleDesc.replace(/e⁻/g, 'electrons'));
+        } else if (field === 'valence') {
+          speakSpanishTextSlowly('Valence electrons of ' + getElName(el) + ': ' + translateValenceToEn(adv.ev).replace(/e⁻/g, 'electrons'));
+        } else if (field === 'geometry') {
+          speakSpanishTextSlowly('Crystal and molecular geometry: ' + translateGeometryToEn(adv.geom));
+        } else if (field === 'z') {
+          speakSpanishTextSlowly('Atomic number Z equals ' + el.z + '; ' + el.z + ' protons in the nucleus.');
+        } else if (field === 'mass') {
+          const n = Math.max(0, Math.round(el.m - el.z));
+          speakSpanishTextSlowly('Atomic mass: ' + el.m + ' units. Approximate neutrons: ' + n + '.');
+        } else if (field === 'desc') {
+          speakSpanishTextSlowly(getElDesc(el));
+        }
+        return;
+      }
       if (field === 'header') {
         speakSpanishTextSlowly(el.n + '. Símbolo: ' + symSpelled + '. Familia: ' + el.c + '. Estado: ' + (el.st || 'Sólido') + '. Periodo ' + el.p + ', Grupo ' + el.g + '.');
       } else if (field === 'config') {
@@ -4337,7 +4391,7 @@
         return matchesQuery && matchesCat;
       });
 
-      if (countEl) countEl.textContent = 'Mostrando ' + filtered.length + ' de ' + ELEMENTS.length;
+      if (countEl) countEl.textContent = (currentLang === 'en' ? 'Showing ' : 'Mostrando ') + filtered.length + (currentLang === 'en' ? ' of ' : ' de ') + ELEMENTS.length;
       grid.innerHTML = '';
 
       filtered.forEach(el => {
@@ -4359,7 +4413,7 @@
           </div>
           <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mt-1">${getElDesc(el)}</p>
           <div class="mt-2.5 pt-1.5 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500 group-hover:text-amber-300 transition font-bold">
-            <span class="text-cyan-400 font-semibold">🔊 Ampliar y llenar subniveles</span>
+            <span class="text-cyan-400 font-semibold">${currentLang === 'en' ? '🔊 Expand & fill sublevels' : '🔊 Ampliar y llenar subniveles'}</span>
             <span class="font-mono text-slate-300">${el.m} u</span>
           </div>
         `;
@@ -4669,6 +4723,433 @@
       return bestVoice || cachedEnglishVoices[0];
     }
 
+
+    function getLewisDataBilingual(el, fullEc) {
+      const base = getLewisStructureData(el, fullEc);
+      if (currentLang !== 'en') return base;
+
+      const g = el.g || 0;
+      const dots = base.dots;
+      const outer = base.outerShellLabel.replace(/Nivel/g, 'Level');
+      let badgeText = dots + (dots === 1 ? ' dot' : ' dots') + ' · Lewis';
+      let ruleDesc = '';
+
+      if (el.z === 1) {
+        badgeText = '1 dot · Duet Rule';
+        ruleDesc = 'Has 1 unpaired electron (1s¹); shares or gains 1 e⁻ to complete its stable duet (2 e⁻).';
+      } else if (el.z === 2) {
+        badgeText = '2 dots · Complete Duet';
+        ruleDesc = 'Has 1 paired electron couple in 1s² (Full duet). Chemically inert and does not form bonds.';
+      } else if (g === 18) {
+        badgeText = '8 dots · Complete Octet';
+        ruleDesc = 'All 4 sides have paired electrons (8 e⁻, Gilbert Lewis full octet), giving maximum stability.';
+      } else if (g === 1) {
+        badgeText = '1 dot · Alkali Metal';
+        ruleDesc = 'Has 1 dot in its outer shell (' + outer + '); tends to lose this electron forming +1 cations.';
+      } else if (g === 2) {
+        badgeText = '2 dots · Alkaline Earth';
+        ruleDesc = 'Has 2 dots in its outer shell (' + outer + '); tends to lose both electrons forming +2 cations.';
+      } else if (g === 13) {
+        badgeText = '3 dots · Group 13';
+        ruleDesc = 'Presents 3 valence dots (' + outer + '); forms up to 3 covalent bonds or +3 cations.';
+      } else if (g === 14) {
+        badgeText = '4 dots · Tetravalent';
+        ruleDesc = 'Has 4 unpaired electrons (' + outer + '); can form 4 covalent bonds to complete the octet (8 e⁻).';
+      } else if (g === 15) {
+        badgeText = '5 dots · 1 Pair + 3 Bonds';
+        ruleDesc = 'Has 1 lone pair and 3 unpaired electrons (' + outer + '); needs 3 e⁻ to complete its octet.';
+      } else if (g === 16) {
+        badgeText = '6 dots · 2 Pairs + 2 Bonds';
+        ruleDesc = 'Has 2 lone pairs and 2 unpaired electrons (' + outer + '); seeks 2 e⁻ to complete its octet.';
+      } else if (g === 17) {
+        badgeText = '7 dots · Halogen (Needs 1 e⁻)';
+        ruleDesc = 'Has 3 lone pairs and 1 unpaired electron (' + outer + '); only needs 1 e⁻ to close its octet.';
+      } else {
+        badgeText = dots + (dots === 1 ? ' outer dot' : ' outer dots') + ' (' + outer + ')';
+        ruleDesc = 'Shows ' + dots + (dots === 1 ? ' dot' : ' dots') + ' from its outermost shell (' + outer + ') and also uses inner d/f orbitals when bonding.';
+      }
+
+      return {
+        ...base,
+        outerShellLabel: outer,
+        badgeText,
+        ruleDesc
+      };
+    }
+
+    function translateValenceToEn(ev) {
+      if (!ev || currentLang !== 'en') return ev;
+      return ev
+        .replace(/Octeto lleno/g, 'Full octet')
+        .replace(/Octeto noble/g, 'Noble octet')
+        .replace(/Dueto lleno/g, 'Full duet')
+        .replace(/ext./g, 'outer');
+    }
+
+    function applyFullDOMTranslations() {
+      const isEn = currentLang === 'en';
+
+      // 1. Header & Top Bar
+      const headerTag = document.getElementById('student-header-tag');
+      if (headerTag) {
+        headerTag.textContent = isEn ? 'Official 50-Item Chemistry Assessment' : 'Evaluación Oficial de 50 Ítems';
+      }
+
+      const licBadge = document.getElementById('license-badge-txt');
+      if (licBadge) {
+        const isPro = typeof isProLicenseActive !== 'undefined' && isProLicenseActive;
+        licBadge.textContent = isPro ? (isEn ? 'PRO Active' : 'PRO Activo') : (isEn ? 'Activate PRO' : 'Activar PRO');
+      }
+
+      const activeScaleBtn = document.getElementById('active-scale-btn');
+      if (activeScaleBtn) {
+        activeScaleBtn.title = isEn ? 'Change grading scale by country' : 'Cambiar escala de notas por país';
+      }
+
+      const undoBtn = document.getElementById('btn-undo');
+      if (undoBtn) {
+        undoBtn.title = isEn ? 'Undo last action (Ctrl+Z)' : 'Deshacer última acción (Ctrl+Z)';
+        const span = undoBtn.querySelector('span:last-child');
+        if (span) span.textContent = isEn ? 'Undo' : 'Deshacer';
+      }
+
+      const redoBtn = document.getElementById('btn-redo');
+      if (redoBtn) {
+        redoBtn.title = isEn ? 'Redo action (Ctrl+Y)' : 'Rehacer acción (Ctrl+Y)';
+        const span = redoBtn.querySelector('span:last-child');
+        if (span) span.textContent = isEn ? 'Redo' : 'Rehacer';
+      }
+
+      // Botones Salir (Header y Footer) y Reiniciar prueba
+      document.querySelectorAll('button[onclick="requestExitApp()"]').forEach(btn => {
+        btn.title = isEn ? 'Exit application' : 'Salir de la aplicación';
+        btn.innerHTML = isEn ? '<span>🚪</span> <span>Exit</span>' : '<span>🚪</span> <span>Salir</span>';
+      });
+
+      document.querySelectorAll('button[onclick="toggleFullscreen()"]').forEach(btn => {
+        btn.title = isEn ? 'Fullscreen' : 'Pantalla completa';
+      });
+
+      document.querySelectorAll('footer button[onclick="restartFullExam()"]').forEach(btn => {
+        btn.textContent = isEn ? 'Restart Challenge' : 'Reiniciar prueba';
+      });
+
+      const logoutFooterBtn = document.getElementById('footer-logout-btn');
+      if (logoutFooterBtn) {
+        logoutFooterBtn.textContent = isEn ? 'Log Out (Teacher)' : 'Cerrar Sesión Docente';
+      }
+
+      // 2. Scoreboard labels (Puntos, Aciertos, Desaciertos, Nota)
+      const scoreVal = document.getElementById('score-val');
+      if (scoreVal && scoreVal.previousElementSibling) {
+        scoreVal.previousElementSibling.textContent = isEn ? 'Points' : 'Puntos';
+      }
+      const correctVal = document.getElementById('correct-val');
+      if (correctVal && correctVal.previousElementSibling) {
+        correctVal.previousElementSibling.textContent = isEn ? 'Correct ✅' : 'Aciertos ✅';
+      }
+      const incorrectVal = document.getElementById('incorrect-val');
+      if (incorrectVal && incorrectVal.previousElementSibling) {
+        incorrectVal.previousElementSibling.textContent = isEn ? 'Incorrect ❌' : 'Desaciertos ❌';
+      }
+      const gradeVal = document.getElementById('grade-val');
+      if (gradeVal && gradeVal.previousElementSibling) {
+        if (typeof getActiveScale === 'function') {
+          const sc = getActiveScale();
+          gradeVal.previousElementSibling.textContent = isEn ? (sc.flag + ' Grade') : sc.shortLabel;
+        } else {
+          gradeVal.previousElementSibling.textContent = isEn ? '🇵🇦 Grade' : '🇵🇦 Nota';
+        }
+      }
+
+      // Contador de ítem
+      const itemCounter = document.getElementById('item-counter');
+      if (itemCounter) {
+        const num = (typeof currentItemIndex !== 'undefined' ? currentItemIndex : 0) + 1;
+        itemCounter.textContent = isEn ? ('Item ' + num + ' of ' + TOTAL_ITEMS) : ('Ítem ' + num + ' de ' + TOTAL_ITEMS);
+      }
+
+      // 3. Repaso / Review Panel (#explore-panel)
+      const catSelect = document.getElementById('category-select');
+      if (catSelect) {
+        const optTranslations = {
+          'all': isEn ? 'All families' : 'Todas las familias',
+          'No metales': isEn ? 'Nonmetals' : 'No metales',
+          'Gases nobles': isEn ? 'Noble gases' : 'Gases nobles',
+          'Metales alcalinos': isEn ? 'Alkali metals' : 'Metales alcalinos',
+          'Alcalinotérreos': isEn ? 'Alkaline earth metals' : 'Alcalinotérreos',
+          'Metales de transición': isEn ? 'Transition metals' : 'Metales de transición',
+          'Lantánidos y Actínidos': isEn ? 'Lanthanides & Actinides' : 'Lantánidos y Actínidos',
+          'Metaloides': isEn ? 'Metalloids' : 'Metaloides',
+          'Otros metales': isEn ? 'Post-transition metals' : 'Otros metales',
+          'Halógenos': isEn ? 'Halogens' : 'Halógenos'
+        };
+        Array.from(catSelect.options).forEach(opt => {
+          if (optTranslations[opt.value]) {
+            opt.textContent = optTranslations[opt.value];
+          }
+        });
+      }
+
+      const countEl = document.getElementById('elements-count');
+      if (countEl && countEl.nextElementSibling) {
+        countEl.nextElementSibling.textContent = isEn
+          ? '🔍 Tap any element to view its full scientific card'
+          : '🔍 Toca cualquier elemento para ver su ficha completa';
+      }
+
+      // 4. Modal de Detalle del Elemento (#element-detail-modal)
+      const detailModal = document.getElementById('element-detail-modal');
+      if (detailModal) {
+        const topTitle = detailModal.querySelector('.border-b span.text-amber-400');
+        if (topTitle) {
+          topTitle.innerHTML = isEn
+            ? '<span class="text-base sm:text-lg">⚛️</span> Scientific Card (Click any field to listen)'
+            : '<span class="text-base sm:text-lg">⚛️</span> Ficha Científica (Clic en cualquier campo para escucharlo)';
+        }
+        const prevBtn = detailModal.querySelector('button[onclick="navigateElementDetail(-1)"]');
+        if (prevBtn) prevBtn.innerHTML = isEn ? '<span>◀</span> Prev' : '<span>◀</span> Ant.';
+        const nextBtn = detailModal.querySelector('button[onclick="navigateElementDetail(1)"]');
+        if (nextBtn) nextBtn.innerHTML = isEn ? 'Next <span>▶</span>' : 'Sig. <span>▶</span>';
+
+        const configHeader = detailModal.querySelector('div[onclick="speakSpecificField(\'config\')"] span');
+        if (configHeader) {
+          configHeader.textContent = isEn
+            ? '⚡ Electron Configuration & Sublevel Filling 🔊'
+            : '⚡ Configuración Electrónica y Llenado de Subniveles 🔊';
+        }
+
+        const btnDiag = document.getElementById('btn-animate-diagonals');
+        if (btnDiag) {
+          btnDiag.innerHTML = isEn
+            ? '<span>📐</span> Fill by Diagonal Rule'
+            : '<span>📐</span> Llenar por Regla de las Diagonales';
+        }
+        const btnAufbau = document.getElementById('btn-animate-aufbau');
+        if (btnAufbau) {
+          btnAufbau.innerHTML = isEn
+            ? '<span>▶️</span> Animate Spins (Hund)'
+            : '<span>▶️</span> Animar Espines (Hund)';
+        }
+
+        const configFullLabel = document.getElementById('modal-elem-config-full');
+        if (configFullLabel && configFullLabel.previousElementSibling) {
+          configFullLabel.previousElementSibling.textContent = isEn
+            ? 'Sublevel filling (Aufbau):'
+            : 'Llenado por subniveles (Aufbau):';
+        }
+        const configKernelLabel = document.getElementById('modal-elem-config');
+        if (configKernelLabel && configKernelLabel.previousElementSibling) {
+          configKernelLabel.previousElementSibling.textContent = isEn
+            ? 'Noble gas core (Kernel):'
+            : 'Kernel (Gas noble):';
+        }
+
+        const diagStepBadge = document.getElementById('diagonals-active-step-badge');
+        if (diagStepBadge && diagStepBadge.previousElementSibling) {
+          diagStepBadge.previousElementSibling.innerHTML = isEn
+            ? '<span>📐</span> Diagonal Rule (Moeller Diagram ↙):'
+            : '<span>📐</span> Regla de las Diagonales (Diagrama de Moeller ↙):';
+        }
+
+        const aufbauProgLabel = document.getElementById('aufbau-progress-label');
+        if (aufbauProgLabel && aufbauProgLabel.previousElementSibling) {
+          aufbauProgLabel.previousElementSibling.innerHTML = isEn
+            ? 'Orbital & Spin Diagram (<strong class="text-emerald-400">↑</strong> +½ , <strong class="text-rose-400">↓</strong> -½):'
+            : 'Diagrama de Orbitales y Espines (<strong class="text-emerald-400">↑</strong> +½ , <strong class="text-rose-400">↓</strong> -½):';
+        }
+
+        // Sección de Lewis
+        const lewisCard = detailModal.querySelector('div[onclick="speakSpecificField(\'lewis\')"]');
+        if (lewisCard) {
+          const lewisTitle = lewisCard.querySelector('.border-b span.text-emerald-400');
+          if (lewisTitle) {
+            lewisTitle.innerHTML = isEn
+              ? '<span>🟢</span> Lewis Dot Structure (Valence Dot Diagram) 🔊'
+              : '<span>🟢</span> Estructura de Lewis (Diagrama de Puntos de Valencia) 🔊';
+          }
+          const dotsTxt = document.getElementById('modal-elem-lewis-dots-text');
+          if (dotsTxt && dotsTxt.previousElementSibling) {
+            dotsTxt.previousElementSibling.textContent = isEn ? 'Outer Shell Dots:' : 'Puntos en Capa Externa:';
+          }
+          const pairsTxt = document.getElementById('modal-elem-lewis-pairs-text');
+          if (pairsTxt && pairsTxt.previousElementSibling) {
+            pairsTxt.previousElementSibling.textContent = isEn ? 'Lone Pairs & Bonds:' : 'Pares y Enlaces:';
+          }
+          const ruleEl = document.getElementById('modal-elem-lewis-rule');
+          if (ruleEl && ruleEl.previousElementSibling) {
+            ruleEl.previousElementSibling.textContent = isEn ? 'Lewis Behavior: ' : 'Comportamiento de Lewis: ';
+          }
+          const legendSpans = lewisCard.querySelectorAll('.flex.items-center.gap-4 span.flex.items-center.gap-1\.5');
+          if (legendSpans.length >= 2) {
+            legendSpans[0].innerHTML = isEn
+              ? '<span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block shadow-[0_0_6px_#fbbf24]"></span> Unpaired electron (bonding)'
+              : '<span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block shadow-[0_0_6px_#fbbf24]"></span> Electrón desapareado (enlace)';
+            legendSpans[1].innerHTML = isEn
+              ? '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block shadow-[0_0_6px_#34d399]"></span> Lone electron pair (paired)'
+              : '<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block shadow-[0_0_6px_#34d399]"></span> Par electrónico libre (apareado)';
+          }
+        }
+
+        // Cuadrícula de Propiedades
+        const valEl = document.getElementById('modal-elem-valence');
+        if (valEl && valEl.previousElementSibling) {
+          valEl.previousElementSibling.textContent = isEn ? '🧪 Valence 🔊' : '🧪 Valencia 🔊';
+        }
+        const geomEl = document.getElementById('modal-elem-geometry');
+        if (geomEl && geomEl.previousElementSibling) {
+          geomEl.previousElementSibling.textContent = isEn ? '📐 Geometry / Lattice 🔊' : '📐 Geometría / Red 🔊';
+        }
+        const zDet = document.getElementById('modal-elem-z-detail');
+        if (zDet && zDet.previousElementSibling) {
+          zDet.previousElementSibling.textContent = isEn ? 'Z / Protons:' : 'Z / Protones:';
+        }
+        const mDet = document.getElementById('modal-elem-m-detail');
+        if (mDet && mDet.parentElement && mDet.parentElement.previousElementSibling) {
+          mDet.parentElement.previousElementSibling.textContent = isEn ? 'Mass / Neutr.:' : 'Masa / Neutr.:';
+        }
+
+        // Descripción
+        const descEl = document.getElementById('modal-elem-desc');
+        if (descEl && descEl.previousElementSibling) {
+          descEl.previousElementSibling.innerHTML = isEn
+            ? '<span>💡</span> Real-World Description & Applications: 🔊'
+            : '<span>💡</span> Descripción y Aplicaciones en el Mundo Real: 🔊';
+        }
+
+        // Botones inferiores del modal
+        const speakAllBtn = detailModal.querySelector('button[onclick="speakCurrentElement()"]');
+        if (speakAllBtn) {
+          speakAllBtn.innerHTML = isEn
+            ? '<span class="text-base sm:text-lg">🔊</span> Listen to Full Card (Clear English Narration)'
+            : '<span class="text-base sm:text-lg">🔊</span> Escuchar Ficha Completa (Lectura Pausada en Español)';
+        }
+        const closeBtns = detailModal.querySelectorAll('button[onclick="closeElementDetailModal()"]');
+        if (closeBtns.length > 1) {
+          closeBtns[closeBtns.length - 1].textContent = isEn ? 'Close' : 'Cerrar';
+        }
+      }
+
+      // 5. Modal de Salida (#exit-app-modal)
+      const exitModal = document.getElementById('exit-app-modal');
+      if (exitModal) {
+        const h3 = exitModal.querySelector('h3');
+        const p = exitModal.querySelector('p');
+        const cancelBtn = exitModal.querySelector('button[onclick="closeExitAppModal()"]:not(.absolute)');
+        const confirmBtn = exitModal.querySelector('button[onclick="confirmExitApp()"]');
+        if (h3) h3.textContent = isEn ? 'Exit Application?' : '¿Salir de la Aplicación?';
+        if (p) p.textContent = isEn
+          ? 'Current activity will stop and the Chemistry program window will close.'
+          : 'Se detendrá la actividad actual y se cerrará la ventana del programa de Química.';
+        if (cancelBtn) cancelBtn.textContent = isEn ? 'Cancel' : 'Cancelar';
+        if (confirmBtn) confirmBtn.innerHTML = isEn ? '<span>🚪</span> Yes, Exit Now' : '<span>🚪</span> Sí, Salir Ahora';
+      }
+
+      // 6. Modal de Licencia Pro (#license-modal)
+      const licModal = document.getElementById('license-modal');
+      if (licModal) {
+        const h3 = licModal.querySelector('h3');
+        const p = licModal.querySelector('p.text-slate-300');
+        const activateBtn = licModal.querySelector('button[onclick="activateLicenseKey()"]');
+        if (h3) h3.textContent = isEn ? 'QuimiQuiz Pro - International License' : 'QuimiQuiz Pro - Licencia Internacional';
+        if (p) p.textContent = isEn
+          ? 'Unlock the official 50-item assessment, anti-AI shield, anti-fraud certificates, and full teacher panel.'
+          : 'Desbloquea el examen oficial de 50 ítems, el escudo anti-IA, certificados antifraude y el panel docente completo.';
+        if (activateBtn) activateBtn.textContent = isEn ? 'Activate' : 'Activar';
+      }
+
+      // 7. Certificado de Evaluación (#results-panel)
+      const certCard = document.getElementById('certificate-card');
+      if (certCard) {
+        const h3 = certCard.querySelector('h3');
+        if (h3) h3.textContent = isEn ? 'Evaluation Certificate' : 'Certificado de Evaluación';
+        const nameInput = document.getElementById('student-name-input');
+        if (nameInput) {
+          nameInput.placeholder = isEn ? 'E.g. John Smith' : 'Ej. Juan Pérez';
+          if (nameInput.previousElementSibling) {
+            nameInput.previousElementSibling.textContent = isEn ? 'Student Full Name:' : 'Nombre y Apellido del Estudiante:';
+          }
+        }
+        const groupInput = document.getElementById('student-group-input');
+        if (groupInput) {
+          groupInput.placeholder = isEn ? 'E.g. 10th A' : 'Ej. 10° A';
+          if (groupInput.previousElementSibling) {
+            groupInput.previousElementSibling.textContent = isEn ? 'Group / Grade:' : 'Grupo / Grado:';
+          }
+        }
+        const copyBtn = document.getElementById('btn-copy-code-sm');
+        if (copyBtn) copyBtn.innerHTML = isEn ? '<span>📋</span> Copy' : '<span>📋</span> Copiar';
+      }
+      const submitLgBtn = document.getElementById('btn-submit-code-lg');
+      if (submitLgBtn) {
+        submitLgBtn.innerHTML = isEn
+          ? '<span class="text-lg">🚀</span> Send my Official Code to the Teacher'
+          : '<span class="text-lg">🚀</span> Enviar mi Código Oficial al Profesor';
+      }
+      const retryBtn = document.querySelector('#results-panel button[onclick="restartFullExam()"]');
+      if (retryBtn) {
+        retryBtn.textContent = isEn ? '🔄 Take another 50-item attempt' : '🔄 Realizar otro intento de 50 ítems';
+      }
+
+      // 8. Modal de Acceso Docente (#teacher-auth-modal)
+      const authModal = document.getElementById('teacher-auth-modal');
+      if (authModal) {
+        const h3 = authModal.querySelector('h3');
+        const p = authModal.querySelector('p');
+        const pinInp = document.getElementById('teacher-pin-input');
+        const submitBtn = authModal.querySelector('button[type="submit"]');
+        const errDiv = document.getElementById('teacher-auth-error');
+        if (h3) h3.textContent = isEn ? 'Teacher Panel Access' : 'Acceso al Panel Docente';
+        if (p) p.textContent = isEn
+          ? 'Enter the Teacher access code or PIN to view submitted evaluations and grades:'
+          : 'Ingresa el código o PIN de acceso del Profesor para ver las evaluaciones y notas recibidas:';
+        if (pinInp) pinInp.placeholder = isEn ? 'Access code or PIN...' : 'Código o PIN de acceso...';
+        if (submitBtn) submitBtn.textContent = isEn ? 'Unlock Panel' : 'Desbloquear Panel';
+        if (errDiv) errDiv.textContent = isEn ? '❌ Incorrect access code.' : '❌ Código de acceso incorrecto.';
+      }
+
+      // 9. Modal Selector de Escala por País (#country-scale-modal)
+      const scaleModal = document.getElementById('country-scale-modal');
+      if (scaleModal) {
+        const h3 = scaleModal.querySelector('h3');
+        const p = scaleModal.querySelector('p');
+        if (h3) h3.textContent = isEn ? 'Grading Scale by Country' : 'Escala de Calificación por País';
+        if (p) p.textContent = isEn
+          ? 'Select the grading system to evaluate your students:'
+          : 'Selecciona el sistema de notas con el que evaluarás a tus alumnos:';
+      }
+
+      // 10. Panel Docente (#teacher-panel)
+      const teacherPanel = document.getElementById('teacher-panel');
+      if (teacherPanel) {
+        const cfgBtn = teacherPanel.querySelector('button[onclick="openTeacherSettingsModal()"] span:last-child');
+        if (cfgBtn) cfgBtn.textContent = isEn ? 'Configure School' : 'Configurar Escuela';
+
+        const kpiTotal = document.getElementById('kpi-total-students');
+        if (kpiTotal && kpiTotal.previousElementSibling) kpiTotal.previousElementSibling.textContent = isEn ? 'Total Students' : 'Total Alumnos';
+        const kpiAvg = document.getElementById('kpi-avg-grade');
+        if (kpiAvg && kpiAvg.previousElementSibling) kpiAvg.previousElementSibling.textContent = isEn ? 'Overall Average' : 'Promedio General';
+        const kpiPass = document.getElementById('kpi-passed-students');
+        if (kpiPass && kpiPass.previousElementSibling) kpiPass.previousElementSibling.textContent = isEn ? 'Passed' : 'Aprobados';
+        const kpiFail = document.getElementById('kpi-failed-students');
+        if (kpiFail && kpiFail.previousElementSibling) kpiFail.previousElementSibling.textContent = isEn ? 'Failed' : 'Reprobados';
+
+        const tSearch = document.getElementById('teacher-search-input');
+        if (tSearch) tSearch.placeholder = isEn ? '🔍 Search student by name or code...' : '🔍 Buscar estudiante por nombre o código...';
+
+        const saveBtn = teacherPanel.querySelector('button[onclick="saveTeacherDatabase()"]');
+        if (saveBtn) saveBtn.innerHTML = isEn ? '<span class="text-base">💾</span> Save Data' : '<span class="text-base">💾</span> Guardar Datos';
+        const clearBtn = teacherPanel.querySelector('button[onclick="clearTeacherDatabase()"]');
+        if (clearBtn) clearBtn.innerHTML = isEn ? '<span class="text-base">🗑️</span> Clear All' : '<span class="text-base">🗑️</span> Vaciar a Cero';
+        const csvBtn = teacherPanel.querySelector('button[onclick="downloadDatabaseCSV()"]');
+        if (csvBtn) csvBtn.innerHTML = isEn ? '<span class="text-base">📥</span> Export Excel' : '<span class="text-base">📥</span> Exportar Excel';
+        const syncBtn = teacherPanel.querySelector('button[onclick="syncDatabaseFromCloud(true)"]');
+        if (syncBtn) syncBtn.innerHTML = isEn ? '<span class="text-base">☁️</span> Sync Google' : '<span class="text-base">☁️</span> Sincronizar Google';
+        const demoBtn = teacherPanel.querySelector('button[onclick="runLiveStudentDemo()"]');
+        if (demoBtn) demoBtn.innerHTML = isEn ? '<span>▶️</span> Demo' : '<span>▶️</span> Probar';
+      }
+    }
+
     function toggleAppLanguage() {
       setAppLanguage(currentLang === 'es' ? 'en' : 'es');
     }
@@ -4724,6 +5205,8 @@
       const searchInp = document.getElementById('search-input');
       if (searchInp) searchInp.placeholder = isEn ? 'Search element by name, symbol or atomic number...' : 'Buscar por nombre, símbolo o número atómico (Z)...';
 
+      applyFullDOMTranslations();
+
       // Refrescar pregunta actual si no ha sido respondida
       if (!isAnswered && currentItemIndex < TOTAL_ITEMS) {
         generateCurrentItem();
@@ -4754,7 +5237,7 @@
       if (!isAnswered && currentItemIndex < TOTAL_ITEMS) {
         startQuestionTimer();
       }
-      showHistoryToast('🚀 ¡Desafío iniciado! Éxito en tu prueba');
+      showHistoryToast(currentLang === 'en' ? '🚀 Challenge started! Good luck!' : '🚀 ¡Desafío iniciado! Éxito en tu prueba');
     }
 
     function openExploreFromWelcome() {
@@ -5029,7 +5512,7 @@
       const prevState = undoStack.pop();
       redoStack.push(currentState);
       restoreAppState(prevState);
-      showHistoryToast('↩️ Deshecho: ' + (prevState.label || 'Acción anterior'));
+      showHistoryToast((currentLang === 'en' ? '↩️ Undone: ' : '↩️ Deshecho: ') + (prevState.label || ''));
     }
 
     function performRedo() {
@@ -5038,7 +5521,7 @@
       const nextState = redoStack.pop();
       undoStack.push(currentState);
       restoreAppState(nextState);
-      showHistoryToast('↪️ Rehecho: ' + (nextState.label || 'Acción'));
+      showHistoryToast((currentLang === 'en' ? '↪️ Redone: ' : '↪️ Rehecho: ') + (nextState.label || ''));
     }
 
     let historyToastTimer = null;
