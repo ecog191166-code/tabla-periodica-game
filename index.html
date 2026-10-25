@@ -261,7 +261,7 @@
           </div>
         </div>
         <span id="auto-next-indicator" class="px-3 py-1.5 rounded-xl bg-slate-900/90 border border-cyan-500/40 text-cyan-300 font-mono font-bold text-xs whitespace-nowrap shadow-inner">
-          Siguiente en 5s...
+          Siguiente en 10s...
         </span>
       </div>
     </main>
@@ -739,9 +739,6 @@
           <div class="flex flex-wrap items-center gap-1.5">
             <button onclick="animateDiagonalRuleFilling()" id="btn-animate-diagonals" class="px-3 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-cyan-300 font-extrabold text-xs flex items-center gap-1.5 transition active:scale-95 shadow">
               <span>📐</span> Llenar por Regla de las Diagonales
-            </button>
-            <button onclick="animateSublevelFilling()" id="btn-animate-aufbau" class="px-3 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-300 font-extrabold text-xs flex items-center gap-1.5 transition active:scale-95 shadow">
-              <span>▶️</span> Animar Espines (Hund)
             </button>
           </div>
         </div>
@@ -1415,7 +1412,7 @@
     }
 
     let autoNextTimerInterval = null;
-    let autoNextSecondsLeft = 5;
+    let autoNextSecondsLeft = 10;
 
     function stopAutoNextCountdown() {
       if (autoNextTimerInterval) {
@@ -1427,7 +1424,7 @@
     function startAutoNextCountdown() {
       stopAutoNextCountdown();
       if (isSimulating) return;
-      autoNextSecondsLeft = 5;
+      autoNextSecondsLeft = 10;
       const ind = document.getElementById('auto-next-indicator');
       const isLast = currentItemIndex === TOTAL_ITEMS - 1;
       if (ind) {
@@ -1437,7 +1434,7 @@
       autoNextTimerInterval = setInterval(() => {
         autoNextSecondsLeft--;
         if (ind && autoNextSecondsLeft > 0) {
-          ind.textContent = (isLast ? 'Certificado en ' : 'Siguiente en ') + autoNextSecondsLeft + 's...';
+          ind.textContent = (currentLang === 'en' ? (isLast ? 'Certificate in ' : 'Next in ') : (isLast ? 'Certificado en ' : 'Siguiente en ')) + autoNextSecondsLeft + 's...';
         }
         if (autoNextSecondsLeft <= 0) {
           stopAutoNextCountdown();
@@ -3850,7 +3847,6 @@
 
         return `
           <line x1="${a.x1}" y1="${a.y1}" x2="${a.x2}" y2="${a.y2}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-dasharray="${dash}" marker-end="${markerId}" opacity="${isCurrentDiag ? '1' : (hasFilledInDiag ? '0.85' : '0.45')}" />
-          <text x="${a.x1 + 5}" y="${a.y1 - 2}" font-size="9" font-weight="900" fill="${isCurrentDiag ? '#fbbf24' : (hasFilledInDiag ? '#34d399' : '#475569')}" font-family="monospace">D${a.diag}</text>
         `;
       }).join('');
 
@@ -3912,16 +3908,16 @@
       const orbLetter = SPANISH_LETTER_NAMES[subName[1]] || subName[1];
       if (currentLang === 'en') {
         if (currentCount > 0) {
-          speakSpanishTextSlowly('Diagonal ' + diagNum + ': sublevel ' + levelNum + ' ' + subName[1] + ', has ' + currentCount + (currentCount === 1 ? ' electron' : ' electrons') + ' out of a maximum of ' + maxCap + '.', 0.80);
+          speakSpanishTextSlowly('Sublevel ' + levelNum + ' ' + subName[1] + ', has ' + currentCount + (currentCount === 1 ? ' electron' : ' electrons') + ' out of a maximum of ' + maxCap + '.', 0.80);
         } else {
-          speakSpanishTextSlowly('Diagonal ' + diagNum + ': sublevel ' + levelNum + ' ' + subName[1] + ', empty in this element. Maximum capacity: ' + maxCap + ' electrons.', 0.80);
+          speakSpanishTextSlowly('Sublevel ' + levelNum + ' ' + subName[1] + ', empty in this element. Maximum capacity: ' + maxCap + ' electrons.', 0.80);
         }
         return;
       }
       if (currentCount > 0) {
-        speakSpanishTextSlowly('Diagonal ' + diagNum + ': subnivel ' + levelNum + ' ' + orbLetter + ', tiene ' + currentCount + (currentCount === 1 ? ' electrón' : ' electrones') + ' de un máximo de ' + maxCap + '.', 0.80);
+        speakSpanishTextSlowly('Subnivel ' + levelNum + ' ' + orbLetter + ', tiene ' + currentCount + (currentCount === 1 ? ' electrón' : ' electrones') + ' de un máximo de ' + maxCap + '.', 0.80);
       } else {
-        speakSpanishTextSlowly('Diagonal ' + diagNum + ': subnivel ' + levelNum + ' ' + orbLetter + ', vacío en este elemento. Capacidad máxima: ' + maxCap + ' electrones.', 0.80);
+        speakSpanishTextSlowly('Subnivel ' + levelNum + ' ' + orbLetter + ', vacío en este elemento. Capacidad máxima: ' + maxCap + ' electrones.', 0.80);
       }
     }
 
@@ -3965,17 +3961,12 @@
         const nodeInfo = MOELLER_NODES.find(n => n.sub === sub.subName) || { diag: 1 };
         const levelNum = sub.subName[0];
         const orbLetter = SPANISH_LETTER_NAMES[sub.orbType] || sub.orbType;
-        const diagPrefix = currentLang === 'en'
-          ? (nodeInfo.diag !== lastDiag ? ('Diagonal ' + nodeInfo.diag + ': ') : ('Continues diagonally to '))
-          : (nodeInfo.diag !== lastDiag ? ('Diagonal ' + nodeInfo.diag + ': ') : ('Sigue en diagonal a '));
-        lastDiag = nodeInfo.diag;
-
         const subSpoken = currentLang === 'en'
-          ? (diagPrefix + 'sublevel ' + levelNum + ' ' + sub.orbType + ', ' + sub.count + (sub.count === 1 ? ' electron.' : ' electrons.'))
-          : (diagPrefix + 'subnivel ' + levelNum + ' ' + orbLetter + ', ' + sub.count + (sub.count === 1 ? ' electrón.' : ' electrones.'));
+          ? ('Sublevel ' + levelNum + ' ' + sub.orbType + ', ' + sub.count + (sub.count === 1 ? ' electron.' : ' electrons.'))
+          : ('Subnivel ' + levelNum + ' ' + orbLetter + ', ' + sub.count + (sub.count === 1 ? ' electrón.' : ' electrones.'));
 
         if (diagBadge) {
-          diagBadge.textContent = '↙ Diagonal ' + nodeInfo.diag + ' → ' + sub.subName + toSuperscriptNumber(sub.count);
+          diagBadge.textContent = (currentLang === 'en' ? '↙ Sublevel ' : '↙ Subnivel ') + sub.subName + toSuperscriptNumber(sub.count);
         }
 
         const speechPromise = speakTextWaitPromise(subSpoken, 0.78);
@@ -3987,7 +3978,7 @@
             renderOrbitalBoxes(fullEc, currentCount, sub.subName);
             renderMoellerDiagonalsSVG(fullEc, currentCount, sub.subName);
             if (label) {
-              label.textContent = 'Diagonal ' + nodeInfo.diag + ' · ' + sub.subName + toSuperscriptNumber(i) + ' (' + currentCount + ' / ' + totalE + ' e⁻)';
+              label.textContent = (currentLang === 'en' ? 'Sublevel ' : 'Subnivel ') + sub.subName + toSuperscriptNumber(i) + ' (' + currentCount + ' / ' + totalE + ' e⁻)';
             }
             await new Promise(r => setTimeout(r, perSpinMs));
           }
@@ -4371,7 +4362,7 @@
         if (field === 'header') {
           speakSpanishTextSlowly(getElName(el) + '. Symbol: ' + el.s.split('').join(', ') + '. Family: ' + getElCategory(el) + '. State: ' + getElState(el) + '. Period ' + el.p + ', Group ' + el.g + '.');
         } else if (field === 'config') {
-          animateSublevelFilling();
+          animateDiagonalRuleFilling();
         } else if (field === 'lewis') {
           stopAufbauAnimation();
           speakSpanishTextSlowly('Lewis structure of ' + getElName(el) + ': represented with ' + lewisData.dots + (lewisData.dots === 1 ? ' valence dot' : ' valence dots') + ' around symbol ' + el.s + '. ' + lewisData.ruleDesc.replace(/e⁻/g, 'electrons'));
@@ -4392,8 +4383,8 @@
       if (field === 'header') {
         speakSpanishTextSlowly(el.n + '. Símbolo: ' + symSpelled + '. Familia: ' + el.c + '. Estado: ' + (el.st || 'Sólido') + '. Periodo ' + el.p + ', Grupo ' + el.g + '.');
       } else if (field === 'config') {
-        animateSublevelFilling();
-      } else if (field === 'lewis') {
+          animateDiagonalRuleFilling();
+        } else if (field === 'lewis') {
         stopAufbauAnimation();
         const lewisData = getLewisStructureData(el, fullEc);
         const pTxt = lewisData.lonePairs + (lewisData.lonePairs === 1 ? ' par libre' : ' pares libres');
