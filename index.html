@@ -144,9 +144,6 @@
           <span class="text-base sm:text-lg">⏱️</span>
           <span id="timer-val" class="text-base sm:text-xl font-black tracking-tight">20</span><span class="text-xs font-bold text-amber-400">s</span>
         </span>
-        <button id="btn-toggle-timer-start" onclick="toggleChallengeTimerPause()" class="px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 border border-emerald-400 text-white font-black text-xs flex items-center gap-1 shadow-md transition active:scale-95 animate-pulse" title="Iniciar o pausar el conteo del desafío">
-          <span>🚀</span> <span>Inicio</span>
-        </button>
       </div>
       <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex-1">
         <div id="progress-bar" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-full transition-all duration-300" style="width: 2%;"></div>
@@ -259,9 +256,9 @@
             <p id="feedback-detail" class="text-slate-300 text-[11px] sm:text-xs"></p>
           </div>
         </div>
-        <button id="next-btn" onclick="nextQuestion()" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow transition whitespace-nowrap">
-          Siguiente Ítem ➔
-        </button>
+        <span id="auto-next-indicator" class="px-3 py-1.5 rounded-xl bg-slate-900/90 border border-cyan-500/40 text-cyan-300 font-mono font-bold text-xs whitespace-nowrap shadow-inner">
+          Siguiente en 5s...
+        </span>
       </div>
     </main>
 
@@ -735,9 +732,14 @@
               ⚡ Configuración Electrónica y Llenado de Subniveles 🔊
             </span>
           </div>
-          <button onclick="animateSublevelFilling()" id="btn-animate-aufbau" class="px-3 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-300 font-extrabold text-xs flex items-center gap-1.5 transition active:scale-95 shadow">
-            <span>▶️</span> Animar Llenado Paso a Paso
-          </button>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <button onclick="animateDiagonalRuleFilling()" id="btn-animate-diagonals" class="px-3 py-1 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/50 text-cyan-300 font-extrabold text-xs flex items-center gap-1.5 transition active:scale-95 shadow">
+              <span>📐</span> Llenar por Regla de las Diagonales
+            </button>
+            <button onclick="animateSublevelFilling()" id="btn-animate-aufbau" class="px-3 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-300 font-extrabold text-xs flex items-center gap-1.5 transition active:scale-95 shadow">
+              <span>▶️</span> Animar Espines (Hund)
+            </button>
+          </div>
         </div>
 
         <!-- Notación Desarrollada Completa por Subniveles y Abreviada -->
@@ -749,6 +751,21 @@
           <div class="flex flex-wrap items-baseline gap-2">
             <span class="text-[11px] sm:text-xs text-slate-400 font-semibold">Kernel (Gas noble):</span>
             <strong id="modal-elem-config" class="text-cyan-300 font-mono text-xs sm:text-sm font-bold">1s¹</strong>
+          </div>
+        </div>
+
+        <!-- Diagrama Interactivo de la Regla de las Diagonales (Diagrama de Moeller) -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-2.5 sm:p-3">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <span class="text-[11px] sm:text-xs font-extrabold text-cyan-300 flex items-center gap-1.5">
+              <span>📐</span> Regla de las Diagonales (Diagrama de Moeller ↙):
+            </span>
+            <span id="diagonals-active-step-badge" class="text-[11px] font-mono text-amber-300 font-bold">
+              Orden: 1s ↙ 2s ↙ 2p→3s ↙ 3p→4s...
+            </span>
+          </div>
+          <div id="modal-elem-diagonals-diagram" class="w-full flex items-center justify-center overflow-x-auto py-1">
+            <!-- SVG de las Diagonales de Moeller generado dinámicamente -->
           </div>
         </div>
 
@@ -885,32 +902,26 @@
 
   <!-- Ventana de Bienvenida al Usuario e Inicio del Desafío -->
   <div id="welcome-start-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-slate-900 border-2 border-blue-500/50 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl relative text-center flex flex-col items-center gap-4">
+    <div class="bg-slate-900 border-2 border-blue-500/50 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl relative text-center flex flex-col items-center gap-5">
       <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-600/30 via-cyan-500/20 to-emerald-500/20 border-2 border-blue-400/60 flex items-center justify-center text-5xl shadow-xl">
         ⚛️
       </div>
 
       <div class="space-y-1.5">
-        <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40 inline-block">
-          ⏸️ Conteo Automático en Pausa
-        </span>
-        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight mt-1">
-          ¡Bienvenido a la App!
+        <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          Bienvenido a QuimiQuiz Pro
         </h2>
-        <p class="text-sm sm:text-base text-cyan-200 font-bold leading-relaxed">
-          Bienvenido a la app, da clic en <span class="text-emerald-400 underline decoration-emerald-400/60">Inicio</span> para comenzar el desafío.
-        </p>
-        <p class="text-xs text-slate-400 leading-relaxed pt-1">
-          El cronómetro de evaluación permanecerá pausado hasta que presiones el botón de inicio.
+        <p class="text-base sm:text-lg text-cyan-300 font-extrabold tracking-wide">
+          (Tabla Periódica)
         </p>
       </div>
 
-      <div class="w-full flex flex-col gap-2.5 pt-2">
+      <div class="w-full flex flex-col gap-3 pt-1">
         <button onclick="startChallengeFromWelcome()" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-sm sm:text-base transition flex items-center justify-center gap-2 shadow-xl shadow-emerald-950/60 active:scale-95 border-2 border-emerald-300/60">
-          <span class="text-lg">🚀</span> <span>Inicio (Iniciar el Desafío)</span>
+          <span class="text-lg">🚀</span> <span>Comienza el Desafío</span>
         </button>
 
-        <button onclick="openExploreFromWelcome()" class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 active:scale-95 border border-slate-700">
+        <button onclick="openExploreFromWelcome()" class="w-full py-3 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 active:scale-95 border border-slate-700">
           <span>📖</span> <span>Ir primero a Repaso de la Tabla Periódica</span>
         </button>
       </div>
@@ -1306,6 +1317,38 @@
       }, 1000);
     }
 
+    let autoNextTimerInterval = null;
+    let autoNextSecondsLeft = 5;
+
+    function stopAutoNextCountdown() {
+      if (autoNextTimerInterval) {
+        clearInterval(autoNextTimerInterval);
+        autoNextTimerInterval = null;
+      }
+    }
+
+    function startAutoNextCountdown() {
+      stopAutoNextCountdown();
+      if (isSimulating) return;
+      autoNextSecondsLeft = 5;
+      const ind = document.getElementById('auto-next-indicator');
+      const isLast = currentItemIndex === TOTAL_ITEMS - 1;
+      if (ind) {
+        ind.textContent = (isLast ? 'Certificado en ' : 'Siguiente en ') + autoNextSecondsLeft + 's...';
+      }
+
+      autoNextTimerInterval = setInterval(() => {
+        autoNextSecondsLeft--;
+        if (ind && autoNextSecondsLeft > 0) {
+          ind.textContent = (isLast ? 'Certificado en ' : 'Siguiente en ') + autoNextSecondsLeft + 's...';
+        }
+        if (autoNextSecondsLeft <= 0) {
+          stopAutoNextCountdown();
+          nextQuestion();
+        }
+      }, 1000);
+    }
+
     function stopQuestionTimer() {
       if (questionTimerInterval) {
         clearInterval(questionTimerInterval);
@@ -1334,6 +1377,7 @@
       }
 
       isAnswered = false;
+      stopAutoNextCountdown();
       startQuestionTimer();
       const feedbackBox = document.getElementById('feedback-box');
       if (feedbackBox) feedbackBox.classList.add('hidden');
@@ -1463,23 +1507,13 @@
         }
       }
 
-      if (currentItemIndex === TOTAL_ITEMS - 1) {
-        if (nextBtn) {
-          nextBtn.textContent = "Ver Certificado Oficial 🎓";
-          nextBtn.className = "px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs sm:text-sm shadow-lg transition whitespace-nowrap animate-pulse";
-        }
-      } else {
-        if (nextBtn) {
-          nextBtn.textContent = "Siguiente Ítem ➔";
-          nextBtn.className = "px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs sm:text-sm shadow transition whitespace-nowrap";
-        }
-      }
-
       if (feedbackBox) feedbackBox.classList.remove('hidden');
       updateStats();
+      startAutoNextCountdown();
     }
 
     function nextQuestion() {
+      stopAutoNextCountdown();
       recordHistoryAction('Avance al Ítem ' + (currentItemIndex + 2));
       currentItemIndex++;
       if (currentItemIndex >= TOTAL_ITEMS) {
@@ -2529,7 +2563,7 @@
 
     function switchTab(tab, skipHistory = false) {
       if (!skipHistory) recordHistoryAction('Pestaña ' + tab);
-      if (tab !== 'play') stopQuestionTimer();
+      if (tab !== 'play') { stopQuestionTimer(); stopAutoNextCountdown(); }
       const playPanel = document.getElementById('play-panel');
       const explorePanel = document.getElementById('explore-panel');
       const resultsPanel = document.getElementById('results-panel');
@@ -3413,6 +3447,7 @@
       const label = document.getElementById('aufbau-progress-label');
 
       renderOrbitalBoxes(fullEc, 0, null);
+      if (typeof renderMoellerDiagonalsSVG === 'function') renderMoellerDiagonalsSVG(fullEc, 0, null);
       if (label) {
         label.textContent = 'Preparando llenado de ' + totalE + ' e⁻...';
       }
@@ -3444,6 +3479,7 @@
             if (mySession !== aufbauAnimSessionId) return;
             const currentCount = cumulativeE + i;
             renderOrbitalBoxes(fullEc, currentCount, sub.subName);
+            if (typeof renderMoellerDiagonalsSVG === 'function') renderMoellerDiagonalsSVG(fullEc, currentCount, sub.subName);
             if (label) {
               label.textContent = 'Subnivel ' + sub.subName + toSuperscriptNumber(i) + ' (' + currentCount + ' / ' + totalE + ' e⁻)';
             }
@@ -3462,6 +3498,7 @@
 
       if (mySession !== aufbauAnimSessionId) return;
       renderOrbitalBoxes(fullEc, totalE, null);
+      if (typeof renderMoellerDiagonalsSVG === 'function') renderMoellerDiagonalsSVG(fullEc, totalE, null);
       if (label) {
         label.textContent = '✅ ' + totalE + ' e⁻ completados';
       }
@@ -3630,6 +3667,233 @@
       }
 
       window.speechSynthesis.speak(utter);
+    }
+
+
+    // ==========================================
+    // DIAGRAMA Y ANIMACIÓN POR LA REGLA DE LAS DIAGONALES (MOELLER)
+    // ==========================================
+    const MOELLER_NODES = [
+      { sub: '1s', row: 1, col: 0, diag: 1, max: 2 },
+      { sub: '2s', row: 2, col: 0, diag: 2, max: 2 },
+      { sub: '2p', row: 2, col: 1, diag: 3, max: 6 },
+      { sub: '3s', row: 3, col: 0, diag: 3, max: 2 },
+      { sub: '3p', row: 3, col: 1, diag: 4, max: 6 },
+      { sub: '4s', row: 4, col: 0, diag: 4, max: 2 },
+      { sub: '3d', row: 3, col: 2, diag: 5, max: 10 },
+      { sub: '4p', row: 4, col: 1, diag: 5, max: 6 },
+      { sub: '5s', row: 5, col: 0, diag: 5, max: 2 },
+      { sub: '4d', row: 4, col: 2, diag: 6, max: 10 },
+      { sub: '5p', row: 5, col: 1, diag: 6, max: 6 },
+      { sub: '6s', row: 6, col: 0, diag: 6, max: 2 },
+      { sub: '4f', row: 4, col: 3, diag: 7, max: 14 },
+      { sub: '5d', row: 5, col: 2, diag: 7, max: 10 },
+      { sub: '6p', row: 6, col: 1, diag: 7, max: 6 },
+      { sub: '7s', row: 7, col: 0, diag: 7, max: 2 },
+      { sub: '5f', row: 5, col: 3, diag: 8, max: 14 },
+      { sub: '6d', row: 6, col: 2, diag: 8, max: 10 },
+      { sub: '7p', row: 7, col: 1, diag: 8, max: 6 }
+    ];
+
+    const MOELLER_DIAGONAL_ARROWS = [
+      { diag: 1, x1: 132, y1: 18, x2: 78,  y2: 45 },
+      { diag: 2, x1: 132, y1: 52, x2: 78,  y2: 79 },
+      { diag: 3, x1: 204, y1: 50, x2: 78,  y2: 113 },
+      { diag: 4, x1: 204, y1: 84, x2: 78,  y2: 147 },
+      { diag: 5, x1: 276, y1: 82, x2: 78,  y2: 181 },
+      { diag: 6, x1: 276, y1: 116, x2: 78, y2: 215 },
+      { diag: 7, x1: 348, y1: 114, x2: 78, y2: 249 },
+      { diag: 8, x1: 348, y1: 148, x2: 146, y2: 249 }
+    ];
+
+    function renderMoellerDiagonalsSVG(fullEc, maxElectronsLimit = null, activeSubName = null) {
+      const container = document.getElementById('modal-elem-diagonals-diagram');
+      if (!container) return;
+
+      const parsed = parseSublevelsHund(fullEc);
+      const eMap = {};
+      let rem = maxElectronsLimit !== null ? maxElectronsLimit : 999;
+
+      parsed.forEach(item => {
+        if (rem <= 0 && maxElectronsLimit !== null) return;
+        const actual = Math.min(item.count, rem);
+        rem -= actual;
+        if (actual > 0) {
+          eMap[item.subName] = actual;
+        }
+      });
+
+      const activeNodeObj = MOELLER_NODES.find(n => n.sub === activeSubName) || null;
+      const activeDiag = activeNodeObj ? activeNodeObj.diag : null;
+
+      // Etiquetas de niveles n = 1..7 (Capas K a Q)
+      const shells = ['K', 'L', 'M', 'N', 'O', 'P', 'Q'];
+      let rowsLabelsSvg = '';
+      for (let r = 1; r <= 7; r++) {
+        const y = 32 + (r - 1) * 34;
+        rowsLabelsSvg += `
+          <text x="12" y="${y}" font-size="11" font-weight="800" fill="#94a3b8" dominant-baseline="central" font-family="monospace">n=${r} (${shells[r - 1]})</text>
+        `;
+      }
+
+      // Flechas diagonales (↙)
+      const arrowsSvg = MOELLER_DIAGONAL_ARROWS.map(a => {
+        const hasFilledInDiag = MOELLER_NODES.some(n => n.diag === a.diag && eMap[n.sub] > 0);
+        const isCurrentDiag = activeDiag === a.diag;
+        const strokeColor = isCurrentDiag ? '#fbbf24' : (hasFilledInDiag ? '#10b981' : '#334155');
+        const strokeWidth = isCurrentDiag ? '3' : (hasFilledInDiag ? '2.2' : '1.4');
+        const markerId = isCurrentDiag ? 'url(#diag-arrow-active)' : (hasFilledInDiag ? 'url(#diag-arrow-filled)' : 'url(#diag-arrow-dim)');
+        const dash = hasFilledInDiag || isCurrentDiag ? 'none' : '4 3';
+
+        return `
+          <line x1="${a.x1}" y1="${a.y1}" x2="${a.x2}" y2="${a.y2}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-dasharray="${dash}" marker-end="${markerId}" opacity="${isCurrentDiag ? '1' : (hasFilledInDiag ? '0.85' : '0.45')}" />
+          <text x="${a.x1 + 5}" y="${a.y1 - 2}" font-size="9" font-weight="900" fill="${isCurrentDiag ? '#fbbf24' : (hasFilledInDiag ? '#34d399' : '#475569')}" font-family="monospace">D${a.diag}</text>
+        `;
+      }).join('');
+
+      // Nodos de subniveles (1s .. 7p)
+      const colColors = [
+        { fill: '#083344', stroke: '#06b6d4', text: '#67e8f9' }, // s (cyan)
+        { fill: '#451a03', stroke: '#f59e0b', text: '#fde68a' }, // p (amber)
+        { fill: '#172554', stroke: '#3b82f6', text: '#93c5fd' }, // d (blue)
+        { fill: '#3b0764', stroke: '#a855f7', text: '#d8b4fe' }  // f (purple)
+      ];
+
+      const nodesSvg = MOELLER_NODES.map(n => {
+        const cx = 104 + n.col * 68;
+        const cy = 32 + (n.row - 1) * 34;
+        const count = eMap[n.sub] || 0;
+        const isFilled = count > 0;
+        const isCurrent = activeSubName === n.sub;
+        const cStyle = colColors[n.col] || colColors[0];
+
+        const rxFill = isCurrent ? '#f59e0b' : (isFilled ? cStyle.fill : '#0f172a');
+        const rxStroke = isCurrent ? '#fef08a' : (isFilled ? cStyle.stroke : '#1e293b');
+        const rxStrokeW = isCurrent ? '2.8' : (isFilled ? '1.8' : '1.2');
+        const txtFill = isCurrent ? '#020617' : (isFilled ? cStyle.text : '#475569');
+        const labelStr = isFilled ? (n.sub + toSuperscriptNumber(count)) : (n.sub + toSuperscriptNumber(n.max));
+
+        return `
+          <g class="cursor-pointer" onclick="event.stopPropagation(); speakMoellerNode('${n.sub}', ${count}, ${n.max}, ${n.diag})">
+            <rect x="${cx - 22}" y="${cy - 12}" width="44" height="24" rx="8" fill="${rxFill}" stroke="${rxStroke}" stroke-width="${rxStrokeW}" />
+            <text x="${cx}" y="${cy + 0.5}" font-size="11.5" font-weight="900" font-family="monospace" fill="${txtFill}" text-anchor="middle" dominant-baseline="central">${labelStr}</text>
+          </g>
+        `;
+      }).join('');
+
+      container.innerHTML = `
+        <svg viewBox="0 0 385 262" class="w-full max-w-[430px] h-auto select-none">
+          <defs>
+            <marker id="diag-arrow-dim" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#475569" />
+            </marker>
+            <marker id="diag-arrow-filled" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981" />
+            </marker>
+            <marker id="diag-arrow-active" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#fbbf24" />
+            </marker>
+          </defs>
+          <!-- Etiquetas de Niveles n=1..7 -->
+          ${rowsLabelsSvg}
+          <!-- Flechas Diagonales ↙ -->
+          ${arrowsSvg}
+          <!-- Cajas de Subniveles -->
+          ${nodesSvg}
+        </svg>
+      `;
+    }
+
+    function speakMoellerNode(subName, currentCount, maxCap, diagNum) {
+      const levelNum = subName[0];
+      const orbLetter = SPANISH_LETTER_NAMES[subName[1]] || subName[1];
+      if (currentCount > 0) {
+        speakSpanishTextSlowly('Diagonal ' + diagNum + ': subnivel ' + levelNum + ' ' + orbLetter + ', tiene ' + currentCount + (currentCount === 1 ? ' electrón' : ' electrones') + ' de un máximo de ' + maxCap + '.', 0.80);
+      } else {
+        speakSpanishTextSlowly('Diagonal ' + diagNum + ': subnivel ' + levelNum + ' ' + orbLetter + ', vacío en este elemento. Capacidad máxima: ' + maxCap + ' electrones.', 0.80);
+      }
+    }
+
+    async function animateDiagonalRuleFilling() {
+      const el = ELEMENTS.find(e => e.z === currentDetailZ);
+      if (!el) return;
+
+      stopAufbauAnimation();
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      const mySession = aufbauAnimSessionId;
+
+      const adv = ELEMENT_ADVANCED_DATA[el.z] || { ec: '1s¹' };
+      const fullEc = expandToFullSublevels(adv.ec);
+      const parsed = parseSublevelsHund(fullEc);
+      const totalE = el.z;
+      const label = document.getElementById('aufbau-progress-label');
+      const diagBadge = document.getElementById('diagonals-active-step-badge');
+
+      renderOrbitalBoxes(fullEc, 0, null);
+      renderMoellerDiagonalsSVG(fullEc, 0, null);
+
+      if (diagBadge) {
+        diagBadge.textContent = 'Preparando Regla de las Diagonales...';
+      }
+
+      await new Promise(r => setTimeout(r, 180));
+      if (mySession !== aufbauAnimSessionId) return;
+
+      await speakTextWaitPromise('Llenado por la Regla de las Diagonales para ' + el.n + '.', 0.84);
+      if (mySession !== aufbauAnimSessionId) return;
+
+      const perSpinMs = totalE <= 18 ? 780 : (totalE <= 36 ? 620 : 480);
+      let cumulativeE = 0;
+      let lastDiag = 0;
+
+      for (const sub of parsed) {
+        if (mySession !== aufbauAnimSessionId) return;
+
+        const nodeInfo = MOELLER_NODES.find(n => n.sub === sub.subName) || { diag: 1 };
+        const levelNum = sub.subName[0];
+        const orbLetter = SPANISH_LETTER_NAMES[sub.orbType] || sub.orbType;
+        const diagPrefix = nodeInfo.diag !== lastDiag ? ('Diagonal ' + nodeInfo.diag + ': ') : ('Sigue en diagonal a ');
+        lastDiag = nodeInfo.diag;
+
+        const subSpoken = diagPrefix + 'subnivel ' + levelNum + ' ' + orbLetter + ', ' + sub.count + (sub.count === 1 ? ' electrón.' : ' electrones.');
+
+        if (diagBadge) {
+          diagBadge.textContent = '↙ Diagonal ' + nodeInfo.diag + ' → ' + sub.subName + toSuperscriptNumber(sub.count);
+        }
+
+        const speechPromise = speakTextWaitPromise(subSpoken, 0.78);
+
+        const fillSublevelSpins = async () => {
+          for (let i = 1; i <= sub.count; i++) {
+            if (mySession !== aufbauAnimSessionId) return;
+            const currentCount = cumulativeE + i;
+            renderOrbitalBoxes(fullEc, currentCount, sub.subName);
+            renderMoellerDiagonalsSVG(fullEc, currentCount, sub.subName);
+            if (label) {
+              label.textContent = 'Diagonal ' + nodeInfo.diag + ' · ' + sub.subName + toSuperscriptNumber(i) + ' (' + currentCount + ' / ' + totalE + ' e⁻)';
+            }
+            await new Promise(r => setTimeout(r, perSpinMs));
+          }
+        };
+
+        await Promise.all([speechPromise, fillSublevelSpins()]);
+        if (mySession !== aufbauAnimSessionId) return;
+
+        cumulativeE += sub.count;
+        await new Promise(r => setTimeout(r, 500));
+      }
+
+      if (mySession !== aufbauAnimSessionId) return;
+      renderOrbitalBoxes(fullEc, totalE, null);
+      renderMoellerDiagonalsSVG(fullEc, totalE, null);
+      if (diagBadge) {
+        diagBadge.textContent = '✅ Diagonales completadas (' + totalE + ' e⁻)';
+      }
+      if (label) {
+        label.textContent = '✅ ' + totalE + ' e⁻ completados';
+      }
     }
 
     function getLewisStructureData(el, fullEc) {
@@ -3908,6 +4172,9 @@
       if (progressLabel) progressLabel.textContent = el.z + ' e⁻ distribuidos';
 
       renderOrbitalBoxes(fullEc, null);
+      renderMoellerDiagonalsSVG(fullEc, null, null);
+      const diagBadgeEl = document.getElementById('diagonals-active-step-badge');
+      if (diagBadgeEl) diagBadgeEl.textContent = 'Orden: 1s ↙ 2s ↙ 2p→3s ↙ 3p→4s...';
 
       const lewisData = getLewisStructureData(el, fullEc);
       renderLewisDiagramSVG(el.s, lewisData);
@@ -4129,12 +4396,7 @@
 
         await new Promise(r => setTimeout(r, 90));
 
-        if (i < TOTAL_ITEMS - 1) {
-          nextQuestion();
-        } else {
-          const nextBtn = document.getElementById('next-btn');
-          if (nextBtn) nextBtn.click();
-        }
+        nextQuestion();
       }
 
       simBanner.innerHTML = `<span>🎓</span> ¡50 ítems listos! El estudiante escribe sus datos...`;
@@ -4415,6 +4677,7 @@
       isRestoringHistory = true;
       try {
         stopQuestionTimer();
+        stopAutoNextCountdown();
         currentMode = state.currentMode;
         currentItemIndex = state.currentItemIndex;
         totalCorrect = state.totalCorrect;
