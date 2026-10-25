@@ -3203,7 +3203,7 @@
       const label = document.getElementById('aufbau-progress-label');
       speakSpanishTextSlowly('Llenando ' + totalE + (totalE === 1 ? ' electrón' : ' electrones') + ' en los subniveles de ' + el.n + ': ' + formatElectronConfigForSpanishSpeech(fullEc));
 
-      const intervalMs = Math.max(65, Math.min(280, Math.floor(3500 / totalE)));
+      const intervalMs = totalE <= 18 ? 680 : (totalE <= 36 ? 520 : 380);
 
       renderOrbitalBoxes(fullEc, 0);
       aufbauAnimTimer = setInterval(() => {
