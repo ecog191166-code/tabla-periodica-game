@@ -69,6 +69,21 @@
       20%, 60% { transform: translateX(-6px); }
       40%, 80% { transform: translateX(6px); }
     }
+    @keyframes comicBoomPop {
+      0% { transform: scale(0.2) rotate(-15deg); opacity: 0; }
+      25% { transform: scale(1.18) rotate(6deg); opacity: 1; }
+      45% { transform: scale(0.95) rotate(-4deg); opacity: 1; }
+      65% { transform: scale(1.06) rotate(2deg); opacity: 1; }
+      85% { transform: scale(1) rotate(0deg); opacity: 1; }
+      100% { transform: scale(1.25); opacity: 0; }
+    }
+    @keyframes bombFuseWiggle {
+      0%, 100% { transform: rotate(-8deg) scale(1); }
+      50% { transform: rotate(8deg) scale(1.12); }
+    }
+    .comic-boom-anim {
+      animation: comicBoomPop 1.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start sm:justify-center p-2 sm:p-4">
@@ -931,7 +946,7 @@
       }
     });
 
-    let audioCtx = null;
+        let audioCtx = null;
     function playSound(type) {
       if (!soundEnabled) return;
       try {
@@ -940,13 +955,13 @@
         if (!audioCtx) audioCtx = new AudioContext();
         if (audioCtx.state === 'suspended') audioCtx.resume();
 
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
         const now = audioCtx.currentTime;
 
         if (type === 'correct') {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
           osc.type = 'sine';
           osc.frequency.setValueAtTime(440, now);
           osc.frequency.exponentialRampToValueAtTime(880, now + 0.12);
@@ -955,13 +970,64 @@
           osc.start(now);
           osc.stop(now + 0.2);
         } else if (type === 'error') {
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(180, now);
-          osc.frequency.exponentialRampToValueAtTime(90, now + 0.2);
-          gain.gain.setValueAtTime(0.18, now);
-          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-          osc.start(now);
-          osc.stop(now + 0.25);
+          // 1. Silbido cómico de bomba cayendo ("¡Fiuuuuu!")
+          const whistle = audioCtx.createOscillator();
+          const wGain = audioCtx.createGain();
+          whistle.type = 'sine';
+          whistle.frequency.setValueAtTime(1350, now);
+          whistle.frequency.exponentialRampToValueAtTime(280, now + 0.22);
+          wGain.gain.setValueAtTime(0.16, now);
+          wGain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+          whistle.connect(wGain);
+          wGain.connect(audioCtx.destination);
+          whistle.start(now);
+          whistle.stop(now + 0.22);
+
+          // 2. Estallido de bomba ("¡KABOOM!") con ruido blanco filtrado percusivo
+          const bufferSize = Math.floor(audioCtx.sampleRate * 0.45);
+          const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+          const output = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (audioCtx.sampleRate * 0.12));
+          }
+          const whiteNoise = audioCtx.createBufferSource();
+          whiteNoise.buffer = noiseBuffer;
+
+          const boomFilter = audioCtx.createBiquadFilter();
+          boomFilter.type = 'bandpass';
+          boomFilter.frequency.setValueAtTime(520, now + 0.21);
+          boomFilter.frequency.exponentialRampToValueAtTime(140, now + 0.62);
+          boomFilter.Q.setValueAtTime(1.2, now + 0.21);
+
+          const nGain = audioCtx.createGain();
+          nGain.gain.setValueAtTime(0.38, now + 0.21);
+          nGain.gain.exponentialRampToValueAtTime(0.01, now + 0.65);
+
+          whiteNoise.connect(boomFilter);
+          boomFilter.connect(nGain);
+          nGain.connect(audioCtx.destination);
+          whiteNoise.start(now + 0.21);
+          whiteNoise.stop(now + 0.66);
+
+          // 3. Efecto jocoso de resorte / caricatura ("¡Boing-Wah-Waaah!")
+          const comicNotes = [
+            { fStart: 520, fEnd: 490, delay: 0.24, dur: 0.13 },
+            { fStart: 466, fEnd: 435, delay: 0.38, dur: 0.13 },
+            { fStart: 415, fEnd: 290, delay: 0.52, dur: 0.28 }
+          ];
+          comicNotes.forEach(n => {
+            const cOsc = audioCtx.createOscillator();
+            const cGain = audioCtx.createGain();
+            cOsc.type = 'triangle';
+            cOsc.frequency.setValueAtTime(n.fStart, now + n.delay);
+            cOsc.frequency.linearRampToValueAtTime(n.fEnd, now + n.delay + n.dur);
+            cGain.gain.setValueAtTime(0.22, now + n.delay);
+            cGain.gain.exponentialRampToValueAtTime(0.01, now + n.delay + n.dur);
+            cOsc.connect(cGain);
+            cGain.connect(audioCtx.destination);
+            cOsc.start(now + n.delay);
+            cOsc.stop(now + n.delay + n.dur);
+          });
         } else if (type === 'fanfare') {
           [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
             const o = audioCtx.createOscillator();
@@ -977,6 +1043,64 @@
           });
         }
       } catch (e) {}
+    }
+
+    let bombExplosionTimeout = null;
+    function triggerComicBombExplosion() {
+      const qCard = document.getElementById('question-card');
+      if (!qCard) return;
+
+      const existing = document.getElementById('comic-bomb-overlay');
+      if (existing) existing.remove();
+      if (bombExplosionTimeout) clearTimeout(bombExplosionTimeout);
+
+      const funnyMessages = [
+        '¡KABOOM! ¡Voló el Laboratorio!',
+        '¡BUM! ¡Mezcla Explosiva!',
+        '¡PUM! ¡Estalló el Matraz!',
+        '¡BOING! ¡Reacción Equivocada!'
+      ];
+      const msg = funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
+
+      const overlay = document.createElement('div');
+      overlay.id = 'comic-bomb-overlay';
+      overlay.className = 'absolute inset-0 z-30 pointer-events-none flex flex-col items-center justify-center bg-rose-950/40 backdrop-blur-[2px] rounded-2xl overflow-hidden comic-boom-anim';
+
+      overlay.innerHTML = `
+        <div class="relative flex flex-col items-center justify-center">
+          <!-- Estrella de Explosión Estilo Cómic SVG -->
+          <svg viewBox="0 0 260 220" class="w-56 h-48 sm:w-64 sm:h-56 drop-shadow-[0_0_25px_rgba(249,115,22,0.9)]">
+            <!-- Destello exterior rojo/naranja -->
+            <polygon points="130,5 158,52 212,22 194,76 252,85 205,124 242,172 182,165 178,215 130,178 82,215 78,165 18,172 55,124 8,85 66,76 48,22 102,52" fill="#ef4444" stroke="#fef08a" stroke-width="4" />
+            <!-- Estrella interior amarilla -->
+            <polygon points="130,28 150,65 192,45 178,86 222,95 185,122 210,156 168,150 162,188 130,160 98,188 92,150 50,156 75,122 38,95 82,86 68,45 110,65" fill="#facc15" stroke="#ea580c" stroke-width="3" />
+            <!-- Bomba de Caricatura Estallando en el Centro -->
+            <circle cx="130" cy="112" r="34" fill="#0f172a" stroke="#f8fafc" stroke-width="3" />
+            <!-- Brillo de la bomba -->
+            <path d="M 112 96 A 18 18 0 0 1 128 86" stroke="#94a3b8" stroke-width="4" fill="none" stroke-linecap="round" />
+            <!-- Mecha y Chispa -->
+            <path d="M 148 82 Q 165 65 178 74" stroke="#d97706" stroke-width="4" fill="none" stroke-linecap="round" />
+            <circle cx="180" cy="74" r="9" fill="#fef08a" />
+            <!-- Ojos cómicos de la bomba (X _ X) -->
+            <text x="117" y="114" font-size="16" font-weight="900" fill="#f8fafc" text-anchor="middle">✖</text>
+            <text x="143" y="114" font-size="16" font-weight="900" fill="#f8fafc" text-anchor="middle">✖</text>
+            <!-- Texto ¡BUM! estilo cómic -->
+            <text x="130" y="148" font-family="Impact, system-ui, sans-serif" font-size="28" font-weight="900" fill="#ef4444" stroke="#ffffff" stroke-width="2" text-anchor="middle" transform="rotate(-5 130 148)">¡KABOOM!</text>
+          </svg>
+          <!-- Cartel jocoso inferior -->
+          <div class=" -mt-3 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 border-2 border-yellow-200 text-white font-black text-xs sm:text-sm shadow-2xl tracking-wide uppercase flex items-center gap-1.5">
+            <span>💣</span> <span>${msg}</span> <span>💥</span>
+          </div>
+        </div>
+      `;
+
+      qCard.appendChild(overlay);
+
+      bombExplosionTimeout = setTimeout(() => {
+        if (overlay && overlay.parentNode) {
+          overlay.remove();
+        }
+      }, 1750);
     }
 
     function toggleSound() {
@@ -1092,6 +1216,8 @@
       
       const qCard = document.getElementById('question-card');
       if (qCard) qCard.classList.remove('pulse-correct', 'shake-error');
+      const oldBoom = document.getElementById('comic-bomb-overlay');
+      if (oldBoom) oldBoom.remove();
 
       const itemNum = currentItemIndex + 1;
       const percent = Math.round((itemNum / TOTAL_ITEMS) * 100);
@@ -1200,10 +1326,11 @@
         totalIncorrect++;
         if (qCard) qCard.classList.add('shake-error');
         playSound('error');
+        triggerComicBombExplosion();
 
         if (feedbackBox) {
           feedbackBox.className = "p-2.5 sm:p-3 rounded-xl border bg-rose-950/60 border-rose-500/50 text-rose-200 flex items-center justify-between gap-3 transition shadow";
-          if (feedbackIcon) feedbackIcon.textContent = isTimeout ? "⏱️" : "❌";
+          if (feedbackIcon) feedbackIcon.textContent = isTimeout ? "⏱️💥" : "💣💥";
           if (feedbackTitle) feedbackTitle.textContent = isTimeout ? `¡Tiempo Agotado! (20s excedidos)` : `Desacierto. Era ${currentElement.n} (${currentElement.s})`;
           if (feedbackDetail) feedbackDetail.textContent = isTimeout ? `La respuesta correcta era ${currentElement.n} (${currentElement.s})` : `Marcaste: ${selectedOpt.n} (${selectedOpt.s})`;
         }
