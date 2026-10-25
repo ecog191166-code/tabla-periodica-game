@@ -118,6 +118,15 @@
             <span>👨‍🏫</span> Panel Docente
           </button>
         </div>
+                <!-- Botones Deshacer y Rehacer -->
+        <div class="flex items-center gap-1 bg-slate-950 p-0.5 rounded-lg border border-slate-800">
+          <button id="btn-undo" onclick="performUndo()" disabled title="Deshacer última acción (Ctrl+Z)" class="px-2 py-1 rounded-md text-slate-600 opacity-50 cursor-not-allowed font-bold transition text-[11px] sm:text-xs flex items-center gap-1">
+            <span>↩️</span> <span class="hidden md:inline">Deshacer</span>
+          </button>
+          <button id="btn-redo" onclick="performRedo()" disabled title="Rehacer acción (Ctrl+Y)" class="px-2 py-1 rounded-md text-slate-600 opacity-50 cursor-not-allowed font-bold transition text-[11px] sm:text-xs flex items-center gap-1">
+            <span>↪️</span> <span class="hidden md:inline">Rehacer</span>
+          </button>
+        </div>
         <button onclick="toggleFullscreen()" title="Pantalla completa" class="p-1.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-300 hover:text-white transition text-xs">
           ⛶
         </button>
@@ -135,6 +144,9 @@
           <span class="text-base sm:text-lg">⏱️</span>
           <span id="timer-val" class="text-base sm:text-xl font-black tracking-tight">20</span><span class="text-xs font-bold text-amber-400">s</span>
         </span>
+        <button id="btn-toggle-timer-start" onclick="toggleChallengeTimerPause()" class="px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 border border-emerald-400 text-white font-black text-xs flex items-center gap-1 shadow-md transition active:scale-95 animate-pulse" title="Iniciar o pausar el conteo del desafío">
+          <span>🚀</span> <span>Inicio</span>
+        </button>
       </div>
       <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden flex-1">
         <div id="progress-bar" class="bg-gradient-to-r from-blue-500 to-emerald-400 h-full transition-all duration-300" style="width: 2%;"></div>
@@ -871,6 +883,40 @@
     </div>
   </div>
 
+  <!-- Ventana de Bienvenida al Usuario e Inicio del Desafío -->
+  <div id="welcome-start-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border-2 border-blue-500/50 rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl relative text-center flex flex-col items-center gap-4">
+      <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-600/30 via-cyan-500/20 to-emerald-500/20 border-2 border-blue-400/60 flex items-center justify-center text-5xl shadow-xl">
+        ⚛️
+      </div>
+
+      <div class="space-y-1.5">
+        <span class="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40 inline-block">
+          ⏸️ Conteo Automático en Pausa
+        </span>
+        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight mt-1">
+          ¡Bienvenido a la App!
+        </h2>
+        <p class="text-sm sm:text-base text-cyan-200 font-bold leading-relaxed">
+          Bienvenido a la app, da clic en <span class="text-emerald-400 underline decoration-emerald-400/60">Inicio</span> para comenzar el desafío.
+        </p>
+        <p class="text-xs text-slate-400 leading-relaxed pt-1">
+          El cronómetro de evaluación permanecerá pausado hasta que presiones el botón de inicio.
+        </p>
+      </div>
+
+      <div class="w-full flex flex-col gap-2.5 pt-2">
+        <button onclick="startChallengeFromWelcome()" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-sm sm:text-base transition flex items-center justify-center gap-2 shadow-xl shadow-emerald-950/60 active:scale-95 border-2 border-emerald-300/60">
+          <span class="text-lg">🚀</span> <span>Inicio (Iniciar el Desafío)</span>
+        </button>
+
+        <button onclick="openExploreFromWelcome()" class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold text-xs sm:text-sm transition flex items-center justify-center gap-1.5 active:scale-95 border border-slate-700">
+          <span>📖</span> <span>Ir primero a Repaso de la Tabla Periódica</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const ELEMENTS = [
       { z: 1, s: "H", n: "Hidrógeno", m: 1.008, c: "No metales", p: 1, g: 1, st: "Gas", d: "El elemento más ligero y abundante del cosmos; combustible nuclear primario de las estrellas." },
@@ -1196,6 +1242,7 @@
     }
 
     function setGameMode(mode) {
+      recordHistoryAction('Modo ' + mode);
       currentMode = mode;
       ['sym-to-name', 'name-to-sym', 'mixed'].forEach(m => {
         const btn = document.getElementById('mode-' + m);
@@ -1244,6 +1291,9 @@
       stopQuestionTimer();
       questionSecondsLeft = 20;
       updateTimerDisplay();
+      if (!isChallengeStarted) {
+        return;
+      }
 
       questionTimerInterval = setInterval(() => {
         questionSecondsLeft--;
@@ -1363,6 +1413,9 @@
 
     function handleAnswer(selectedOpt, btnElement) {
       if (isAnswered) return;
+      if (selectedOpt && selectedOpt.z !== -999) {
+        recordHistoryAction('Respuesta Ítem ' + (currentItemIndex + 1));
+      }
       isAnswered = true;
       stopQuestionTimer();
 
@@ -1427,6 +1480,7 @@
     }
 
     function nextQuestion() {
+      recordHistoryAction('Avance al Ítem ' + (currentItemIndex + 2));
       currentItemIndex++;
       if (currentItemIndex >= TOTAL_ITEMS) {
         showFinalCertificate();
@@ -2473,7 +2527,9 @@
       renderTeacherTable();
     }
 
-    function switchTab(tab) {
+    function switchTab(tab, skipHistory = false) {
+      if (!skipHistory) recordHistoryAction('Pestaña ' + tab);
+      if (tab !== 'play') stopQuestionTimer();
       const playPanel = document.getElementById('play-panel');
       const explorePanel = document.getElementById('explore-panel');
       const resultsPanel = document.getElementById('results-panel');
@@ -3800,9 +3856,10 @@
 
     let currentDetailZ = 1;
 
-    function openElementDetailModal(z) {
+    function openElementDetailModal(z, skipHistory = false) {
       const el = ELEMENTS.find(e => e.z === z);
       if (!el) return;
+      if (!skipHistory) recordHistoryAction('Ficha de ' + el.n);
       currentDetailZ = el.z;
 
       stopAufbauAnimation();
@@ -4034,7 +4091,10 @@
       isSimulating = true;
 
       // 1. Iniciar prueba limpia para el estudiante
-      switchTab('play');
+      const wModal = document.getElementById('welcome-start-modal');
+      if (wModal) wModal.classList.add('hidden');
+      isChallengeStarted = true;
+      switchTab('play', true);
       restartFullExam();
 
       // Banner flotante para que Edwin vea cada paso en vivo
@@ -4173,13 +4233,13 @@
 
       // 4. Detección de salida de pantalla / cambio de app en móvil y escritorio
       document.addEventListener('visibilitychange', () => {
-        if (document.hidden && currentItemIndex < TOTAL_ITEMS && !isAnswered && !isSimulating && !isExitingApp) {
+        if (document.hidden && currentItemIndex < TOTAL_ITEMS && !isAnswered && !isSimulating && !isExitingApp && isChallengeStarted) {
           handleSuspiciousTabSwitch();
         }
       });
 
       window.addEventListener('blur', () => {
-        if (currentItemIndex < TOTAL_ITEMS && !isAnswered && !isSimulating && !isExitingApp) {
+        if (currentItemIndex < TOTAL_ITEMS && !isAnswered && !isSimulating && !isExitingApp && isChallengeStarted) {
           handleSuspiciousTabSwitch();
         }
       });
@@ -4196,6 +4256,346 @@
       playSound('error');
     }
 
+
+    // ==========================================
+    // SISTEMA DE BIENVENIDA, PAUSA DE CONTEO Y DESHACER / REHACER
+    // ==========================================
+    let isChallengeStarted = false;
+    let undoStack = [];
+    let redoStack = [];
+    let isRestoringHistory = false;
+
+    function openWelcomeModal() {
+      isChallengeStarted = false;
+      stopQuestionTimer();
+      updateTimerPauseButtonUI();
+      const modal = document.getElementById('welcome-start-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function startChallengeFromWelcome() {
+      const modal = document.getElementById('welcome-start-modal');
+      if (modal) modal.classList.add('hidden');
+      isChallengeStarted = true;
+      updateTimerPauseButtonUI();
+      switchTab('play', true);
+      if (!isAnswered && currentItemIndex < TOTAL_ITEMS) {
+        startQuestionTimer();
+      }
+      showHistoryToast('🚀 ¡Desafío iniciado! Éxito en tu prueba');
+    }
+
+    function openExploreFromWelcome() {
+      const modal = document.getElementById('welcome-start-modal');
+      if (modal) modal.classList.add('hidden');
+      isChallengeStarted = false;
+      stopQuestionTimer();
+      updateTimerPauseButtonUI();
+      switchTab('explore');
+    }
+
+    function toggleChallengeTimerPause() {
+      if (isAnswered) return;
+      if (!isChallengeStarted) {
+        isChallengeStarted = true;
+        updateTimerPauseButtonUI();
+        startQuestionTimer();
+        showHistoryToast('▶️ Conteo iniciado');
+      } else {
+        isChallengeStarted = false;
+        stopQuestionTimer();
+        updateTimerPauseButtonUI();
+        showHistoryToast('⏸️ Conteo en pausa');
+      }
+    }
+
+    function updateTimerPauseButtonUI() {
+      const btn = document.getElementById('btn-toggle-timer-start');
+      if (!btn) return;
+      if (isChallengeStarted) {
+        btn.innerHTML = '<span>⏸️</span> <span>Pausar</span>';
+        btn.className = 'px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-300 font-bold text-xs flex items-center gap-1 transition active:scale-95';
+      } else {
+        btn.innerHTML = '<span>🚀</span> <span>Inicio</span>';
+        btn.className = 'px-3 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 border border-emerald-400 text-white font-black text-xs flex items-center gap-1 shadow-md transition active:scale-95 animate-pulse';
+      }
+    }
+
+    function getCurrentActiveTabName() {
+      const explorePanel = document.getElementById('explore-panel');
+      const resultsPanel = document.getElementById('results-panel');
+      const teacherPanel = document.getElementById('teacher-panel');
+      if (explorePanel && !explorePanel.classList.contains('hidden')) return 'explore';
+      if (resultsPanel && !resultsPanel.classList.contains('hidden')) return 'results';
+      if (teacherPanel && !teacherPanel.classList.contains('hidden')) return 'teacher';
+      return 'play';
+    }
+
+    function captureAppState(label) {
+      const optionsBtns = Array.from(document.querySelectorAll('#options-grid button')).map(b => ({
+        z: parseInt(b.dataset.z, 10),
+        text: b.textContent,
+        className: b.className,
+        disabled: b.disabled
+      }));
+
+      const fbBox = document.getElementById('feedback-box');
+      const fbIcon = document.getElementById('feedback-icon');
+      const fbTitle = document.getElementById('feedback-title');
+      const fbDetail = document.getElementById('feedback-detail');
+      const nextBtn = document.getElementById('next-btn');
+      const detailModal = document.getElementById('element-detail-modal');
+      const searchInput = document.getElementById('search-input');
+      const catSelect = document.getElementById('category-select');
+
+      return {
+        label: label || 'Acción',
+        activeTab: getCurrentActiveTabName(),
+        currentMode,
+        currentItemIndex,
+        totalCorrect,
+        totalIncorrect,
+        isAnswered,
+        questionSecondsLeft,
+        isChallengeStarted,
+        currentElement: currentElement ? { ...currentElement } : null,
+        currentType,
+        examElements: [...examElements],
+        examTypes: [...examTypes],
+        optionsBtns,
+        feedbackHidden: fbBox ? fbBox.classList.contains('hidden') : true,
+        feedbackClass: fbBox ? fbBox.className : '',
+        feedbackIcon: fbIcon ? fbIcon.textContent : '',
+        feedbackTitle: fbTitle ? fbTitle.textContent : '',
+        feedbackDetail: fbDetail ? fbDetail.textContent : '',
+        nextBtnText: nextBtn ? nextBtn.textContent : '',
+        nextBtnClass: nextBtn ? nextBtn.className : '',
+        detailModalOpen: detailModal ? !detailModal.classList.contains('hidden') : false,
+        currentDetailZ,
+        searchQuery: searchInput ? searchInput.value : '',
+        categoryFilter: catSelect ? catSelect.value : 'all'
+      };
+    }
+
+    function recordHistoryAction(label) {
+      if (isRestoringHistory || isSimulating) return;
+      undoStack.push(captureAppState(label));
+      if (undoStack.length > 40) undoStack.shift();
+      redoStack = [];
+      updateUndoRedoButtonsUI();
+    }
+
+    function updateUndoRedoButtonsUI() {
+      const undoBtn = document.getElementById('btn-undo');
+      const redoBtn = document.getElementById('btn-redo');
+
+      if (undoBtn) {
+        if (undoStack.length > 0) {
+          undoBtn.disabled = false;
+          undoBtn.className = 'px-2 py-1 rounded-md bg-slate-900 hover:bg-slate-800 text-cyan-300 hover:text-white border border-cyan-500/30 font-bold transition text-[11px] sm:text-xs flex items-center gap-1 cursor-pointer active:scale-95 shadow-sm';
+        } else {
+          undoBtn.disabled = true;
+          undoBtn.className = 'px-2 py-1 rounded-md text-slate-600 opacity-50 cursor-not-allowed font-bold transition text-[11px] sm:text-xs flex items-center gap-1';
+        }
+      }
+
+      if (redoBtn) {
+        if (redoStack.length > 0) {
+          redoBtn.disabled = false;
+          redoBtn.className = 'px-2 py-1 rounded-md bg-slate-900 hover:bg-slate-800 text-amber-300 hover:text-white border border-amber-500/30 font-bold transition text-[11px] sm:text-xs flex items-center gap-1 cursor-pointer active:scale-95 shadow-sm';
+        } else {
+          redoBtn.disabled = true;
+          redoBtn.className = 'px-2 py-1 rounded-md text-slate-600 opacity-50 cursor-not-allowed font-bold transition text-[11px] sm:text-xs flex items-center gap-1';
+        }
+      }
+    }
+
+    function restoreAppState(state) {
+      if (!state) return;
+      isRestoringHistory = true;
+      try {
+        stopQuestionTimer();
+        currentMode = state.currentMode;
+        currentItemIndex = state.currentItemIndex;
+        totalCorrect = state.totalCorrect;
+        totalIncorrect = state.totalIncorrect;
+        isAnswered = state.isAnswered;
+        questionSecondsLeft = state.questionSecondsLeft;
+        isChallengeStarted = state.isChallengeStarted;
+        currentElement = state.currentElement ? { ...state.currentElement } : null;
+        currentType = state.currentType;
+        examElements = [...state.examElements];
+        examTypes = [...state.examTypes];
+
+        // Actualizar botones de modo
+        ['sym-to-name', 'name-to-sym', 'mixed'].forEach(m => {
+          const btn = document.getElementById('mode-' + m);
+          if (!btn) return;
+          if (m === currentMode) {
+            btn.className = "px-2 sm:px-2.5 py-1 rounded-lg bg-blue-600/30 border border-blue-500/50 text-blue-300 font-bold transition text-[11px] sm:text-xs";
+          } else {
+            btn.className = "px-2 sm:px-2.5 py-1 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition text-[11px] sm:text-xs";
+          }
+        });
+
+        switchTab(state.activeTab, true);
+        updateStats();
+        updateTimerPauseButtonUI();
+
+        // Restaurar pregunta en pantalla
+        if (currentElement && currentItemIndex < TOTAL_ITEMS) {
+          const itemNum = currentItemIndex + 1;
+          const percent = Math.round((itemNum / TOTAL_ITEMS) * 100);
+          const counterEl = document.getElementById('item-counter');
+          const barEl = document.getElementById('progress-bar');
+          const pctEl = document.getElementById('progress-percent');
+          if (counterEl) counterEl.textContent = 'Ítem ' + itemNum + ' de ' + TOTAL_ITEMS;
+          if (barEl) barEl.style.width = percent + '%';
+          if (pctEl) pctEl.textContent = percent + '%';
+
+          const atomicNumberEl = document.getElementById('atomic-number');
+          const atomicMassEl = document.getElementById('atomic-mass');
+          const elementDisplayEl = document.getElementById('element-display');
+          const elementSubtextEl = document.getElementById('element-subtext');
+          const categoryBadge = document.getElementById('category-badge');
+          const typeBadge = document.getElementById('type-badge');
+          const promptQuestion = document.getElementById('prompt-question');
+          const hintText = document.getElementById('hint-text');
+
+          if (atomicNumberEl) atomicNumberEl.textContent = 'Z = ' + currentElement.z;
+          if (atomicMassEl) atomicMassEl.textContent = currentElement.m ? (currentElement.m.toFixed(2) + ' u') : '-';
+          if (categoryBadge) categoryBadge.textContent = currentElement.c;
+          if (hintText) hintText.innerHTML = '💡 <strong class="text-blue-400 not-italic">Pista:</strong> ' + currentElement.d;
+
+          if (currentType === 'sym-to-name') {
+            if (typeBadge) {
+              typeBadge.textContent = "Símbolo ➔ Nombre";
+              typeBadge.className = "px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30";
+            }
+            if (promptQuestion) promptQuestion.innerHTML = '¿Cuál es el <strong>nombre</strong> del elemento con símbolo <span class="text-blue-400 font-black text-sm sm:text-base md:text-lg">' + currentElement.s + '</span>?';
+            if (elementDisplayEl) {
+              elementDisplayEl.textContent = currentElement.s;
+              elementDisplayEl.className = "element-symbol-txt text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 tracking-tight my-auto select-none";
+            }
+            if (elementSubtextEl) elementSubtextEl.textContent = "Símbolo Químico";
+          } else {
+            if (typeBadge) {
+              typeBadge.textContent = "Nombre ➔ Símbolo";
+              typeBadge.className = "px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30";
+            }
+            if (promptQuestion) promptQuestion.innerHTML = '¿Cuál es el <strong>símbolo químico</strong> de <span class="text-teal-300 font-black text-sm sm:text-base md:text-lg">' + currentElement.n + '</span>?';
+            if (elementDisplayEl) {
+              elementDisplayEl.textContent = currentElement.n;
+              elementDisplayEl.className = "element-symbol-txt text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-cyan-300 to-blue-400 tracking-tight my-auto px-1 select-none text-center";
+            }
+            if (elementSubtextEl) elementSubtextEl.textContent = "¿Cuál es su símbolo?";
+          }
+
+          const optionsGrid = document.getElementById('options-grid');
+          if (optionsGrid && state.optionsBtns && state.optionsBtns.length) {
+            optionsGrid.innerHTML = '';
+            state.optionsBtns.forEach(savedBtn => {
+              const btn = document.createElement('button');
+              btn.className = savedBtn.className;
+              btn.textContent = savedBtn.text;
+              btn.dataset.z = savedBtn.z;
+              btn.disabled = savedBtn.disabled;
+              const optObj = ELEMENTS.find(e => e.z === savedBtn.z) || { z: savedBtn.z, n: savedBtn.text, s: savedBtn.text };
+              btn.onclick = () => handleAnswer(optObj, btn);
+              optionsGrid.appendChild(btn);
+            });
+          }
+
+          const fbBox = document.getElementById('feedback-box');
+          const fbIcon = document.getElementById('feedback-icon');
+          const fbTitle = document.getElementById('feedback-title');
+          const fbDetail = document.getElementById('feedback-detail');
+          const nextBtn = document.getElementById('next-btn');
+
+          if (fbBox) {
+            fbBox.className = state.feedbackClass;
+            if (state.feedbackHidden) fbBox.classList.add('hidden');
+            else fbBox.classList.remove('hidden');
+          }
+          if (fbIcon) fbIcon.textContent = state.feedbackIcon;
+          if (fbTitle) fbTitle.textContent = state.feedbackTitle;
+          if (fbDetail) fbDetail.textContent = state.feedbackDetail;
+          if (nextBtn) {
+            nextBtn.textContent = state.nextBtnText;
+            nextBtn.className = state.nextBtnClass;
+          }
+
+          updateTimerDisplay();
+          if (!isAnswered && isChallengeStarted && state.activeTab === 'play') {
+            startQuestionTimer();
+          }
+        }
+
+        // Restaurar buscador y modal de Repaso
+        const searchInput = document.getElementById('search-input');
+        const catSelect = document.getElementById('category-select');
+        if (searchInput) searchInput.value = state.searchQuery || '';
+        if (catSelect) catSelect.value = state.categoryFilter || 'all';
+        if (state.activeTab === 'explore') {
+          filterElements();
+        }
+        if (state.detailModalOpen) {
+          openElementDetailModal(state.currentDetailZ, true);
+        } else {
+          closeElementDetailModal();
+        }
+      } finally {
+        isRestoringHistory = false;
+        updateUndoRedoButtonsUI();
+      }
+    }
+
+    function performUndo() {
+      if (undoStack.length === 0) return;
+      const currentState = captureAppState('Estado actual');
+      const prevState = undoStack.pop();
+      redoStack.push(currentState);
+      restoreAppState(prevState);
+      showHistoryToast('↩️ Deshecho: ' + (prevState.label || 'Acción anterior'));
+    }
+
+    function performRedo() {
+      if (redoStack.length === 0) return;
+      const currentState = captureAppState('Estado actual');
+      const nextState = redoStack.pop();
+      undoStack.push(currentState);
+      restoreAppState(nextState);
+      showHistoryToast('↪️ Rehecho: ' + (nextState.label || 'Acción'));
+    }
+
+    let historyToastTimer = null;
+    function showHistoryToast(msg) {
+      let toast = document.getElementById('history-action-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'history-action-toast';
+        toast.className = 'fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 border border-cyan-500/50 text-cyan-200 font-bold px-4 py-2 rounded-2xl shadow-2xl text-xs flex items-center gap-2 transition-all';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = msg;
+      toast.classList.remove('hidden');
+      if (historyToastTimer) clearTimeout(historyToastTimer);
+      historyToastTimer = setTimeout(() => {
+        if (toast) toast.classList.add('hidden');
+      }, 2200);
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+      if (e.ctrlKey && (e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
+        e.preventDefault();
+        performUndo();
+      } else if ((e.ctrlKey && (e.key === 'y' || e.key === 'Y')) || (e.ctrlKey && e.shiftKey && (e.key === 'z' || e.key === 'Z'))) {
+        e.preventDefault();
+        performRedo();
+      }
+    });
+
     function initApp() {
       setupAntiCheatShield();
       if (window.location.search.includes('simulacion=1') || window.location.search.includes('simular=1')) {
@@ -4203,7 +4603,9 @@
       } else if (window.location.search.includes('demo=1') || window.location.search.includes('test=1')) {
         runQuickTestDemo();
       } else {
+        isChallengeStarted = false;
         restartFullExam();
+        openWelcomeModal();
       }
     }
 
