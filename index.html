@@ -873,10 +873,19 @@
       </div>
 
       <div class="space-y-3 text-xs">
-        <div>
-          <label id="keygen-client-label" class="block text-slate-300 font-bold mb-1">Nombre del Cliente o Estudiante (Opcional):</label>
-          <input type="text" id="keygen-client-name" placeholder="Ej. Carlos Mendoza / Colegio San Agustín" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-semibold" />
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div class="sm:col-span-2">
+            <label id="keygen-client-label" class="block text-slate-300 font-bold mb-1">Nombre del Cliente (Opcional):</label>
+            <input type="text" id="keygen-client-name" placeholder="Ej. Carlos Mendoza" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-semibold" />
+          </div>
+          <div>
+            <label id="keygen-devid-label" class="block text-cyan-300 font-bold mb-1" title="Si escribes el ID de 4 caracteres del celular/PC del cliente, la clave SOLO funcionará en su aparato y nadie más podrá usarla.">📱 ID Dispositivo:</label>
+            <input type="text" id="keygen-device-id-input" maxlength="6" oninput="generateSubscriptionPassword()" placeholder="Ej. 8F4A" class="w-full bg-slate-950 border border-cyan-500/50 rounded-xl px-3 py-2 text-cyan-300 font-mono font-black uppercase text-center placeholder-slate-600 focus:outline-none focus:border-cyan-400 tracking-widest" />
+          </div>
         </div>
+        <p class="text-[10px] text-slate-400 -mt-1 leading-snug">
+          🔒 <strong>Protección anticopia:</strong> Escribe el <strong>ID de Dispositivo (4 caracteres)</strong> que aparece en la pantalla del cliente para que la contraseña <strong>solo funcione en su celular o PC</strong> y no pueda pasársela a otra persona.
+        </p>
 
         <div>
           <label id="keygen-plan-label" class="block text-slate-300 font-bold mb-1.5">Selecciona el Plan Pagado por el Cliente:</label>
@@ -965,6 +974,17 @@
             Suscribir $9.99
           </a>
         </div>
+      </div>
+
+      <!-- Identificador Único de este Dispositivo (Evita que compartan la clave con otra persona) -->
+      <div class="bg-slate-950/90 px-3.5 py-2.5 rounded-2xl border border-cyan-500/40 mb-3 flex items-center justify-between gap-2 text-left">
+        <div>
+          <span id="lic-device-label" class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">📱 Código de este Dispositivo (Envíalo al pagar):</span>
+          <strong id="user-device-id-display" class="text-sm sm:text-base font-mono font-black text-cyan-300 tracking-widest">----</strong>
+        </div>
+        <button type="button" onclick="copyMyDeviceId()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-[11px] border border-cyan-500/30 transition active:scale-95 whitespace-nowrap">
+          📋 <span id="lic-copy-dev-txt">Copiar ID</span>
+        </button>
       </div>
 
       <!-- Formulario de Activación de Clave -->
@@ -1556,6 +1576,32 @@
     // Modal de Licencias, Generador de Contraseñas (1 Mes / 1 Año) y Bloqueo tras 10 elementos
     let selectedKeygenPlan = '1M';
 
+    function getOrCreateDeviceId() {
+      let devId = localStorage.getItem('quimiquiz_device_id');
+      if (!devId || devId.length !== 4) {
+        const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+        devId = '';
+        for (let i = 0; i < 4; i++) {
+          devId += chars[Math.floor(Math.random() * chars.length)];
+        }
+        try { localStorage.setItem('quimiquiz_device_id', devId); } catch (e) {}
+      }
+      return devId.toUpperCase();
+    }
+
+    function copyMyDeviceId() {
+      const devId = getOrCreateDeviceId();
+      const isEn = typeof currentLang !== 'undefined' && currentLang === 'en';
+      navigator.clipboard.writeText(devId).catch(() => {});
+      const btnTxt = document.getElementById('lic-copy-dev-txt');
+      if (btnTxt) {
+        btnTxt.textContent = isEn ? 'Copied!' : '¡Copiado!';
+        setTimeout(() => {
+          btnTxt.textContent = isEn ? 'Copy ID' : 'Copiar ID';
+        }, 2000);
+      }
+    }
+
     function formatYYYYMMDD(dateObj) {
       const y = dateObj.getFullYear();
       const m = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -1572,19 +1618,20 @@
       return `${day}/${mon}/${yr}`;
     }
 
-    function createSignedSubscriptionKey(planCode, daysCount) {
+    function createSignedSubscriptionKey(planCode, daysCount, targetDeviceId = '') {
       const prefix = planCode === '1A' ? 'QZA' : 'QZM';
       const expDate = new Date(Date.now() + daysCount * 86400000);
       const ymd = formatYYYYMMDD(expDate);
-      // Incorporar 2 caracteres aleatorios para que cada cliente tenga una clave única
-      const nonce = Math.floor(10 + Math.random() * 89).toString();
-      const rawToSign = `SUB|${prefix}|${ymd}|${nonce}`;
+      const cleanDev = (targetDeviceId || '').replace(/[^A-Z0-9]/gi, '').toUpperCase().slice(0, 4);
+      const devCode = cleanDev.length === 4 ? cleanDev : '0000';
+      const rawToSign = `SUB|${prefix}|${ymd}|${devCode}`;
       const sig = generateSignature(rawToSign, PROF_SECRET_SALT).slice(0, 6);
       return {
-        key: `${prefix}-${ymd}-${nonce}${sig}`,
+        key: `${prefix}-${ymd}-${devCode}-${sig}`,
         expDate,
         daysCount,
-        planCode
+        planCode,
+        devCode
       };
     }
 
@@ -1592,23 +1639,59 @@
       const clean = (rawKey || '').trim().toUpperCase();
       if (!clean) return { valid: false, reason: 'empty' };
 
-      // 1. Verificar formato criptográfico con fecha de vencimiento: QZM-YYYYMMDD-NNXXXXXX o QZA-YYYYMMDD-NNXXXXXX
-      const match = clean.match(/^(QZM|QZA)-(\d{4})(\d{2})(\d{2})-(\d{2})([A-Z0-9]{6})$/);
-      if (match) {
-        const prefix = match[1];
-        const yr = parseInt(match[2], 10);
-        const mo = parseInt(match[3], 10);
-        const da = parseInt(match[4], 10);
-        const nonce = match[5];
-        const sigProvided = match[6];
-        const ymd = `${match[2]}${match[3]}${match[4]}`;
+      const myDeviceId = getOrCreateDeviceId();
+
+      // 1. Formato vinculado a dispositivo: QZM-YYYYMMDD-DDDD-XXXXXX o QZA-YYYYMMDD-DDDD-XXXXXX
+      const matchDev = clean.match(/^(QZM|QZA)-(\d{4})(\d{2})(\d{2})-([A-Z0-9]{4})-([A-Z0-9]{6})$/);
+      if (matchDev) {
+        const prefix = matchDev[1];
+        const yr = parseInt(matchDev[2], 10);
+        const mo = parseInt(matchDev[3], 10);
+        const da = parseInt(matchDev[4], 10);
+        const devCode = matchDev[5];
+        const sigProvided = matchDev[6];
+        const ymd = `${matchDev[2]}${matchDev[3]}${matchDev[4]}`;
+
+        const expectedSig = generateSignature(`SUB|${prefix}|${ymd}|${devCode}`, PROF_SECRET_SALT).slice(0, 6);
+        if (sigProvided !== expectedSig) {
+          return { valid: false, reason: 'invalid_sig' };
+        }
+
+        // Si la clave tiene un ID de dispositivo específico (distinto de 0000), verificar que coincida con ESTE aparato
+        if (devCode !== '0000' && devCode !== myDeviceId) {
+          return { valid: false, reason: 'wrong_device', boundDevice: devCode, myDeviceId };
+        }
+
+        const expTs = new Date(yr, mo - 1, da, 23, 59, 59, 999).getTime();
+        if (Date.now() > expTs) {
+          return { valid: false, reason: 'expired', expTs };
+        }
+
+        return {
+          valid: true,
+          planCode: prefix === 'QZA' ? '1A' : '1M',
+          expTs,
+          days: prefix === 'QZA' ? 365 : 30,
+          devCode
+        };
+      }
+
+      // 2. Formato corto compatible: QZM-YYYYMMDD-NNXXXXXX
+      const matchLegacy = clean.match(/^(QZM|QZA)-(\d{4})(\d{2})(\d{2})-(\d{2})([A-Z0-9]{6})$/);
+      if (matchLegacy) {
+        const prefix = matchLegacy[1];
+        const yr = parseInt(matchLegacy[2], 10);
+        const mo = parseInt(matchLegacy[3], 10);
+        const da = parseInt(matchLegacy[4], 10);
+        const nonce = matchLegacy[5];
+        const sigProvided = matchLegacy[6];
+        const ymd = `${matchLegacy[2]}${matchLegacy[3]}${matchLegacy[4]}`;
 
         const expectedSig = generateSignature(`SUB|${prefix}|${ymd}|${nonce}`, PROF_SECRET_SALT).slice(0, 6);
         if (sigProvided !== expectedSig) {
           return { valid: false, reason: 'invalid_sig' };
         }
 
-        // Fecha de expiración al final de ese día (23:59:59.999)
         const expTs = new Date(yr, mo - 1, da, 23, 59, 59, 999).getTime();
         if (Date.now() > expTs) {
           return { valid: false, reason: 'expired', expTs };
@@ -1622,17 +1705,9 @@
         };
       }
 
-      // 2. Claves maestras rápidas (activan 1 mes para códigos MENSUAL y 1 año para códigos ANUAL/PRO)
-      if (clean === 'MES-2026' || clean === 'QZM-PRO-MES') {
-        return {
-          valid: true,
-          planCode: '1M',
-          expTs: Date.now() + 30 * 86400000,
-          days: 30
-        };
-      }
+      // 3. Claves maestras del administrador (Edwin)
       const annualMasterKeys = ['PRO-2026-GLOBAL', 'QUIMICA-PRO-2026', 'QUIMIQUIZ-PRO', 'EDWIN-PRO-2026', 'DEMO-PRO'];
-      if (annualMasterKeys.includes(clean) || (clean.startsWith('QZPR-') && clean.length >= 10)) {
+      if (annualMasterKeys.includes(clean)) {
         return {
           valid: true,
           planCode: '1A',
@@ -1689,7 +1764,9 @@
 
     function generateSubscriptionPassword() {
       const days = selectedKeygenPlan === '1A' ? 365 : 30;
-      const generated = createSignedSubscriptionKey(selectedKeygenPlan, days);
+      const devInp = document.getElementById('keygen-device-id-input');
+      const targetDev = devInp ? devInp.value.trim().toUpperCase() : '';
+      const generated = createSignedSubscriptionKey(selectedKeygenPlan, days, targetDev);
       const outInput = document.getElementById('keygen-output-code');
       const expBadge = document.getElementById('keygen-exp-badge');
       const expDetail = document.getElementById('keygen-exp-detail');
@@ -1703,9 +1780,10 @@
       }
       if (expDetail) {
         const expStr = formatReadableDate(generated.expDate.getTime());
-        expDetail.textContent = isEn
-          ? `Valid until ${expStr} · Automatically locks after expiration`
-          : `Válida hasta el ${expStr} · Se bloquea automáticamente al vencer`;
+        const lockNote = generated.devCode !== '0000'
+          ? (isEn ? ` · 🔒 Locked ONLY to Device #${generated.devCode}` : ` · 🔒 Exclusiva para Dispositivo #${generated.devCode}`)
+          : (isEn ? ' · Tip: Enter client Device ID above to lock it to 1 device' : ' · Tip: Escribe arriba el ID del cliente para bloquearla a 1 solo equipo');
+        expDetail.textContent = (isEn ? `Valid until ${expStr}` : `Válida hasta el ${expStr}`) + lockNote;
       }
     }
 
@@ -1743,6 +1821,8 @@
 
     function openLicenseModal(isLockedByTrial = false) {
       const modal = document.getElementById('license-modal');
+      const devDisp = document.getElementById('user-device-id-display');
+      if (devDisp) devDisp.textContent = getOrCreateDeviceId();
       const banner = document.getElementById('trial-limit-reached-banner');
       if (banner) {
         if (isLockedByTrial || isTrialExhausted || (!isProLicenseActive && currentItemIndex >= FREE_TRIAL_LIMIT)) {
@@ -1821,6 +1901,10 @@
         if (feedback) {
           if (check.reason === 'empty') {
             feedback.textContent = isEn ? "Please enter your subscription password." : "Por favor ingresa tu contraseña de suscripción.";
+          } else if (check.reason === 'wrong_device') {
+            feedback.textContent = isEn
+              ? `🚫 Access Denied: This password belongs exclusively to Device #${check.boundDevice} and cannot be used on this device (#${check.myDeviceId}).`
+              : `🚫 Acceso Denegado: Esta contraseña pertenece exclusivamente al dispositivo #${check.boundDevice} y no puede ser usada por otra persona en este equipo (#${check.myDeviceId}).`;
           } else if (check.reason === 'expired') {
             const expStr = formatReadableDate(check.expTs);
             feedback.textContent = isEn
