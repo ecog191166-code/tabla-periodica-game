@@ -383,7 +383,7 @@
 
       <div class="text-[11px] text-slate-400 flex justify-between items-center">
         <span id="elements-count">Mostrando elementos</span>
-        <span class="text-amber-400/90 font-medium">🔍 Toca cualquier elemento para ver su ficha completa</span>
+        <span class="text-amber-400 font-bold text-xs sm:text-sm">🔍 Toca cualquier elemento para ver su ficha completa</span>
       </div>
 
       <div id="elements-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2 max-h-[380px] overflow-y-auto pr-1">
@@ -656,80 +656,97 @@
     </div>
   </div>
 
-  <!-- Modal Ficha de Características del Elemento (Repaso Ampliado) -->
-  <div id="element-detail-modal" onclick="if (event.target === this) closeElementDetailModal()" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
-    <div class="bg-slate-900 border border-slate-700/80 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl relative flex flex-col gap-3.5 animate-in fade-in zoom-in-95 duration-200">
-      <button onclick="closeElementDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold p-1 rounded-lg hover:bg-slate-800 transition" title="Cerrar (Esc)">✕</button>
+  <!-- Modal Ficha de Características del Elemento (Repaso Ampliado con Letras Grandes) -->
+  <div id="element-detail-modal" onclick="if (event.target === this) closeElementDetailModal()" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="bg-slate-900 border-2 border-slate-700 rounded-3xl max-w-xl w-full p-5 sm:p-7 shadow-2xl relative flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
+      <button onclick="closeElementDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl font-black p-1.5 rounded-xl hover:bg-slate-800 transition" title="Cerrar ventana (Esc)">✕</button>
       
       <!-- Barra Superior de Navegación Rápida -->
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2.5 pr-8">
-        <span class="text-[11px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-          <span>⚛️</span> Ficha Científica del Elemento
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 pr-10">
+        <span class="text-xs sm:text-sm font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+          <span class="text-base sm:text-lg">⚛️</span> Ficha Científica del Elemento
         </span>
-        <div class="flex items-center gap-1.5 text-xs">
-          <button onclick="navigateElementDetail(-1)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold transition flex items-center gap-1" title="Elemento anterior (Flecha Izq)">
+        <div class="flex items-center gap-2 text-xs sm:text-sm">
+          <button onclick="navigateElementDetail(-1)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold transition flex items-center gap-1 active:scale-95 shadow" title="Elemento anterior (Flecha Izquierda)">
             <span>◀</span> Ant.
           </button>
-          <span id="modal-elem-nav-pos" class="font-mono text-cyan-400 font-bold px-1.5 text-[11px]">1 / 118</span>
-          <button onclick="navigateElementDetail(1)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold transition flex items-center gap-1" title="Siguiente elemento (Flecha Der)">
+          <span id="modal-elem-nav-pos" class="font-mono text-cyan-300 font-black px-2 text-xs sm:text-sm">1 / 118</span>
+          <button onclick="navigateElementDetail(1)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold transition flex items-center gap-1 active:scale-95 shadow" title="Siguiente elemento (Flecha Derecha)">
             Sig. <span>▶</span>
           </button>
         </div>
       </div>
 
-      <!-- Cabecera de Elemento -->
-      <div class="flex items-center gap-3.5">
-        <div id="modal-elem-box" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-blue-600/20 border-2 border-blue-500/50 flex flex-col items-center justify-between p-2 shadow-inner flex-shrink-0 transition-all">
-          <span id="modal-elem-z" class="text-xs font-mono text-cyan-400 font-extrabold self-start">#1</span>
-          <span id="modal-elem-symbol" class="text-3xl sm:text-4xl font-black text-white leading-none my-auto">H</span>
-          <span id="modal-elem-mass" class="text-[10px] font-mono text-slate-300 font-semibold">1.008 u</span>
+      <!-- Cabecera de Elemento: Caja Gigante y Nombre en Letras Grandes -->
+      <div class="flex items-center gap-4 sm:gap-5">
+        <div id="modal-elem-box" class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-blue-600/25 border-2 border-blue-400 flex flex-col items-center justify-between p-2.5 shadow-xl flex-shrink-0 transition-all">
+          <span id="modal-elem-z" class="text-xs sm:text-sm font-mono text-cyan-300 font-black self-start">#1</span>
+          <span id="modal-elem-symbol" class="text-4xl sm:text-5xl font-black text-white leading-none my-auto select-none">H</span>
+          <span id="modal-elem-mass" class="text-xs font-mono text-slate-200 font-bold">1.008 u</span>
         </div>
         <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-1.5 flex-wrap">
-            <span id="modal-elem-category" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">No metales</span>
-            <span id="modal-elem-state" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">Gas</span>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="modal-elem-category" class="px-3 py-1 rounded-full text-xs font-black bg-blue-500/20 text-blue-300 border border-blue-500/40">No metales</span>
+            <span id="modal-elem-state" class="px-3 py-1 rounded-full text-xs font-black bg-slate-800 text-slate-200 border border-slate-700">Gas</span>
           </div>
-          <h3 id="modal-elem-name" class="text-xl sm:text-2xl font-black text-white mt-1 leading-tight tracking-wide truncate">Hidrógeno</h3>
-          <p id="modal-elem-period-group" class="text-xs text-cyan-300 font-medium mt-0.5">Periodo 1 · Grupo 1</p>
+          <h3 id="modal-elem-name" class="text-2xl sm:text-3xl font-black text-white mt-1.5 leading-tight tracking-wide truncate">Hidrógeno</h3>
+          <p id="modal-elem-period-group" class="text-xs sm:text-sm text-cyan-300 font-bold mt-1">Periodo 1 · Grupo 1</p>
         </div>
       </div>
 
-      <!-- Sección de Características y Propiedades -->
-      <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3.5 text-xs space-y-2.5 shadow-inner">
-        <div>
-          <span class="text-amber-400 font-bold block text-[11px] uppercase tracking-wider mb-1 flex items-center gap-1">
-            <span>💡</span> Descripción y Aplicaciones Científicas:
-          </span>
-          <p id="modal-elem-desc" class="text-slate-200 leading-relaxed text-xs sm:text-sm">El elemento más ligero y abundante del cosmos...</p>
+      <!-- Cuadrícula de 6 Propiedades Físico-Químicas con Letras Claras y Grandes -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs sm:text-sm">
+        <!-- 1. Configuración Electrónica -->
+        <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between shadow-sm">
+          <span class="text-[11px] sm:text-xs text-amber-400/90 font-bold uppercase tracking-wider block mb-1">⚡ Config. Electrónica</span>
+          <strong id="modal-elem-config" class="text-amber-300 font-mono text-xs sm:text-sm font-extrabold tracking-tight">1s¹</strong>
         </div>
-        
-        <!-- Cuadrícula de Propiedades Físico-Químicas -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2.5 border-t border-slate-800/80 text-[11px]">
-          <div class="bg-slate-900/70 p-2 rounded-xl border border-slate-800/60">
-            <span class="text-slate-500 block text-[10px]">Número Atómico (Z):</span>
-            <strong id="modal-elem-z-detail" class="text-cyan-300 font-mono text-xs">1</strong>
-          </div>
-          <div class="bg-slate-900/70 p-2 rounded-xl border border-slate-800/60">
-            <span class="text-slate-500 block text-[10px]">Masa Atómica:</span>
-            <strong id="modal-elem-m-detail" class="text-white font-mono text-xs">1.008 u</strong>
-          </div>
-          <div class="bg-slate-900/70 p-2 rounded-xl border border-slate-800/60">
-            <span class="text-slate-500 block text-[10px]">Protones / Electr.:</span>
-            <strong id="modal-elem-protons" class="text-emerald-400 font-mono text-xs">1</strong>
-          </div>
-          <div class="bg-slate-900/70 p-2 rounded-xl border border-slate-800/60">
-            <span class="text-slate-500 block text-[10px]">Neutrones aprox.:</span>
-            <strong id="modal-elem-neutrons" class="text-amber-300 font-mono text-xs">0</strong>
-          </div>
+
+        <!-- 2. Electrones de Valencia -->
+        <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between shadow-sm">
+          <span class="text-[11px] sm:text-xs text-emerald-400/90 font-bold uppercase tracking-wider block mb-1">🧪 e⁻ de Valencia</span>
+          <strong id="modal-elem-valence" class="text-emerald-300 font-mono text-xs sm:text-sm font-extrabold">1 e⁻</strong>
         </div>
+
+        <!-- 3. Geometría / Red Cristalina -->
+        <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between shadow-sm col-span-2 sm:col-span-1">
+          <span class="text-[11px] sm:text-xs text-cyan-400/90 font-bold uppercase tracking-wider block mb-1">📐 Geometría / Red</span>
+          <strong id="modal-elem-geometry" class="text-cyan-200 font-semibold text-[11px] sm:text-xs leading-tight">Diatómica lineal (H₂)</strong>
+        </div>
+
+        <!-- 4. Número Atómico (Z) / Protones -->
+        <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-2.5 sm:p-3 shadow-sm">
+          <span class="text-[10px] sm:text-[11px] text-slate-400 font-medium block">Nº Atómico (Z) / Protones:</span>
+          <strong id="modal-elem-z-detail" class="text-white font-mono text-sm sm:text-base font-black">1</strong>
+        </div>
+
+        <!-- 5. Masa Atómica -->
+        <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-2.5 sm:p-3 shadow-sm">
+          <span class="text-[10px] sm:text-[11px] text-slate-400 font-medium block">Masa Atómica:</span>
+          <strong id="modal-elem-m-detail" class="text-white font-mono text-sm sm:text-base font-black">1.008 u</strong>
+        </div>
+
+        <!-- 6. Neutrones Estimados -->
+        <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-2.5 sm:p-3 shadow-sm col-span-2 sm:col-span-1">
+          <span class="text-[10px] sm:text-[11px] text-slate-400 font-medium block">Neutrones Aprox.:</span>
+          <strong id="modal-elem-neutrons" class="text-amber-300 font-mono text-sm sm:text-base font-black">0</strong>
+        </div>
+      </div>
+
+      <!-- Sección de Características y Usos con Letras Ampliadas -->
+      <div class="bg-slate-950/95 border border-slate-800 rounded-2xl p-3.5 sm:p-4 text-xs sm:text-sm space-y-1.5 shadow-inner">
+        <span class="text-amber-400 font-extrabold text-xs sm:text-sm uppercase tracking-wider block flex items-center gap-1.5">
+          <span>💡</span> Descripción y Aplicaciones en el Mundo Real:
+        </span>
+        <p id="modal-elem-desc" class="text-slate-200 leading-relaxed text-xs sm:text-sm font-normal">El elemento más ligero y abundante del cosmos...</p>
       </div>
 
       <!-- Acciones: Pronunciar y Cerrar -->
-      <div class="flex items-center gap-2 pt-1">
-        <button onclick="speakCurrentElement()" class="flex-1 py-2.5 px-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg active:scale-95">
-          <span class="text-base">🔊</span> Escuchar Pronunciación y Datos
+      <div class="flex items-center gap-3 pt-1">
+        <button onclick="speakCurrentElement()" class="flex-1 py-3 px-4 rounded-2xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-xl active:scale-95">
+          <span class="text-lg">🔊</span> Escuchar Pronunciación y Datos
         </button>
-        <button onclick="closeElementDetailModal()" class="py-2.5 px-5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition">
+        <button onclick="closeElementDetailModal()" class="py-3 px-6 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs sm:text-sm font-black transition active:scale-95">
           Cerrar
         </button>
       </div>
@@ -2272,6 +2289,599 @@
       filterElements();
     }
 
+    const ELEMENT_ADVANCED_DATA = {
+  "1": {
+    "ec": "1s¹",
+    "ev": "1 e⁻",
+    "geom": "Diatómica lineal (H₂)"
+  },
+  "2": {
+    "ec": "1s²",
+    "ev": "2 e⁻",
+    "geom": "Monoatómica / Hexagonal (HCP)"
+  },
+  "3": {
+    "ec": "[He] 2s¹",
+    "ev": "1 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "4": {
+    "ec": "[He] 2s²",
+    "ev": "2 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "5": {
+    "ec": "[He] 2s² 2p¹",
+    "ev": "3 e⁻",
+    "geom": "Romboédrica / Icosaédrica"
+  },
+  "6": {
+    "ec": "[He] 2s² 2p²",
+    "ev": "4 e⁻",
+    "geom": "Tetraédrica (Diamante) / Hexagonal plana (Grafito)"
+  },
+  "7": {
+    "ec": "[He] 2s² 2p³",
+    "ev": "5 e⁻",
+    "geom": "Diatómica lineal (N≡N) / Hexagonal"
+  },
+  "8": {
+    "ec": "[He] 2s² 2p⁴",
+    "ev": "6 e⁻",
+    "geom": "Diatómica lineal (O=O) / Cúbica"
+  },
+  "9": {
+    "ec": "[He] 2s² 2p⁵",
+    "ev": "7 e⁻",
+    "geom": "Diatómica lineal (F₂) / Cúbica"
+  },
+  "10": {
+    "ec": "[He] 2s² 2p⁶",
+    "ev": "8 e⁻ (Octeto lleno)",
+    "geom": "Monoatómica / Cúbica (FCC)"
+  },
+  "11": {
+    "ec": "[Ne] 3s¹",
+    "ev": "1 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "12": {
+    "ec": "[Ne] 3s²",
+    "ev": "2 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "13": {
+    "ec": "[Ne] 3s² 3p¹",
+    "ev": "3 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "14": {
+    "ec": "[Ne] 3s² 3p²",
+    "ev": "4 e⁻",
+    "geom": "Tetraédrica (Red Diamante FCC)"
+  },
+  "15": {
+    "ec": "[Ne] 3s² 3p³",
+    "ev": "5 e⁻",
+    "geom": "Tetraédrica (P₄) / Ortorrómbica"
+  },
+  "16": {
+    "ec": "[Ne] 3s² 3p⁴",
+    "ev": "6 e⁻",
+    "geom": "Octaatómica corona (S₈) / Ortorrómbica"
+  },
+  "17": {
+    "ec": "[Ne] 3s² 3p⁵",
+    "ev": "7 e⁻",
+    "geom": "Diatómica lineal (Cl₂) / Ortorrómbica"
+  },
+  "18": {
+    "ec": "[Ne] 3s² 3p⁶",
+    "ev": "8 e⁻ (Octeto lleno)",
+    "geom": "Monoatómica / Cúbica (FCC)"
+  },
+  "19": {
+    "ec": "[Ar] 4s¹",
+    "ev": "1 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "20": {
+    "ec": "[Ar] 4s²",
+    "ev": "2 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "21": {
+    "ec": "[Ar] 3d¹ 4s²",
+    "ev": "3 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "22": {
+    "ec": "[Ar] 3d² 4s²",
+    "ev": "4 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "23": {
+    "ec": "[Ar] 3d³ 4s²",
+    "ev": "5 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "24": {
+    "ec": "[Ar] 3d⁵ 4s¹",
+    "ev": "6 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "25": {
+    "ec": "[Ar] 3d⁵ 4s²",
+    "ev": "7 e⁻",
+    "geom": "Cúbica compleja (Manganeso-α)"
+  },
+  "26": {
+    "ec": "[Ar] 3d⁶ 4s²",
+    "ev": "8 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "27": {
+    "ec": "[Ar] 3d⁷ 4s²",
+    "ev": "9 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "28": {
+    "ec": "[Ar] 3d⁸ 4s²",
+    "ev": "10 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "29": {
+    "ec": "[Ar] 3d¹⁰ 4s¹",
+    "ev": "11 e⁻ (1 de valencia ext.)",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "30": {
+    "ec": "[Ar] 3d¹⁰ 4s²",
+    "ev": "2 e⁻",
+    "geom": "Hexagonal compacta distorsionada (HCP)"
+  },
+  "31": {
+    "ec": "[Ar] 3d¹⁰ 4s² 4p¹",
+    "ev": "3 e⁻",
+    "geom": "Ortorrómbica base centrada"
+  },
+  "32": {
+    "ec": "[Ar] 3d¹⁰ 4s² 4p²",
+    "ev": "4 e⁻",
+    "geom": "Tetraédrica (Red Diamante FCC)"
+  },
+  "33": {
+    "ec": "[Ar] 3d¹⁰ 4s² 4p³",
+    "ev": "5 e⁻",
+    "geom": "Romboédrica estratificada"
+  },
+  "34": {
+    "ec": "[Ar] 3d¹⁰ 4s² 4p⁴",
+    "ev": "6 e⁻",
+    "geom": "Hexagonal (Cadenas helicoidales)"
+  },
+  "35": {
+    "ec": "[Ar] 3d¹⁰ 4s² 4p⁵",
+    "ev": "7 e⁻",
+    "geom": "Diatómica lineal (Br₂) / Ortorrómbica"
+  },
+  "36": {
+    "ec": "[Ar] 3d¹⁰ 4s² 4p⁶",
+    "ev": "8 e⁻ (Octeto lleno)",
+    "geom": "Monoatómica / Cúbica (FCC)"
+  },
+  "37": {
+    "ec": "[Kr] 5s¹",
+    "ev": "1 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "38": {
+    "ec": "[Kr] 5s²",
+    "ev": "2 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "39": {
+    "ec": "[Kr] 4d¹ 5s²",
+    "ev": "3 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "40": {
+    "ec": "[Kr] 4d² 5s²",
+    "ev": "4 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "41": {
+    "ec": "[Kr] 4d⁴ 5s¹",
+    "ev": "5 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "42": {
+    "ec": "[Kr] 4d⁵ 5s¹",
+    "ev": "6 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "43": {
+    "ec": "[Kr] 4d⁵ 5s²",
+    "ev": "7 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "44": {
+    "ec": "[Kr] 4d⁷ 5s¹",
+    "ev": "8 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "45": {
+    "ec": "[Kr] 4d⁸ 5s¹",
+    "ev": "9 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "46": {
+    "ec": "[Kr] 4d¹⁰",
+    "ev": "10 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "47": {
+    "ec": "[Kr] 4d¹⁰ 5s¹",
+    "ev": "11 e⁻ (1 ext.)",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "48": {
+    "ec": "[Kr] 4d¹⁰ 5s²",
+    "ev": "2 e⁻",
+    "geom": "Hexagonal compacta distorsionada (HCP)"
+  },
+  "49": {
+    "ec": "[Kr] 4d¹⁰ 5s² 5p¹",
+    "ev": "3 e⁻",
+    "geom": "Tetragonal centrada en el cuerpo"
+  },
+  "50": {
+    "ec": "[Kr] 4d¹⁰ 5s² 5p²",
+    "ev": "4 e⁻",
+    "geom": "Tetragonal (Blanco-β) / Diamante (Gris-α)"
+  },
+  "51": {
+    "ec": "[Kr] 4d¹⁰ 5s² 5p³",
+    "ev": "5 e⁻",
+    "geom": "Romboédrica estratificada"
+  },
+  "52": {
+    "ec": "[Kr] 4d¹⁰ 5s² 5p⁴",
+    "ev": "6 e⁻",
+    "geom": "Hexagonal (Cadenas helicoidales)"
+  },
+  "53": {
+    "ec": "[Kr] 4d¹⁰ 5s² 5p⁵",
+    "ev": "7 e⁻",
+    "geom": "Diatómica lineal (I₂) / Ortorrómbica"
+  },
+  "54": {
+    "ec": "[Kr] 4d¹⁰ 5s² 5p⁶",
+    "ev": "8 e⁻ (Octeto lleno)",
+    "geom": "Monoatómica / Cúbica (FCC)"
+  },
+  "55": {
+    "ec": "[Xe] 6s¹",
+    "ev": "1 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "56": {
+    "ec": "[Xe] 6s²",
+    "ev": "2 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "57": {
+    "ec": "[Xe] 5d¹ 6s²",
+    "ev": "3 e⁻",
+    "geom": "Doble hexagonal compacta (DHCP)"
+  },
+  "58": {
+    "ec": "[Xe] 4f¹ 5d¹ 6s²",
+    "ev": "4 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "59": {
+    "ec": "[Xe] 4f³ 6s²",
+    "ev": "3 e⁻",
+    "geom": "Doble hexagonal compacta (DHCP)"
+  },
+  "60": {
+    "ec": "[Xe] 4f⁴ 6s²",
+    "ev": "3 e⁻",
+    "geom": "Doble hexagonal compacta (DHCP)"
+  },
+  "61": {
+    "ec": "[Xe] 4f⁵ 6s²",
+    "ev": "3 e⁻",
+    "geom": "Doble hexagonal compacta (DHCP)"
+  },
+  "62": {
+    "ec": "[Xe] 4f⁶ 6s²",
+    "ev": "3 e⁻",
+    "geom": "Romboédrica trigonal"
+  },
+  "63": {
+    "ec": "[Xe] 4f⁷ 6s²",
+    "ev": "2 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "64": {
+    "ec": "[Xe] 4f⁷ 5d¹ 6s²",
+    "ev": "3 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "65": {
+    "ec": "[Xe] 4f⁹ 6s²",
+    "ev": "3 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "66": {
+    "ec": "[Xe] 4f¹⁰ 6s²",
+    "ev": "3 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "67": {
+    "ec": "[Xe] 4f¹¹ 6s²",
+    "ev": "3 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "68": {
+    "ec": "[Xe] 4f¹² 6s²",
+    "ev": "3 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "69": {
+    "ec": "[Xe] 4f¹³ 6s²",
+    "ev": "3 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "70": {
+    "ec": "[Xe] 4f¹⁴ 6s²",
+    "ev": "2 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "71": {
+    "ec": "[Xe] 4f¹⁴ 5d¹ 6s²",
+    "ev": "3 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "72": {
+    "ec": "[Xe] 4f¹⁴ 5d² 6s²",
+    "ev": "4 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "73": {
+    "ec": "[Xe] 4f¹⁴ 5d³ 6s²",
+    "ev": "5 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "74": {
+    "ec": "[Xe] 4f¹⁴ 5d⁴ 6s²",
+    "ev": "6 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "75": {
+    "ec": "[Xe] 4f¹⁴ 5d⁵ 6s²",
+    "ev": "7 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "76": {
+    "ec": "[Xe] 4f¹⁴ 5d⁶ 6s²",
+    "ev": "8 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "77": {
+    "ec": "[Xe] 4f¹⁴ 5d⁷ 6s²",
+    "ev": "9 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "78": {
+    "ec": "[Xe] 4f¹⁴ 5d⁹ 6s¹",
+    "ev": "10 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "79": {
+    "ec": "[Xe] 4f¹⁴ 5d¹⁰ 6s¹",
+    "ev": "11 e⁻ (1 ext.)",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "80": {
+    "ec": "[Xe] 4f¹⁴ 5d¹⁰ 6s²",
+    "ev": "2 e⁻",
+    "geom": "Romboédrica / Líquido metálico"
+  },
+  "81": {
+    "ec": "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹",
+    "ev": "3 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "82": {
+    "ec": "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²",
+    "ev": "4 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "83": {
+    "ec": "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³",
+    "ev": "5 e⁻",
+    "geom": "Romboédrica estratificada"
+  },
+  "84": {
+    "ec": "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴",
+    "ev": "6 e⁻",
+    "geom": "Cúbica simple (Primitiva α)"
+  },
+  "85": {
+    "ec": "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵",
+    "ev": "7 e⁻",
+    "geom": "Red molecular halógena (Estimada)"
+  },
+  "86": {
+    "ec": "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶",
+    "ev": "8 e⁻ (Octeto lleno)",
+    "geom": "Monoatómica / Cúbica (FCC)"
+  },
+  "87": {
+    "ec": "[Rn] 7s¹",
+    "ev": "1 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "88": {
+    "ec": "[Rn] 7s²",
+    "ev": "2 e⁻",
+    "geom": "Cúbica centrada en el cuerpo (BCC)"
+  },
+  "89": {
+    "ec": "[Rn] 6d¹ 7s²",
+    "ev": "3 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "90": {
+    "ec": "[Rn] 6d² 7s²",
+    "ev": "4 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "91": {
+    "ec": "[Rn] 5f² 6d¹ 7s²",
+    "ev": "5 e⁻",
+    "geom": "Tetragonal centrada en el cuerpo"
+  },
+  "92": {
+    "ec": "[Rn] 5f³ 6d¹ 7s²",
+    "ev": "6 e⁻",
+    "geom": "Ortorrómbica (Uranio-α)"
+  },
+  "93": {
+    "ec": "[Rn] 5f⁴ 6d¹ 7s²",
+    "ev": "7 e⁻",
+    "geom": "Ortorrómbica"
+  },
+  "94": {
+    "ec": "[Rn] 5f⁶ 7s²",
+    "ev": "6 e⁻",
+    "geom": "Monoclínica simple (Plutonio-α)"
+  },
+  "95": {
+    "ec": "[Rn] 5f⁷ 7s²",
+    "ev": "3 e⁻",
+    "geom": "Doble hexagonal compacta (DHCP)"
+  },
+  "96": {
+    "ec": "[Rn] 5f⁷ 6d¹ 7s²",
+    "ev": "4 e⁻",
+    "geom": "Doble hexagonal compacta (DHCP)"
+  },
+  "97": {
+    "ec": "[Rn] 5f⁹ 7s²",
+    "ev": "3 e⁻",
+    "geom": "Doble hexagonal compacta (DHCP)"
+  },
+  "98": {
+    "ec": "[Rn] 5f¹⁰ 7s²",
+    "ev": "3 e⁻",
+    "geom": "Doble hexagonal compacta (DHCP)"
+  },
+  "99": {
+    "ec": "[Rn] 5f¹¹ 7s²",
+    "ev": "3 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "100": {
+    "ec": "[Rn] 5f¹² 7s²",
+    "ev": "3 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "101": {
+    "ec": "[Rn] 5f¹³ 7s²",
+    "ev": "3 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "102": {
+    "ec": "[Rn] 5f¹⁴ 7s²",
+    "ev": "2 e⁻",
+    "geom": "Cúbica centrada en las caras (FCC)"
+  },
+  "103": {
+    "ec": "[Rn] 5f¹⁴ 7s² 7p¹",
+    "ev": "3 e⁻",
+    "geom": "Hexagonal compacta (HCP)"
+  },
+  "104": {
+    "ec": "[Rn] 5f¹⁴ 6d² 7s²",
+    "ev": "4 e⁻",
+    "geom": "Hexagonal compacta (HCP pred.)"
+  },
+  "105": {
+    "ec": "[Rn] 5f¹⁴ 6d³ 7s²",
+    "ev": "5 e⁻",
+    "geom": "Cúbica centrada cuerpo (BCC pred.)"
+  },
+  "106": {
+    "ec": "[Rn] 5f¹⁴ 6d⁴ 7s²",
+    "ev": "6 e⁻",
+    "geom": "Cúbica centrada cuerpo (BCC pred.)"
+  },
+  "107": {
+    "ec": "[Rn] 5f¹⁴ 6d⁵ 7s²",
+    "ev": "7 e⁻",
+    "geom": "Hexagonal compacta (HCP pred.)"
+  },
+  "108": {
+    "ec": "[Rn] 5f¹⁴ 6d⁶ 7s²",
+    "ev": "8 e⁻",
+    "geom": "Hexagonal compacta (HCP pred.)"
+  },
+  "109": {
+    "ec": "[Rn] 5f¹⁴ 6d⁷ 7s²",
+    "ev": "9 e⁻",
+    "geom": "Cúbica centrada caras (FCC pred.)"
+  },
+  "110": {
+    "ec": "[Rn] 5f¹⁴ 6d⁸ 7s²",
+    "ev": "10 e⁻",
+    "geom": "Cúbica centrada cuerpo (BCC pred.)"
+  },
+  "111": {
+    "ec": "[Rn] 5f¹⁴ 6d⁹ 7s²",
+    "ev": "11 e⁻",
+    "geom": "Cúbica centrada cuerpo (BCC pred.)"
+  },
+  "112": {
+    "ec": "[Rn] 5f¹⁴ 6d¹⁰ 7s²",
+    "ev": "2 e⁻",
+    "geom": "Hexagonal compacta (HCP pred.)"
+  },
+  "113": {
+    "ec": "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹",
+    "ev": "3 e⁻",
+    "geom": "Cúbica centrada caras (FCC pred.)"
+  },
+  "114": {
+    "ec": "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²",
+    "ev": "4 e⁻",
+    "geom": "Cúbica centrada caras (FCC pred.)"
+  },
+  "115": {
+    "ec": "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³",
+    "ev": "5 e⁻",
+    "geom": "Cúbica centrada cuerpo (BCC pred.)"
+  },
+  "116": {
+    "ec": "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴",
+    "ev": "6 e⁻",
+    "geom": "Hexagonal compacta (HCP pred.)"
+  },
+  "117": {
+    "ec": "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵",
+    "ev": "7 e⁻",
+    "geom": "Red molecular halógena (Estimada)"
+  },
+  "118": {
+    "ec": "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶",
+    "ev": "8 e⁻ (Octeto noble)",
+    "geom": "Cúbica centrada caras (FCC pred.)"
+  }
+};
+
     let currentDetailZ = 1;
 
     function openElementDetailModal(z) {
@@ -2281,6 +2891,8 @@
 
       const modal = document.getElementById('element-detail-modal');
       if (!modal) return;
+
+      const adv = ELEMENT_ADVANCED_DATA[el.z] || { ec: 'N/D', ev: 'N/D', geom: 'Estándar' };
 
       const zEl = document.getElementById('modal-elem-z');
       const symEl = document.getElementById('modal-elem-symbol');
@@ -2293,9 +2905,11 @@
       const descEl = document.getElementById('modal-elem-desc');
       const zDetail = document.getElementById('modal-elem-z-detail');
       const mDetail = document.getElementById('modal-elem-m-detail');
-      const protonsEl = document.getElementById('modal-elem-protons');
       const neutronsEl = document.getElementById('modal-elem-neutrons');
       const posEl = document.getElementById('modal-elem-nav-pos');
+      const configEl = document.getElementById('modal-elem-config');
+      const valenceEl = document.getElementById('modal-elem-valence');
+      const geomEl = document.getElementById('modal-elem-geometry');
 
       if (zEl) zEl.textContent = '#' + el.z;
       if (symEl) symEl.textContent = el.s;
@@ -2307,29 +2921,31 @@
       if (descEl) descEl.textContent = el.d;
       if (zDetail) zDetail.textContent = '' + el.z;
       if (mDetail) mDetail.textContent = el.m + ' u';
-      if (protonsEl) protonsEl.textContent = '' + el.z;
       if (neutronsEl) neutronsEl.textContent = '' + Math.max(0, Math.round(el.m - el.z));
       if (posEl) posEl.textContent = el.z + ' / ' + ELEMENTS.length;
+      if (configEl) configEl.textContent = adv.ec;
+      if (valenceEl) valenceEl.textContent = adv.ev;
+      if (geomEl) geomEl.textContent = adv.geom;
 
       // Colores temáticos por familia química
       const familyColors = {
-        "Gases nobles": { border: "border-purple-500", bg: "bg-purple-500/20", badgeBg: "bg-purple-500/20", badgeText: "text-purple-300", badgeBorder: "border-purple-500/40" },
-        "Metales alcalinos": { border: "border-rose-500", bg: "bg-rose-500/20", badgeBg: "bg-rose-500/20", badgeText: "text-rose-300", badgeBorder: "border-rose-500/40" },
-        "Alcalinotérreos": { border: "border-amber-500", bg: "bg-amber-500/20", badgeBg: "bg-amber-500/20", badgeText: "text-amber-300", badgeBorder: "border-amber-500/40" },
-        "Metales de transición": { border: "border-blue-500", bg: "bg-blue-500/20", badgeBg: "bg-blue-500/20", badgeText: "text-blue-300", badgeBorder: "border-blue-500/40" },
-        "Metaloides": { border: "border-teal-500", bg: "bg-teal-500/20", badgeBg: "bg-teal-500/20", badgeText: "text-teal-300", badgeBorder: "border-teal-500/40" },
-        "No metales": { border: "border-cyan-500", bg: "bg-cyan-500/20", badgeBg: "bg-cyan-500/20", badgeText: "text-cyan-300", badgeBorder: "border-cyan-500/40" },
-        "Halógenos": { border: "border-emerald-500", bg: "bg-emerald-500/20", badgeBg: "bg-emerald-500/20", badgeText: "text-emerald-300", badgeBorder: "border-emerald-500/40" },
-        "Lantánidos y Actínidos": { border: "border-fuchsia-500", bg: "bg-fuchsia-500/20", badgeBg: "bg-fuchsia-500/20", badgeText: "text-fuchsia-300", badgeBorder: "border-fuchsia-500/40" },
-        "Otros metales": { border: "border-indigo-500", bg: "bg-indigo-500/20", badgeBg: "bg-indigo-500/20", badgeText: "text-indigo-300", badgeBorder: "border-indigo-500/40" }
+        "Gases nobles": { border: "border-purple-500", bg: "bg-purple-500/25", badgeBg: "bg-purple-500/20", badgeText: "text-purple-300", badgeBorder: "border-purple-500/40" },
+        "Metales alcalinos": { border: "border-rose-500", bg: "bg-rose-500/25", badgeBg: "bg-rose-500/20", badgeText: "text-rose-300", badgeBorder: "border-rose-500/40" },
+        "Alcalinotérreos": { border: "border-amber-500", bg: "bg-amber-500/25", badgeBg: "bg-amber-500/20", badgeText: "text-amber-300", badgeBorder: "border-amber-500/40" },
+        "Metales de transición": { border: "border-blue-500", bg: "bg-blue-500/25", badgeBg: "bg-blue-500/20", badgeText: "text-blue-300", badgeBorder: "border-blue-500/40" },
+        "Metaloides": { border: "border-teal-500", bg: "bg-teal-500/25", badgeBg: "bg-teal-500/20", badgeText: "text-teal-300", badgeBorder: "border-teal-500/40" },
+        "No metales": { border: "border-cyan-500", bg: "bg-cyan-500/25", badgeBg: "bg-cyan-500/20", badgeText: "text-cyan-300", badgeBorder: "border-cyan-500/40" },
+        "Halógenos": { border: "border-emerald-500", bg: "bg-emerald-500/25", badgeBg: "bg-emerald-500/20", badgeText: "text-emerald-300", badgeBorder: "border-emerald-500/40" },
+        "Lantánidos y Actínidos": { border: "border-fuchsia-500", bg: "bg-fuchsia-500/25", badgeBg: "bg-fuchsia-500/20", badgeText: "text-fuchsia-300", badgeBorder: "border-fuchsia-500/40" },
+        "Otros metales": { border: "border-indigo-500", bg: "bg-indigo-500/25", badgeBg: "bg-indigo-500/20", badgeText: "text-indigo-300", badgeBorder: "border-indigo-500/40" }
       };
 
-      const style = familyColors[el.c] || { border: "border-blue-500/50", bg: "bg-blue-600/20", badgeBg: "bg-blue-500/20", badgeText: "text-blue-300", badgeBorder: "border-blue-500/30" };
+      const style = familyColors[el.c] || { border: "border-blue-500/50", bg: "bg-blue-600/25", badgeBg: "bg-blue-500/20", badgeText: "text-blue-300", badgeBorder: "border-blue-500/30" };
       if (boxEl) {
-        boxEl.className = 'w-20 h-20 sm:w-24 sm:h-24 rounded-2xl ' + style.bg + ' border-2 ' + style.border + ' flex flex-col items-center justify-between p-2 shadow-inner flex-shrink-0 transition-all';
+        boxEl.className = 'w-24 h-24 sm:w-28 sm:h-28 rounded-2xl ' + style.bg + ' border-2 ' + style.border + ' flex flex-col items-center justify-between p-2.5 shadow-xl flex-shrink-0 transition-all';
       }
       if (catEl) {
-        catEl.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold ' + style.badgeBg + ' ' + style.badgeText + ' border ' + style.badgeBorder;
+        catEl.className = 'px-3 py-1 rounded-full text-xs font-black ' + style.badgeBg + ' ' + style.badgeText + ' border ' + style.badgeBorder;
       }
 
       modal.classList.remove('hidden');
@@ -2354,19 +2970,20 @@
     function speakCurrentElement() {
       const el = ELEMENTS.find(e => e.z === currentDetailZ);
       if (!el) return;
+      const adv = ELEMENT_ADVANCED_DATA[el.z] || { ec: '', ev: '', geom: '' };
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
-        const text = el.n + '. Símbolo ' + el.s + '. Número atómico ' + el.z + '. Masa atómica ' + el.m + ' unidades. Familia ' + el.c + '. ' + el.d;
+        const text = el.n + '. Símbolo ' + el.s + '. Número atómico ' + el.z + '. Masa atómica ' + el.m + ' unidades. Configuración electrónica: ' + adv.ec + '. Electrones de valencia: ' + adv.ev + '. Estructura: ' + adv.geom + '. ' + el.d;
         const utter = new SpeechSynthesisUtterance(text);
         utter.lang = 'es-ES';
-        utter.rate = 0.95;
+        utter.rate = 0.92;
         window.speechSynthesis.speak(utter);
       } else {
         playSound('correct');
       }
     }
 
-    // Navegación con teclado en el modal (Esc para cerrar, flechas Izq/Der para navegar)
+    // Atajos de teclado en el modal (Esc para cerrar, Flechas Izq/Der para navegar)
     document.addEventListener('keydown', (e) => {
       const modal = document.getElementById('element-detail-modal');
       if (!modal || modal.classList.contains('hidden')) return;
@@ -2402,21 +3019,25 @@
       grid.innerHTML = '';
 
       filtered.forEach(el => {
+        const adv = ELEMENT_ADVANCED_DATA[el.z] || { ec: '', ev: '', geom: '' };
         const card = document.createElement('div');
-        card.className = "bg-slate-950/80 border border-slate-800 hover:border-cyan-400 rounded-xl p-2.5 flex flex-col justify-between transition cursor-pointer hover:bg-slate-900 group shadow-sm hover:scale-[1.02] active:scale-95";
+        card.className = "bg-slate-950/80 border border-slate-800 hover:border-cyan-400 rounded-2xl p-3 flex flex-col justify-between transition cursor-pointer hover:bg-slate-900 group shadow-sm hover:scale-[1.02] active:scale-95";
         card.innerHTML = `
-          <div class="flex justify-between items-center text-[10px] text-slate-400">
-            <span class="font-mono font-bold text-cyan-400">#${el.z}</span>
-            <span class="text-slate-500 truncate max-w-[70px]">${el.c}</span>
+          <div class="flex justify-between items-center text-xs text-slate-400 mb-1">
+            <span class="font-mono font-black text-cyan-300">#${el.z}</span>
+            <span class="text-slate-400 font-semibold truncate max-w-[85px]">${el.c}</span>
           </div>
-          <div class="my-1 flex items-baseline gap-1.5">
-            <span class="text-xl font-black text-blue-400 group-hover:text-cyan-300 transition">${el.s}</span>
-            <span class="text-xs font-bold text-slate-200 truncate">${el.n}</span>
+          <div class="my-1 flex items-baseline gap-2">
+            <span class="text-2xl sm:text-3xl font-black text-blue-400 group-hover:text-cyan-300 transition leading-none">${el.s}</span>
+            <span class="text-sm font-bold text-slate-100 truncate">${el.n}</span>
           </div>
-          <p class="text-[10px] text-slate-400 line-clamp-2 leading-tight">${el.d}</p>
-          <div class="mt-2 pt-1 border-t border-slate-800/60 flex items-center justify-between text-[9px] text-slate-500 group-hover:text-amber-300 transition">
-            <span>🔍 Toca para ampliar</span>
-            <span class="font-mono text-cyan-400/80 font-bold">${el.m} u</span>
+          <div class="text-[11px] font-mono text-amber-300/90 font-medium truncate my-0.5">
+            ⚡ ${adv.ec}
+          </div>
+          <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mt-1">${el.d}</p>
+          <div class="mt-2.5 pt-1.5 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500 group-hover:text-amber-300 transition font-bold">
+            <span class="text-cyan-400 font-semibold">🔍 Ficha completa</span>
+            <span class="font-mono text-slate-300">${el.m} u</span>
           </div>
         `;
         card.onclick = () => {
