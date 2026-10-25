@@ -3278,14 +3278,18 @@
       });
     }
 
-    function speakTextWaitPromise(text, customRate = 0.76) {
+    function speakTextWaitPromise(text, customRate = 0.78) {
       return new Promise(resolve => {
         if (!('speechSynthesis' in window)) {
-          setTimeout(resolve, 600);
+          setTimeout(resolve, 800);
           return;
         }
-        window.speechSynthesis.cancel();
+
+        // NO llamar a speechSynthesis.cancel() aquí para jamás cortar la última sílaba del subnivel anterior
         const utter = new SpeechSynthesisUtterance(text);
+        // Guardar referencia global para evitar que el recolector de basura de Chrome/Edge corte el audio
+        window._activeAufbauUtterance = utter;
+
         const chosenVoice = selectBestRealisticSpanishVoice();
         if (chosenVoice) {
           utter.voice = chosenVoice;
@@ -3301,17 +3305,38 @@
         }
 
         let settled = false;
+        let pollTimer = null;
+        let maxSafetyTimer = null;
+
         const finish = () => {
-          if (!settled) {
-            settled = true;
-            resolve();
-          }
+          if (settled) return;
+          settled = true;
+          if (pollTimer) clearInterval(pollTimer);
+          if (maxSafetyTimer) clearTimeout(maxSafetyTimer);
+          // Esperar 350ms adicionales tras finalizar el evento onend para que el buffer de audio termine limpio
+          setTimeout(resolve, 350);
         };
-        utter.onend = finish;
-        utter.onerror = finish;
-        // Salvaguarda por si el navegador no dispara onend
-        setTimeout(finish, Math.max(2200, text.length * 110));
+
+        utter.onend = () => {
+          finish();
+        };
+        utter.onerror = () => {
+          finish();
+        };
+
         window.speechSynthesis.speak(utter);
+
+        // Verificar periódicamente: solo resolver si el motor de voz ya terminó realmente de hablar
+        const startTime = Date.now();
+        pollTimer = setInterval(() => {
+          const elapsed = Date.now() - startTime;
+          if (elapsed > 900 && !window.speechSynthesis.speaking && !window.speechSynthesis.pending) {
+            finish();
+          }
+        }, 150);
+
+        // Salvaguarda amplia (12 segundos) para nunca cortar una frase a la mitad
+        maxSafetyTimer = setTimeout(finish, 12000);
       });
     }
 
@@ -3320,6 +3345,9 @@
       if (!el) return;
 
       stopAufbauAnimation();
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
       const mySession = aufbauAnimSessionId;
 
       const adv = ELEMENT_ADVANCED_DATA[el.z] || { ec: '1s¹' };
@@ -3333,14 +3361,18 @@
         label.textContent = 'Preparando llenado de ' + totalE + ' e⁻...';
       }
 
-      // 1. Intro hablada antes de empezar a llenar el primer subnivel
-      await speakTextWaitPromise('Llenado de subniveles de ' + el.n + '.', 0.82);
+      // Pequeño respiro tras limpiar la cola de audio antes de iniciar la narración
+      await new Promise(r => setTimeout(r, 180));
+      if (mySession !== aufbauAnimSessionId) return;
+
+      // 1. Intro hablada completa antes de empezar a llenar el primer subnivel
+      await speakTextWaitPromise('Llenado de subniveles de ' + el.n + '.', 0.84);
       if (mySession !== aufbauAnimSessionId) return;
 
       const perSpinMs = totalE <= 18 ? 780 : (totalE <= 36 ? 620 : 480);
       let cumulativeE = 0;
 
-      // 2. Recorrer subnivel por subnivel sincronizando la voz con el llenado visual de los espines
+      // 2. Recorrer subnivel por subnivel esperando a que termine 100% la voz y los espines antes del siguiente
       for (const sub of parsed) {
         if (mySession !== aufbauAnimSessionId) return;
 
@@ -3348,8 +3380,8 @@
         const orbLetter = SPANISH_LETTER_NAMES[sub.orbType] || sub.orbType;
         const subSpoken = 'Subnivel ' + levelNum + ' ' + orbLetter + ', ' + sub.count + (sub.count === 1 ? ' electrón.' : ' electrones.');
 
-        // Iniciar la narración pausada de este subnivel al mismo tiempo que se van colocando sus espines ↑ y ↓
-        const speechPromise = speakTextWaitPromise(subSpoken, 0.75);
+        // Iniciar la narración completa de este subnivel mientras se dibujan sus espines ↑ y ↓
+        const speechPromise = speakTextWaitPromise(subSpoken, 0.78);
 
         const fillSublevelSpins = async () => {
           for (let i = 1; i <= sub.count; i++) {
@@ -3363,12 +3395,13 @@
           }
         };
 
+        // Esperar obligatoriamente a que TANTO la voz completa COMO el llenado visual terminen
         await Promise.all([speechPromise, fillSublevelSpins()]);
         if (mySession !== aufbauAnimSessionId) return;
 
         cumulativeE += sub.count;
-        // Breve pausa pedagógica entre un subnivel y el siguiente
-        await new Promise(r => setTimeout(r, 320));
+        // Pausa clara de medio segundo antes de pasar al siguiente subnivel
+        await new Promise(r => setTimeout(r, 500));
       }
 
       if (mySession !== aufbauAnimSessionId) return;
