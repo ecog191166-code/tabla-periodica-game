@@ -3282,24 +3282,106 @@
         .replace(/α/g, 'alfa');
     }
 
+    // Pre-cargar voces del navegador para disponer de las voces Neurales / Naturales realistas
+    let cachedSpanishVoices = [];
+    function loadAvailableSpanishVoices() {
+      if (!('speechSynthesis' in window)) return;
+      const all = window.speechSynthesis.getVoices() || [];
+      cachedSpanishVoices = all.filter(v => v.lang && v.lang.toLowerCase().startsWith('es'));
+    }
+    if ('speechSynthesis' in window) {
+      loadAvailableSpanishVoices();
+      if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = loadAvailableSpanishVoices;
+      }
+    }
+
+    function selectBestRealisticSpanishVoice() {
+      if (!cachedSpanishVoices.length) loadAvailableSpanishVoices();
+      if (!cachedSpanishVoices.length) return null;
+
+      // Clasificar voces por nivel de realismo humano y tono adulto de profesor
+      let bestVoice = null;
+      let bestScore = -999;
+
+      cachedSpanishVoices.forEach(v => {
+        const name = (v.name || '').toLowerCase();
+        const lang = (v.lang || '').toLowerCase();
+        let score = 0;
+
+        // Prioridad máxima: Voces Neurales / Naturales (Microsoft Edge Natural / Online)
+        if (name.includes('natural') || name.includes('neural') || name.includes('online')) {
+          score += 100;
+        }
+        // Segunda prioridad: Voces de alta calidad de Google en español
+        if (name.includes('google')) {
+          score += 75;
+        }
+        // Preferir voces masculinas / adultas de tono serio y docente
+        if (name.includes('alvaro') || name.includes('álvaro') || name.includes('jorge') ||
+            name.includes('alonso') || name.includes('tomas') || name.includes('tomás') ||
+            name.includes('pablo') || name.includes('raul') || name.includes('raúl') ||
+            name.includes('dario') || name.includes('darío') || name.includes('emilio') ||
+            name.includes('federico') || name.includes('carlos') || name.includes('diego')) {
+          score += 45;
+        }
+        // Voces neurales femeninas adultas muy naturales
+        if (name.includes('elvira') || name.includes('dalia') || name.includes('paloma') || name.includes('salome')) {
+          score += 30;
+        }
+        // Penalizar voces SAPI5 antiguas de escritorio que suenan robóticas o infantiles (Sabina/Helena offline)
+        if (name.includes('desktop') || name.includes('sabina') || name.includes('helena')) {
+          score -= 40;
+        }
+        // Preferir español latinoamericano o de España estándar
+        if (lang.includes('es-pa') || lang.includes('es-mx') || lang.includes('es-co') || lang.includes('es-es') || lang.includes('es-us')) {
+          score += 10;
+        }
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestVoice = v;
+        }
+      });
+
+      return bestVoice || cachedSpanishVoices[0];
+    }
+
     function speakSpanishTextSlowly(text) {
       if (!('speechSynthesis' in window)) {
         playSound('correct');
         return;
       }
       window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'es-ES';
-      utter.rate = 0.75; // Lectura pausada, clara y didáctica
-      utter.pitch = 1.0;
 
-      const voices = window.speechSynthesis.getVoices();
-      const spanishVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('es-pa')) ||
-                           voices.find(v => v.lang && v.lang.toLowerCase().startsWith('es-mx')) ||
-                           voices.find(v => v.lang && v.lang.toLowerCase().startsWith('es-es')) ||
-                           voices.find(v => v.lang && v.lang.toLowerCase().startsWith('es'));
-      if (spanishVoice) {
-        utter.voice = spanishVoice;
+      // Mejorar la prosodia natural con pausas suaves en lugar de deformar el audio
+      const naturalText = text
+        .replace(/;/g, '. ')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      const utter = new SpeechSynthesisUtterance(naturalText);
+      const chosenVoice = selectBestRealisticSpanishVoice();
+
+      if (chosenVoice) {
+        utter.voice = chosenVoice;
+        utter.lang = chosenVoice.lang || 'es-ES';
+        const vName = (chosenVoice.name || '').toLowerCase();
+        const isNeuralOrGoogle = vName.includes('natural') || vName.includes('online') || vName.includes('google');
+
+        if (isNeuralOrGoogle) {
+          // Las voces neurales suenan 100% humanas a ritmo 0.88 y tono natural
+          utter.rate = 0.88;
+          utter.pitch = 0.96;
+        } else {
+          // Si el equipo solo tiene voz local de Windows, bajar el pitch para darle voz grave de profesor adulto y evitar sonido infantil
+          utter.rate = 0.85;
+          utter.pitch = 0.84;
+        }
+      } else {
+        utter.lang = 'es-ES';
+        utter.rate = 0.85;
+        utter.pitch = 0.86;
       }
 
       window.speechSynthesis.speak(utter);
