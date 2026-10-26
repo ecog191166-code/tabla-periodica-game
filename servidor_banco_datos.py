@@ -344,7 +344,7 @@ class DatabaseRequestHandler(BaseHTTPRequestHandler):
                 "code": code,
                 "authenticity": es_autentico
             })
-                        save_json_file(JSON_FILE, records)
+            save_json_file(JSON_FILE, records)
             export_records_to_multisheet_excel(records)
 
             print(f"[{datetime.now().strftime('%H:%M:%S')}] [NOTA] {name} ({group}) | Nota: {grade} | {correct}/{total}")
