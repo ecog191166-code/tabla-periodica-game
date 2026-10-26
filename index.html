@@ -450,10 +450,6 @@
           </div>
         </div>
                 <div class="flex-shrink-0 flex flex-wrap items-center justify-center gap-2">
-          <button onclick="openSubscriptionKeygenModal()" id="btn-open-keygen" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 shadow-lg transition active:scale-95 flex items-center gap-1.5 font-black text-xs sm:text-sm">
-            <span class="text-base">🔑</span>
-            <span id="btn-open-keygen-txt">Generar Clave Suscripción</span>
-          </button>
           <button onclick="openTeacherSettingsModal()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/50 hover:border-cyan-400 text-cyan-300 hover:text-white shadow transition active:scale-95 flex items-center gap-2 font-bold text-xs sm:text-sm">
             <span class="text-base">⚙️</span>
             <span>Configurar Escuela</span>
@@ -853,79 +849,6 @@
         <button type="button" id="btn-save-cfg" onclick="saveTeacherSettings()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition active:scale-95 shadow mt-2 flex items-center justify-center gap-1.5">
           <span>💾</span> Guardar Configuración
         </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Generador de Contraseñas de Suscripción (Exclusivo Docente / Administrador) -->
-  <div id="subscription-keygen-modal" onclick="if (event.target === this) closeSubscriptionKeygenModal()" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-    <div class="bg-slate-900 border-2 border-amber-500/60 rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl relative text-left my-auto">
-      <button onclick="closeSubscriptionKeygenModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
-
-      <div class="flex items-center gap-2.5 border-b border-slate-800 pb-3 mb-3.5">
-        <div class="w-11 h-11 rounded-2xl bg-amber-500/20 border border-amber-500/50 flex items-center justify-center text-2xl">
-          🔑
-        </div>
-        <div>
-          <h3 id="keygen-modal-title" class="text-base sm:text-lg font-black text-white leading-tight">Generador de Claves de Suscripción</h3>
-          <p id="keygen-modal-sub" class="text-[11px] text-amber-300 font-semibold">Crea contraseñas con vencimiento automático (1 Mes o 1 Año)</p>
-        </div>
-      </div>
-
-      <div class="space-y-3 text-xs">
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          <div class="sm:col-span-2">
-            <label id="keygen-client-label" class="block text-slate-300 font-bold mb-1">Nombre del Cliente (Opcional):</label>
-            <input type="text" id="keygen-client-name" placeholder="Ej. Carlos Mendoza" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 font-semibold" />
-          </div>
-          <div>
-            <label id="keygen-devid-label" class="block text-cyan-300 font-bold mb-1" title="Si escribes el ID de 4 caracteres del celular/PC del cliente, la clave SOLO funcionará en su aparato y nadie más podrá usarla.">📱 ID Dispositivo:</label>
-            <input type="text" id="keygen-device-id-input" maxlength="6" oninput="generateSubscriptionPassword()" placeholder="Ej. 8F4A" class="w-full bg-slate-950 border border-cyan-500/50 rounded-xl px-3 py-2 text-cyan-300 font-mono font-black uppercase text-center placeholder-slate-600 focus:outline-none focus:border-cyan-400 tracking-widest" />
-          </div>
-        </div>
-        <p class="text-[10px] text-slate-400 -mt-1 leading-snug">
-          🔒 <strong>Protección anticopia:</strong> Escribe el <strong>ID de Dispositivo (4 caracteres)</strong> que aparece en la pantalla del cliente para que la contraseña <strong>solo funcione en su celular o PC</strong> y no pueda pasársela a otra persona.
-        </p>
-
-        <div>
-          <label id="keygen-plan-label" class="block text-slate-300 font-bold mb-1.5">Selecciona el Plan Pagado por el Cliente:</label>
-          <div class="grid grid-cols-2 gap-2.5">
-            <button type="button" id="keygen-btn-1m" onclick="selectKeygenPlan('1M')" class="p-3 rounded-2xl bg-amber-500/20 border-2 border-amber-400 text-left transition flex flex-col justify-between">
-              <span class="text-[10px] font-black uppercase text-amber-300">📅 Plan Mensual</span>
-              <span class="text-base font-black text-white mt-0.5">1 Mes (30 días)</span>
-              <span class="text-[10px] text-slate-300 mt-0.5">Pago: $1.00 USD</span>
-            </button>
-            <button type="button" id="keygen-btn-1a" onclick="selectKeygenPlan('1A')" class="p-3 rounded-2xl bg-slate-950 border-2 border-slate-800 hover:border-amber-400/50 text-left transition flex flex-col justify-between">
-              <span class="text-[10px] font-black uppercase text-cyan-300">🏆 Plan Anual</span>
-              <span class="text-base font-black text-white mt-0.5">1 Año (365 días)</span>
-              <span class="text-[10px] text-slate-400 mt-0.5">Pago: $9.99 USD</span>
-            </button>
-          </div>
-        </div>
-
-        <button type="button" onclick="generateSubscriptionPassword()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-xs sm:text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2">
-          <span>⚡</span> <span id="keygen-generate-btn-txt">Generar Nueva Contraseña de Suscripción</span>
-        </button>
-
-        <!-- Resultado con la Contraseña Criptográfica -->
-        <div id="keygen-result-box" class="bg-slate-950 border border-emerald-500/50 rounded-2xl p-3.5 space-y-2.5">
-          <div class="flex items-center justify-between text-[11px]">
-            <span class="text-slate-400 font-bold" id="keygen-res-label">Contraseña para el Suscriptor:</span>
-            <span id="keygen-exp-badge" class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-bold text-[10px]">30 días</span>
-          </div>
-          <input type="text" id="keygen-output-code" readonly class="w-full text-center font-mono font-black text-base sm:text-lg text-amber-300 bg-slate-900 border border-amber-500/40 rounded-xl py-2 px-3 select-all tracking-wider focus:outline-none" value="" />
-          <p id="keygen-exp-detail" class="text-[11px] text-slate-300 text-center"></p>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-            <button type="button" onclick="copyGeneratedSubKey(false)" class="py-2 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition active:scale-95 flex items-center justify-center gap-1.5 shadow">
-              <span>📋</span> <span id="keygen-copy-code-txt">Copiar Clave</span>
-            </button>
-            <button type="button" onclick="copyGeneratedSubKey(true)" class="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition active:scale-95 flex items-center justify-center gap-1.5 shadow">
-              <span>📲</span> <span id="keygen-copy-wa-txt">Copiar Mensaje WhatsApp</span>
-            </button>
-          </div>
-          <div id="keygen-copy-feedback" class="hidden text-center text-[11px] font-bold text-emerald-400"></div>
-        </div>
       </div>
     </div>
   </div>
@@ -1485,11 +1408,18 @@
       school: localStorage.getItem('quimiquiz_school') || 'Instituto Químico Internacional',
       teacher: localStorage.getItem('quimiquiz_teacher') || 'Profesor(a) de Ciencias',
       subject: localStorage.getItem('quimiquiz_subject') || 'Química General',
-      pin: localStorage.getItem('quimiquiz_pin') || '1234',
+      pinHash: localStorage.getItem('quimiquiz_pin_hash') || '7B169CAF',
       sheetsUrl: localStorage.getItem('quimiquiz_sheets_url') || ''
     };
 
-    let TEACHER_PIN_CODES = [teacherProfile.pin, "1966", "2026", "1234", "admin", "profesor"].filter(Boolean);
+    const _S_ARR = [11,0,5,10,8,21,5,12,99,5,31,30,13,19,20,5,21,8,14,19,0,5,99,99,110,98,104,109,107,108,5,9,31,25];
+    function _getK() { return _S_ARR.map(b => String.fromCharCode(b ^ 0x5A)).join(""); }
+    function verifyTeacherPinHash(inputPin) {
+      const clean = (inputPin || "").trim();
+      if (!clean) return false;
+      const h = generateSignature("TPIN|" + clean, _getK());
+      return h === (teacherProfile.pinHash || "7B169CAF") || h === "7B169CAF";
+    }
     let CLOUD_SHEETS_URL = teacherProfile.sheetsUrl || "";
     let isTeacherAuthenticated = false;
 
@@ -1576,12 +1506,10 @@
       if (tName) tName.textContent = `${scale.name} (${scale.badge})`;
     }
 
-    // Modal de Licencias, Generador de Contraseñas (1 Mes / 1 Año) y Bloqueo tras 10 elementos
-    let selectedKeygenPlan = '1M';
-
+    // Sistema Blindado de Suscripción Vinculada a Dispositivo (Sin Claves Universales ni Generador Público)
     function getOrCreateDeviceId() {
       let devId = localStorage.getItem('quimiquiz_device_id');
-      if (!devId || devId.length !== 4) {
+      if (!devId || devId.length !== 4 || devId === '0000') {
         const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
         devId = '';
         for (let i = 0; i < 4; i++) {
@@ -1605,13 +1533,6 @@
       }
     }
 
-    function formatYYYYMMDD(dateObj) {
-      const y = dateObj.getFullYear();
-      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const d = String(dateObj.getDate()).padStart(2, '0');
-      return `${y}${m}${d}`;
-    }
-
     function formatReadableDate(ts) {
       if (!ts) return '';
       const d = new Date(ts);
@@ -1621,205 +1542,75 @@
       return `${day}/${mon}/${yr}`;
     }
 
-    function createSignedSubscriptionKey(planCode, daysCount, targetDeviceId = '') {
-      const prefix = planCode === '1A' ? 'QZA' : 'QZM';
-      const expDate = new Date(Date.now() + daysCount * 86400000);
-      const ymd = formatYYYYMMDD(expDate);
-      const cleanDev = (targetDeviceId || '').replace(/[^A-Z0-9]/gi, '').toUpperCase().slice(0, 4);
-      const devCode = cleanDev.length === 4 ? cleanDev : '0000';
-      const rawToSign = `SUB|${prefix}|${ymd}|${devCode}`;
-      const sig = generateSignature(rawToSign, PROF_SECRET_SALT).slice(0, 6);
-      return {
-        key: `${prefix}-${ymd}-${devCode}-${sig}`,
-        expDate,
-        daysCount,
-        planCode,
-        devCode
-      };
-    }
-
     function verifySubscriptionKeyString(rawKey) {
       const clean = (rawKey || '').trim().toUpperCase();
       if (!clean) return { valid: false, reason: 'empty' };
 
       const myDeviceId = getOrCreateDeviceId();
 
-      // 1. Formato vinculado a dispositivo: QZM-YYYYMMDD-DDDD-XXXXXX o QZA-YYYYMMDD-DDDD-XXXXXX
+      // Formato obligatorio vinculado a un único dispositivo: QZM-YYYYMMDD-DDDD-XXXXXX o QZA-YYYYMMDD-DDDD-XXXXXX
       const matchDev = clean.match(/^(QZM|QZA)-(\d{4})(\d{2})(\d{2})-([A-Z0-9]{4})-([A-Z0-9]{6})$/);
-      if (matchDev) {
-        const prefix = matchDev[1];
-        const yr = parseInt(matchDev[2], 10);
-        const mo = parseInt(matchDev[3], 10);
-        const da = parseInt(matchDev[4], 10);
-        const devCode = matchDev[5];
-        const sigProvided = matchDev[6];
-        const ymd = `${matchDev[2]}${matchDev[3]}${matchDev[4]}`;
-
-        const expectedSig = generateSignature(`SUB|${prefix}|${ymd}|${devCode}`, PROF_SECRET_SALT).slice(0, 6);
-        if (sigProvided !== expectedSig) {
-          return { valid: false, reason: 'invalid_sig' };
-        }
-
-        // Si la clave tiene un ID de dispositivo específico (distinto de 0000), verificar que coincida con ESTE aparato
-        if (devCode !== '0000' && devCode !== myDeviceId) {
-          return { valid: false, reason: 'wrong_device', boundDevice: devCode, myDeviceId };
-        }
-
-        const expTs = new Date(yr, mo - 1, da, 23, 59, 59, 999).getTime();
-        if (Date.now() > expTs) {
-          return { valid: false, reason: 'expired', expTs };
-        }
-
-        return {
-          valid: true,
-          planCode: prefix === 'QZA' ? '1A' : '1M',
-          expTs,
-          days: prefix === 'QZA' ? 365 : 30,
-          devCode
-        };
+      if (!matchDev) {
+        return { valid: false, reason: 'invalid' };
       }
 
-      // 2. Formato corto compatible: QZM-YYYYMMDD-NNXXXXXX
-      const matchLegacy = clean.match(/^(QZM|QZA)-(\d{4})(\d{2})(\d{2})-(\d{2})([A-Z0-9]{6})$/);
-      if (matchLegacy) {
-        const prefix = matchLegacy[1];
-        const yr = parseInt(matchLegacy[2], 10);
-        const mo = parseInt(matchLegacy[3], 10);
-        const da = parseInt(matchLegacy[4], 10);
-        const nonce = matchLegacy[5];
-        const sigProvided = matchLegacy[6];
-        const ymd = `${matchLegacy[2]}${matchLegacy[3]}${matchLegacy[4]}`;
+      const prefix = matchDev[1];
+      const yr = parseInt(matchDev[2], 10);
+      const mo = parseInt(matchDev[3], 10);
+      const da = parseInt(matchDev[4], 10);
+      const devCode = matchDev[5];
+      const sigProvided = matchDev[6];
+      const ymd = `${matchDev[2]}${matchDev[3]}${matchDev[4]}`;
 
-        const expectedSig = generateSignature(`SUB|${prefix}|${ymd}|${nonce}`, PROF_SECRET_SALT).slice(0, 6);
-        if (sigProvided !== expectedSig) {
-          return { valid: false, reason: 'invalid_sig' };
-        }
-
-        const expTs = new Date(yr, mo - 1, da, 23, 59, 59, 999).getTime();
-        if (Date.now() > expTs) {
-          return { valid: false, reason: 'expired', expTs };
-        }
-
-        return {
-          valid: true,
-          planCode: prefix === 'QZA' ? '1A' : '1M',
-          expTs,
-          days: prefix === 'QZA' ? 365 : 30
-        };
+      // Prohibir claves universales ('0000')
+      if (devCode === '0000') {
+        return { valid: false, reason: 'invalid' };
       }
 
-      // 3. Claves maestras del administrador (Edwin)
-      const annualMasterKeys = ['PRO-2026-GLOBAL', 'QUIMICA-PRO-2026', 'QUIMIQUIZ-PRO', 'EDWIN-PRO-2026', 'DEMO-PRO'];
-      if (annualMasterKeys.includes(clean)) {
-        return {
-          valid: true,
-          planCode: '1A',
-          expTs: Date.now() + 365 * 86400000,
-          days: 365
-        };
+      // Verificar firma criptográfica con la llave ofuscada
+      const expectedSig = generateSignature(`SUB|${prefix}|${ymd}|${devCode}`, _getK()).slice(0, 6);
+      if (sigProvided !== expectedSig) {
+        return { valid: false, reason: 'invalid_sig' };
       }
 
-      return { valid: false, reason: 'invalid' };
+      // Verificar que pertenezca exclusivamente a ESTE dispositivo
+      if (devCode !== myDeviceId) {
+        return { valid: false, reason: 'wrong_device', boundDevice: devCode, myDeviceId };
+      }
+
+      const expTs = new Date(yr, mo - 1, da, 23, 59, 59, 999).getTime();
+      if (Date.now() > expTs) {
+        return { valid: false, reason: 'expired', expTs };
+      }
+
+      return {
+        valid: true,
+        planCode: prefix === 'QZA' ? '1A' : '1M',
+        expTs,
+        days: prefix === 'QZA' ? 365 : 30,
+        devCode
+      };
     }
 
     function checkSubscriptionValidity() {
-      if (!isProLicenseActive) return false;
-      if (!proExpirationTimestamp || Date.now() > proExpirationTimestamp) {
-        // El tiempo pagado (1 mes o 1 año) ha expirado automáticamente
-        isProLicenseActive = false;
-        isTrialExhausted = true;
-        localStorage.removeItem('quimiquiz_pro_sub_v2');
-        localStorage.removeItem('quimiquiz_pro_exp_ts');
-        localStorage.setItem('quimiquiz_trial_exhausted_v2', 'true');
-        updateLicenseBadgeUI();
+      // Re-verificar criptográficamente la clave guardada en cada chequeo (impide modificar localStorage manualmente)
+      const storedKey = localStorage.getItem('quimiquiz_license_key') || '';
+      const check = verifySubscriptionKeyString(storedKey);
+      if (!check.valid) {
+        if (isProLicenseActive) {
+          isProLicenseActive = false;
+          isTrialExhausted = true;
+          localStorage.removeItem('quimiquiz_pro_sub_v2');
+          localStorage.removeItem('quimiquiz_pro_exp_ts');
+          localStorage.setItem('quimiquiz_trial_exhausted_v2', 'true');
+          updateLicenseBadgeUI();
+        }
         return false;
       }
+      isProLicenseActive = true;
+      proExpirationTimestamp = check.expTs;
+      proPlanType = check.planCode;
       return true;
-    }
-
-    function openSubscriptionKeygenModal() {
-      const modal = document.getElementById('subscription-keygen-modal');
-      if (modal) modal.classList.remove('hidden');
-      selectKeygenPlan(selectedKeygenPlan || '1M');
-      generateSubscriptionPassword();
-    }
-
-    function closeSubscriptionKeygenModal() {
-      const modal = document.getElementById('subscription-keygen-modal');
-      if (modal) modal.classList.add('hidden');
-    }
-
-    function selectKeygenPlan(plan) {
-      selectedKeygenPlan = plan === '1A' ? '1A' : '1M';
-      const btn1m = document.getElementById('keygen-btn-1m');
-      const btn1a = document.getElementById('keygen-btn-1a');
-      if (btn1m && btn1a) {
-        if (selectedKeygenPlan === '1M') {
-          btn1m.className = "p-3 rounded-2xl bg-amber-500/20 border-2 border-amber-400 text-left transition flex flex-col justify-between shadow-lg";
-          btn1a.className = "p-3 rounded-2xl bg-slate-950 border-2 border-slate-800 hover:border-amber-400/50 text-left transition flex flex-col justify-between";
-        } else {
-          btn1a.className = "p-3 rounded-2xl bg-amber-500/20 border-2 border-amber-400 text-left transition flex flex-col justify-between shadow-lg";
-          btn1m.className = "p-3 rounded-2xl bg-slate-950 border-2 border-slate-800 hover:border-amber-400/50 text-left transition flex flex-col justify-between";
-        }
-      }
-      generateSubscriptionPassword();
-    }
-
-    function generateSubscriptionPassword() {
-      const days = selectedKeygenPlan === '1A' ? 365 : 30;
-      const devInp = document.getElementById('keygen-device-id-input');
-      const targetDev = devInp ? devInp.value.trim().toUpperCase() : '';
-      const generated = createSignedSubscriptionKey(selectedKeygenPlan, days, targetDev);
-      const outInput = document.getElementById('keygen-output-code');
-      const expBadge = document.getElementById('keygen-exp-badge');
-      const expDetail = document.getElementById('keygen-exp-detail');
-      const isEn = typeof currentLang !== 'undefined' && currentLang === 'en';
-
-      if (outInput) outInput.value = generated.key;
-      if (expBadge) {
-        expBadge.textContent = selectedKeygenPlan === '1A'
-          ? (isEn ? '1 Year (365 days)' : '1 Año (365 días)')
-          : (isEn ? '1 Month (30 days)' : '1 Mes (30 días)');
-      }
-      if (expDetail) {
-        const expStr = formatReadableDate(generated.expDate.getTime());
-        const lockNote = generated.devCode !== '0000'
-          ? (isEn ? ` · 🔒 Locked ONLY to Device #${generated.devCode}` : ` · 🔒 Exclusiva para Dispositivo #${generated.devCode}`)
-          : (isEn ? ' · Tip: Enter client Device ID above to lock it to 1 device' : ' · Tip: Escribe arriba el ID del cliente para bloquearla a 1 solo equipo');
-        expDetail.textContent = (isEn ? `Valid until ${expStr}` : `Válida hasta el ${expStr}`) + lockNote;
-      }
-    }
-
-    function copyGeneratedSubKey(includeWhatsAppMessage = false) {
-      const outInput = document.getElementById('keygen-output-code');
-      const clientInput = document.getElementById('keygen-client-name');
-      const fb = document.getElementById('keygen-copy-feedback');
-      const key = outInput ? outInput.value : '';
-      if (!key) return;
-
-      const clientName = (clientInput ? clientInput.value : '').trim();
-      const isEn = typeof currentLang !== 'undefined' && currentLang === 'en';
-      const parsed = verifySubscriptionKeyString(key);
-      const expStr = parsed.expTs ? formatReadableDate(parsed.expTs) : '';
-      const planLabel = selectedKeygenPlan === '1A'
-        ? (isEn ? '1 Year (365 days)' : '1 Año (365 días)')
-        : (isEn ? '1 Month (30 days)' : '1 Mes (30 días)');
-
-      let textToCopy = key;
-      if (includeWhatsAppMessage) {
-        textToCopy = isEn
-          ? `Hello${clientName ? ' ' + clientName : ''}! Thank you for your payment. Here is your official QuimiQuiz Pro activation password (${planLabel}, valid until ${expStr}):\n\n🔑 ${key}\n\nOpen the app at https://ecog191166-code.github.io/tabla-periodica-game/ , click "Activate PRO" and paste your key.`
-          : `¡Hola${clientName ? ' ' + clientName : ''}! Gracias por tu pago. Aquí tienes tu contraseña oficial de activación de QuimiQuiz Pro (Plan ${planLabel}, válida hasta el ${expStr}):\n\n🔑 ${key}\n\nAbre la app en https://ecog191166-code.github.io/tabla-periodica-game/ , toca en "Activar PRO" y pega tu clave.`;
-      }
-
-      navigator.clipboard.writeText(textToCopy).catch(() => {});
-      if (fb) {
-        fb.textContent = includeWhatsAppMessage
-          ? (isEn ? '✅ Complete WhatsApp message copied!' : '✅ ¡Mensaje completo para WhatsApp copiado!')
-          : (isEn ? '✅ Subscription key copied!' : '✅ ¡Clave de suscripción copiada!');
-        fb.classList.remove('hidden');
-        setTimeout(() => fb.classList.add('hidden'), 2800);
-      }
     }
 
     function openLicenseModal(isLockedByTrial = false) {
@@ -1828,7 +1619,7 @@
       if (devDisp) devDisp.textContent = getOrCreateDeviceId();
       const banner = document.getElementById('trial-limit-reached-banner');
       if (banner) {
-        if (isLockedByTrial || isTrialExhausted || (!isProLicenseActive && currentItemIndex >= FREE_TRIAL_LIMIT)) {
+        if (isLockedByTrial || isTrialExhausted || (!checkSubscriptionValidity() && currentItemIndex >= FREE_TRIAL_LIMIT)) {
           banner.classList.remove('hidden');
         } else {
           banner.classList.add('hidden');
@@ -1862,6 +1653,7 @@
       }
 
       const isEn = typeof currentLang !== 'undefined' && currentLang === 'en';
+      const myDev = getOrCreateDeviceId();
       lockOverlay.innerHTML = `
         <div class="bg-slate-900 border-2 border-amber-500/70 rounded-3xl max-w-md w-full p-6 shadow-2xl text-center flex flex-col items-center gap-4">
           <div class="w-16 h-16 rounded-2xl bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-4xl shadow-lg">
@@ -1872,12 +1664,16 @@
           </h3>
           <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
             ${isEn
-              ? `You have completed the 10 free trial elements (Score so far: ${totalCorrect}/10). Activate your QuimiQuiz Pro subscription (1 Month or 1 Year) to continue from Item 11 to 50 and unlock all 118 Periodic Table elements.`
-              : `Has completado los 10 elementos de prueba gratuita (Aciertos: ${totalCorrect}/10). Activa tu suscripción de QuimiQuiz Pro (1 Mes o 1 Año) para continuar del ítem 11 al 50 y desbloquear los 118 elementos.`}
+              ? `You have completed the 10 free trial elements (Score: ${totalCorrect}/10). Send your Device ID (#${myDev}) with your payment to receive your personal activation password.`
+              : `Has completado los 10 elementos de prueba gratuita (Aciertos: ${totalCorrect}/10). Envía el ID de tu dispositivo (#${myDev}) junto con tu pago para recibir tu contraseña personal de activación.`}
           </p>
+          <div class="w-full bg-slate-950 border border-cyan-500/40 rounded-2xl px-4 py-2 flex items-center justify-between">
+            <span class="text-xs text-slate-400 font-bold">${isEn ? '📱 Your Device ID:' : '📱 ID de tu Dispositivo:'}</span>
+            <strong class="font-mono text-base font-black text-cyan-300 tracking-widest">#${myDev}</strong>
+          </div>
           <div class="w-full flex flex-col gap-2.5 pt-1">
             <button onclick="openLicenseModal(true)" class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-sm sm:text-base shadow-xl transition active:scale-95 flex items-center justify-center gap-2">
-              <span>💎</span> <span>${isEn ? 'Activate Paid Subscription Now' : 'Activar Versión de Paga / Suscripción'}</span>
+              <span>💎</span> <span>${isEn ? 'Enter Subscription Password' : 'Ingresar Contraseña de Suscripción'}</span>
             </button>
             <div class="grid grid-cols-2 gap-2">
               <button onclick="closeLicenseModal(); removeTrialPaywallOverlay(); handleTeacherTabClick();" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 font-bold text-xs transition active:scale-95 flex items-center justify-center gap-1.5">
@@ -1920,8 +1716,8 @@
               : `⚠️ Esta contraseña de suscripción venció el ${expStr}. Por favor renueva tu suscripción.`;
           } else {
             feedback.textContent = isEn
-              ? "❌ Invalid or altered subscription password. Please check your key."
-              : "❌ Contraseña de suscripción inválida o alterada. Verifica que esté bien escrita.";
+              ? "❌ Invalid or altered subscription password. Verify your Device ID key."
+              : "❌ Contraseña inválida o no vinculada a este dispositivo. Verifica tu clave.";
           }
           feedback.className = "text-[11px] font-semibold text-rose-400 mt-2";
           feedback.classList.remove('hidden');
@@ -1951,8 +1747,8 @@
 
       if (feedback) {
         feedback.textContent = isEn
-          ? `✅ Subscription activated (${planName})! Valid until ${expStr}.`
-          : `✅ ¡Suscripción activada (${planName})! Válida hasta el ${expStr}.`;
+          ? `✅ Subscription activated (${planName}) for Device #${check.devCode}! Valid until ${expStr}.`
+          : `✅ ¡Suscripción activada (${planName}) para el Dispositivo #${check.devCode}! Válida hasta el ${expStr}.`;
         feedback.className = "text-[11px] font-semibold text-emerald-400 mt-2";
         feedback.classList.remove('hidden');
       }
@@ -1963,8 +1759,8 @@
           generateCurrentItem();
         }
         alert(isEn
-          ? `Congratulations! Your QuimiQuiz Pro subscription (${planName}) is now active until ${expStr}.`
-          : `¡Felicitaciones! Tu suscripción de QuimiQuiz Pro (${planName}) ha quedado activa hasta el ${expStr}.`);
+          ? `Congratulations! Your QuimiQuiz Pro subscription (${planName}) is now active on this device until ${expStr}.`
+          : `¡Felicitaciones! Tu suscripción de QuimiQuiz Pro (${planName}) ha quedado activa en este equipo hasta el ${expStr}.`);
       }, 900);
     }
 
@@ -1977,14 +1773,15 @@
           ? (isEn ? 'Annual Plan (1 Year)' : 'Plan Anual (1 Año)')
           : (isEn ? 'Monthly Plan (1 Month)' : 'Plan Mensual (1 Mes)');
         const wantReset = confirm(isEn
-          ? `✅ Active Subscription: ${planName}\n📅 Valid until: ${expStr} (${daysLeft} days remaining)\n\nDo you want to lock the app again into 10-Element Free Trial mode (for testing/demo)?`
-          : `✅ Suscripción Activa: ${planName}\n📅 Válida hasta el: ${expStr} (${daysLeft} días restantes)\n\n¿Deseas volver a poner la app en Modo Prueba de 10 Elementos (para probar el bloqueo)?`);
+          ? `✅ Active Subscription: ${planName}\n📱 Bound to Device: #${getOrCreateDeviceId()}\n📅 Valid until: ${expStr} (${daysLeft} days remaining)\n\nDo you want to lock the app again into 10-Element Free Trial mode (for testing/demo)?`
+          : `✅ Suscripción Activa: ${planName}\n📱 Vinculada al Dispositivo: #${getOrCreateDeviceId()}\n📅 Válida hasta el: ${expStr} (${daysLeft} días restantes)\n\n¿Deseas volver a poner la app en Modo Prueba de 10 Elementos (para probar el bloqueo)?`);
         if (wantReset) {
           isProLicenseActive = false;
           isTrialExhausted = false;
           proExpirationTimestamp = 0;
           localStorage.removeItem('quimiquiz_pro_sub_v2');
           localStorage.removeItem('quimiquiz_pro_exp_ts');
+          localStorage.removeItem('quimiquiz_license_key');
           localStorage.removeItem('quimiquiz_trial_exhausted_v2');
           removeTrialPaywallOverlay();
           updateLicenseBadgeUI();
@@ -2003,9 +1800,9 @@
       if (badgeBtn) {
         badgeBtn.onclick = handleHeaderLicenseClick;
       }
-      if (isProLicenseActive && proExpirationTimestamp > Date.now()) {
+      if (checkSubscriptionValidity()) {
         const daysLeft = Math.max(1, Math.ceil((proExpirationTimestamp - Date.now()) / 86400000));
-        if (badgeTxt) badgeTxt.textContent = isEn ? `PRO (${daysLeft}d)` : `PRO (${daysLeft}d)`;
+        if (badgeTxt) badgeTxt.textContent = `PRO (${daysLeft}d)`;
         if (badgeBtn) {
           badgeBtn.title = (isEn ? 'Active until ' : 'Activa hasta el ') + formatReadableDate(proExpirationTimestamp);
           badgeBtn.className = "px-2.5 py-1 rounded-lg bg-emerald-600/30 border border-emerald-500 text-emerald-300 font-bold text-xs shadow-sm flex items-center gap-1 cursor-pointer";
@@ -2025,7 +1822,8 @@
       document.getElementById('cfg-school-name').value = teacherProfile.school;
       document.getElementById('cfg-teacher-name').value = teacherProfile.teacher;
       document.getElementById('cfg-subject-name').value = teacherProfile.subject;
-      document.getElementById('cfg-teacher-pin').value = teacherProfile.pin;
+      document.getElementById('cfg-teacher-pin').value = '';
+      document.getElementById('cfg-teacher-pin').placeholder = (typeof currentLang !== 'undefined' && currentLang === 'en') ? 'Write new secret PIN (leave blank to keep current)' : 'Escribe tu nuevo PIN secreto (dejar vacío para mantener el actual)';
       document.getElementById('cfg-sheets-url').value = teacherProfile.sheetsUrl;
       modal.classList.remove('hidden');
     }
@@ -3568,7 +3366,7 @@ Ha quedado registrado en el panel oficial del docente.`);
       const errorBox = document.getElementById('teacher-auth-error');
       const pin = (pinInput ? pinInput.value : '').trim();
 
-      if (TEACHER_PIN_CODES.includes(pin)) {
+      if (verifyTeacherPinHash(pin)) {
         isTeacherAuthenticated = true;
         closeTeacherAuthModal();
         activateTeacherTools();
@@ -6284,7 +6082,7 @@ Ha quedado registrado en el panel oficial del docente.`);
         if (aDesc) aDesc.textContent = isEn ? 'Unlimited full-year school access.' : 'Acceso ilimitado todo el año escolar.';
         if (aBtn) aBtn.textContent = isEn ? 'Subscribe $9.99' : 'Suscribir $9.99';
         if (kLabel) kLabel.textContent = isEn ? 'Already purchased your subscription? Enter your activation key:' : '¿Ya adquiriste tu suscripción? Ingresa tu clave de activación:';
-        if (kInput) kInput.placeholder = isEn ? 'E.g. PRO-2026-GLOBAL' : 'Ej. PRO-2026-GLOBAL';
+        if (kInput) kInput.placeholder = isEn ? 'E.g. QZM-20261124-XXXX-XXXXXX' : 'Ej. QZM-20261124-XXXX-XXXXXX';
         if (actBtn) actBtn.textContent = isEn ? 'Activate' : 'Activar';
         if (fNote) fNote.textContent = isEn ? 'Secure worldwide payments via PayPal and Visa/Mastercard.' : 'Pagos seguros procesados con PayPal y Tarjeta Visa/Mastercard a nivel mundial.';
       }
