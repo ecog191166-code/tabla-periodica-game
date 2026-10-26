@@ -611,6 +611,7 @@
         <table class="w-full min-w-[780px] text-left text-xs text-slate-300">
           <thead class="bg-slate-900 text-[10px] text-slate-300 uppercase tracking-wider sticky top-0 z-10 border-b border-slate-700">
             <tr>
+              <th class="p-2.5 text-center w-12 font-bold text-amber-300">N°</th>
               <th class="p-2.5 text-center">Fecha y Hora</th>
               <th class="p-2.5">Estudiante</th>
               <th class="p-2.5 text-center">Grado / Grupo</th>
@@ -4127,7 +4128,7 @@ Ha quedado registrado en el panel oficial del docente.`);
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-400">
+        tbody.innerHTML = `<tr><td colspan="12" class="p-6 text-center text-slate-400">
           <div class="flex flex-col items-center gap-3">
             <span class="italic text-slate-400">No hay alumnos registrados en la tabla todavía. Elige una opción para comenzar:</span>
             <div class="flex flex-wrap items-center justify-center gap-2">
@@ -4149,7 +4150,7 @@ Ha quedado registrado en el panel oficial del docente.`);
       const sorted = typeof sortStudentsByGroupAndLastName === 'function' ? sortStudentsByGroupAndLastName(filtered) : [...filtered];
       const groupCounters = {};
 
-      sorted.forEach(item => {
+      sorted.forEach((item, idx) => {
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800/50 transition";
         const isPending = item.status === 'PENDIENTE';
@@ -4175,6 +4176,7 @@ Ha quedado registrado en el panel oficial del docente.`);
         const safeGroupAttr = (item.group || 'S/G').replace(/'/g, "\\'");
 
         tr.innerHTML = `
+          <td class="p-2 text-center font-mono font-bold text-amber-300 text-xs">${idx + 1}</td>
           <td class="p-2 whitespace-nowrap text-slate-400 text-center">${item.datetime || '--'}</td>
           <td class="p-2 font-bold text-white whitespace-nowrap">${item.name}</td>
           <td class="p-2 text-cyan-300 whitespace-nowrap font-semibold text-center">${item.group || 'S/G'}</td>
@@ -4765,11 +4767,30 @@ Ha quedado registrado en el panel oficial del docente.`);
     }
 
     function clearTeacherDatabase() {
-      if (confirm("⚠️ ¿Estás seguro de que deseas VACIAR Y DEJAR EN CERO toda la lista de estudiantes?\n\nEsta acción borrará todas las evaluaciones actuales de la pantalla.")) {
-        saveStoredDatabase([]);
+      const isEn = typeof currentLang !== 'undefined' && currentLang === 'en';
+      const msg = isEn
+        ? "⚠️ Are you sure you want to RESET TEST RESULTS TO ZERO?\n\nThe student roster (names and groups) will be PRESERVED, and all grades will return to PENDING ready for a new evaluation."
+        : "⚠️ ¿Deseas VACIAR A CERO las notas y resultados de las pruebas?\n\nLa LISTA DE ESTUDIANTES (nombres y grupos) SE CONSERVARÁ intacta, y todas sus calificaciones volverán a estado 'PENDIENTE' para una nueva evaluación.";
+      if (confirm(msg)) {
+        const db = getStoredDatabase();
+        const resetDb = db.map(item => ({
+          datetime: '--',
+          name: item.name,
+          group: item.group || 'S/G',
+          correct: 0,
+          total: item.total || 10,
+          grade: '--',
+          status: 'PENDIENTE',
+          duration: '--',
+          switches: 0,
+          code: item.code && item.code.startsWith('#ROSTER-') ? item.code : `#ROSTER-${Math.random().toString(36).substring(2, 8).toUpperCase()}`
+        }));
+        saveStoredDatabase(resetDb);
         renderTeacherTable();
         renderDatabaseTable();
-        alert("✅ La lista se ha vaciado por completo. Total de estudiantes: 0.");
+        alert(isEn
+          ? `✅ All ${resetDb.length} students have been reset to ZERO (Pending). The roster was preserved.`
+          : `✅ Se han vaciado a CERO las calificaciones de los ${resetDb.length} estudiantes (estado Pendiente). La lista de alumnos se conservó intacta.`);
       }
     }
 
