@@ -302,7 +302,7 @@
               <label class="text-[10px] font-bold text-slate-400 block mb-0.5">Nombre y Apellido del Estudiante:</label>
               <input 
                 type="text" 
-                id="student-name-input" 
+                id="student-name-input" list="roster-students-datalist" 
                 placeholder="Ej. Juan Pérez" 
                 oninput="updateCertificateSecurity()"
                 class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-semibold"
@@ -312,7 +312,7 @@
               <label class="text-[10px] font-bold text-slate-400 block mb-0.5">Grupo / Grado:</label>
               <input 
                 type="text" 
-                id="student-group-input" 
+                id="student-group-input" list="roster-groups-datalist" 
                 placeholder="Ej. 10° A" 
                 oninput="updateCertificateSecurity()"
                 class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-semibold"
@@ -450,6 +450,10 @@
           </div>
         </div>
                 <div class="flex-shrink-0 flex flex-wrap items-center justify-center gap-2">
+          <button onclick="openClassRosterModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/60 text-white shadow-lg transition active:scale-95 flex items-center gap-2 font-black text-xs sm:text-sm">
+            <span class="text-base">👥</span>
+            <span id="btn-add-grade-roster-txt">Agregar Alumnos por Grado</span>
+          </button>
           <button onclick="openTeacherSettingsModal()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/50 hover:border-cyan-400 text-cyan-300 hover:text-white shadow transition active:scale-95 flex items-center gap-2 font-bold text-xs sm:text-sm">
             <span class="text-base">⚙️</span>
             <span>Configurar Escuela</span>
@@ -807,6 +811,68 @@
           </div>
           <span class="check-mark font-bold text-amber-400 hidden">✓</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Agregar Alumnos por Grado / Lista de Clase -->
+  <div id="class-roster-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border-2 border-emerald-500/50 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl relative text-left max-h-[92vh] overflow-y-auto">
+      <button onclick="closeClassRosterModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      <div class="flex items-center gap-3 mb-3 border-b border-slate-800 pb-3">
+        <div class="w-11 h-11 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-2xl">
+          👥
+        </div>
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-white" id="roster-modal-title">Agregar Alumnos de un Grado</h3>
+          <p class="text-[11px] text-slate-400" id="roster-modal-subtitle">Registra o pega la lista de estudiantes de un salón para evaluarlos y llevar su control</p>
+        </div>
+      </div>
+
+      <div class="space-y-3.5 text-xs">
+        <div>
+          <label class="block text-emerald-300 font-extrabold uppercase tracking-wide mb-1">1. 🏫 Grado / Grupo / Salón:</label>
+          <input
+            type="text"
+            id="roster-group-input"
+            placeholder="Ej. 10° Ciencias A / 11° B / 9° Grado"
+            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-bold placeholder-slate-500 focus:outline-none focus:border-emerald-400"
+          />
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-emerald-300 font-extrabold uppercase tracking-wide">2. 📋 Lista de Alumnos (Escribe o pega desde Excel/Word, uno por línea):</label>
+          </div>
+          <textarea
+            id="roster-students-textarea"
+            rows="7"
+            placeholder="Ejemplo:
+Juan Pérez
+María Rodríguez
+Carlos Mendoza
+Ana Victoria Gómez"
+            class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-400 font-medium leading-relaxed"
+          ></textarea>
+          <p class="text-[11px] text-slate-400 mt-1">
+            💡 Puedes copiar toda la columna de nombres de tu listado de Excel o Word y pegarla directamente aquí.
+          </p>
+        </div>
+
+        <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-3 space-y-1.5 text-[11px] text-slate-300">
+          <div class="font-bold text-cyan-300">🎯 ¿Cómo evaluar al grado una vez agregado?</div>
+          <div>• <strong>En el aula / laboratorio:</strong> Toca el botón <span class="px-1.5 py-0.5 rounded bg-blue-600 text-white font-bold text-[10px]">▶️ Evaluar</span> junto al nombre del alumno en la tabla para iniciar su prueba con sus datos ya listos.</div>
+          <div>• <strong>Desde sus celulares o casas:</strong> Comparte el enlace de la app; cuando el alumno envíe su código <code class="text-amber-300">#QZ-...</code> o sincronices con Google Sheets, su fila pasará de <span class="text-amber-300 font-bold">⏳ PENDIENTE</span> a su nota oficial automáticamente.</div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-1">
+          <button type="button" onclick="closeClassRosterModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition">
+            Cancelar
+          </button>
+          <button type="button" onclick="saveClassRosterStudents()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black shadow-lg transition active:scale-95 flex items-center gap-1.5">
+            <span>➕</span> <span>Agregar Grado al Panel</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -1734,6 +1800,19 @@
       localStorage.setItem('quimiquiz_pro_plan_type', proPlanType);
       localStorage.removeItem('quimiquiz_trial_exhausted_v2');
       localStorage.setItem('quimiquiz_license_key', key);
+      fetch('http://localhost:5050/api/suscripciones/registrar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fecha_activacion: new Date().toLocaleDateString('es-PA'),
+          cliente: 'Activación en App',
+          id_dispositivo: '#' + check.devCode,
+          plan: proPlanType === '1A' ? '1 Año (365 días)' : '1 Mes (30 días)',
+          fecha_vencimiento: formatReadableDate(proExpirationTimestamp),
+          clave_suscripcion: key,
+          estado: 'ACTIVA'
+        })
+      }).catch(() => {});
 
       removeTrialPaywallOverlay();
       updateLicenseBadgeUI();
@@ -3084,12 +3163,28 @@ Ha quedado registrado en el panel oficial del docente.`);
 
     function addRecordToDatabase(record, autoSync = true) {
       const db = getStoredDatabase();
+      const normName = (record.name || '').trim().toUpperCase();
+      const normGroup = (record.group || '').trim().toUpperCase();
+
+      // Si el alumno estaba en lista como PENDIENTE, actualizar su fila en lugar de duplicarlo
+      if (record.status !== 'PENDIENTE') {
+        const pendingIdx = db.findIndex(r =>
+          r.status === 'PENDIENTE' &&
+          (r.name || '').trim().toUpperCase() === normName &&
+          ((r.group || '').trim().toUpperCase() === normGroup || !normGroup || normGroup === 'S/G')
+        );
+        if (pendingIdx >= 0) {
+          db.splice(pendingIdx, 1);
+        }
+      }
+
       const exists = db.some(r => r.code && r.code === record.code);
       if (!exists) {
         db.push(record);
         saveStoredDatabase(db);
       }
-      if (autoSync) {
+      if (typeof updateStudentDatalists === 'function') updateStudentDatalists();
+      if (autoSync && record.status !== 'PENDIENTE') {
         sendRecordToCloud(record);
         sendRecordToLocalServer(record);
       }
@@ -3420,12 +3515,16 @@ Ha quedado registrado en el panel oficial del docente.`);
       }
 
       const totalStudents = db.length;
+      let evaluatedStudents = 0;
       let totalPctSum = 0;
       let passedCount = 0;
       let failedCount = 0;
       const groupsSet = new Set();
 
       db.forEach(item => {
+        if (item.group && item.group.trim()) groupsSet.add(item.group.trim());
+        if (item.status === 'PENDIENTE') return;
+        evaluatedStudents++;
         const c = item.correct || 0;
         const t = item.total || 50;
         const rawGrade = scale.calculate(c, t);
@@ -3434,13 +3533,12 @@ Ha quedado registrado en el panel oficial del docente.`);
         else failedCount++;
 
         totalPctSum += (c / t) * 100;
-        if (item.group && item.group.trim()) groupsSet.add(item.group.trim());
       });
 
-      // Calcular promedio según la escala del país seleccionado
+      // Calcular promedio según la escala del país seleccionado (solo alumnos ya evaluados)
       let avgGradeFormatted = "0.0";
-      if (totalStudents > 0) {
-        const avgPct = totalPctSum / totalStudents;
+      if (evaluatedStudents > 0) {
+        const avgPct = totalPctSum / evaluatedStudents;
         const avgCorrectApprox = Math.round((avgPct / 100) * 50);
         const avgRaw = scale.calculate(avgCorrectApprox, 50);
         avgGradeFormatted = scale.format(avgRaw);
@@ -3454,7 +3552,7 @@ Ha quedado registrado en el panel oficial del docente.`);
       if (kpiTotal) kpiTotal.textContent = totalStudents;
       const bottomCount = document.getElementById('bottom-student-count');
       if (bottomCount) bottomCount.textContent = totalStudents;
-      if (kpiAvg) kpiAvg.textContent = totalStudents > 0 ? avgGradeFormatted : "0.0";
+      if (kpiAvg) kpiAvg.textContent = evaluatedStudents > 0 ? avgGradeFormatted : "0.0";
       if (kpiPassed) kpiPassed.textContent = passedCount;
       if (kpiFailed) kpiFailed.textContent = failedCount;
 
@@ -3470,6 +3568,8 @@ Ha quedado registrado en el panel oficial del docente.`);
         });
       }
 
+      if (typeof updateStudentDatalists === 'function') updateStudentDatalists();
+
       if (!tbody) return;
       tbody.innerHTML = '';
 
@@ -3477,13 +3577,13 @@ Ha quedado registrado en el panel oficial del docente.`);
       const selectedGroup = groupFilter ? groupFilter.value : 'all';
 
       const filtered = db.filter(item => {
-        const matchesQuery = (item.name || '').toLowerCase().includes(query) || (item.code || '').toLowerCase().includes(query);
+        const matchesQuery = (item.name || '').toLowerCase().includes(query) || (item.code || '').toLowerCase().includes(query) || (item.group || '').toLowerCase().includes(query);
         const matchesGroup = selectedGroup === 'all' || (item.group || '').trim() === selectedGroup;
         return matchesQuery && matchesGroup;
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-500 italic">No hay evaluaciones registradas. El panel está en CERO.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-500 italic">No hay alumnos ni evaluaciones registradas en este filtro. Usa el botón "👥 Agregar Alumnos por Grado" para cargar tu salón.</td></tr>`;
         return;
       }
 
@@ -3492,29 +3592,40 @@ Ha quedado registrado en el panel oficial del docente.`);
       sorted.forEach(item => {
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-800/50 transition";
+        const isPending = item.status === 'PENDIENTE';
         const c = item.correct || 0;
         const t = item.total || 50;
 
-        // CÁLCULO DINÁMICO EN TIEMPO REAL SEGÚN EL PAÍS SELECCIONADO
-        const rawGrade = scale.calculate(c, t);
-        const gradeFormatted = scale.format(rawGrade);
-        const isPass = scale.isPass(rawGrade);
+        let gradeFormatted = '--';
+        let isPass = false;
+        let statusBadge = '';
 
-        const statusBadge = isPass 
-          ? `<span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-500/40 font-bold">APROBADO</span>`
-          : `<span class="px-1.5 py-0.5 rounded bg-rose-950 text-rose-400 border border-rose-500/40 font-bold">REPROBADO</span>`;
+        if (isPending) {
+          statusBadge = `<span class="px-2 py-0.5 rounded bg-amber-950/90 text-amber-300 border border-amber-500/40 font-bold">⏳ PENDIENTE</span>`;
+        } else {
+          const rawGrade = scale.calculate(c, t);
+          gradeFormatted = scale.format(rawGrade);
+          isPass = scale.isPass(rawGrade);
+          statusBadge = isPass
+            ? `<span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-500/40 font-bold">APROBADO</span>`
+            : `<span class="px-1.5 py-0.5 rounded bg-rose-950 text-rose-400 border border-rose-500/40 font-bold">REPROBADO</span>`;
+        }
+
+        const safeNameAttr = (item.name || '').replace(/'/g, "\\'");
+        const safeGroupAttr = (item.group || 'S/G').replace(/'/g, "\\'");
 
         tr.innerHTML = `
           <td class="p-2 whitespace-nowrap text-slate-400">${item.datetime || '--'}</td>
           <td class="p-2 font-bold text-white whitespace-nowrap">${item.name}</td>
-          <td class="p-2 text-cyan-300 whitespace-nowrap">${item.group || 'S/G'}</td>
-          <td class="p-2 text-center font-mono font-semibold">${c}/${t}</td>
-          <td class="p-2 text-center font-black ${isPass ? 'text-emerald-400' : 'text-rose-400'} text-xs">${gradeFormatted}</td>
-          <td class="p-2 text-center font-mono ${item.switches > 0 ? 'text-rose-400 font-bold' : 'text-slate-400'}">${item.switches || 0}</td>
-          <td class="p-2 text-center font-mono text-[10px] text-amber-300 select-all cursor-pointer" title="Clic para copiar código" onclick="navigator.clipboard.writeText('${item.code}')">${item.code || '--'}</td>
+          <td class="p-2 text-cyan-300 whitespace-nowrap font-semibold">${item.group || 'S/G'}</td>
+          <td class="p-2 text-center font-mono font-semibold">${isPending ? '--' : (c + '/' + t)}</td>
+          <td class="p-2 text-center font-black ${isPending ? 'text-slate-500' : (isPass ? 'text-emerald-400' : 'text-rose-400')} text-xs">${gradeFormatted}</td>
+          <td class="p-2 text-center font-mono ${item.switches > 0 ? 'text-rose-400 font-bold' : 'text-slate-400'}">${isPending ? '--' : (item.switches || 0)}</td>
+          <td class="p-2 text-center font-mono text-[10px] text-amber-300 select-all cursor-pointer" title="Clic para copiar código" onclick="navigator.clipboard.writeText('${item.code}')">${isPending ? 'En espera' : (item.code || '--')}</td>
           <td class="p-2 text-center">${statusBadge}</td>
           <td class="p-2 text-center whitespace-nowrap">
             <div class="flex items-center justify-center gap-1.5">
+              <button onclick="startEvaluationForStudent('${safeNameAttr}', '${safeGroupAttr}')" title="Evaluar a este alumno ahora en este equipo" class="px-2 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px] transition shadow flex items-center gap-1">▶️ Evaluar</button>
               <button onclick="editStudentRecord('${item.code}')" title="Editar este estudiante" class="p-1 px-1.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs transition border border-slate-700">✏️</button>
               <button onclick="deleteRecord('${item.code}')" title="Eliminar este estudiante" class="p-1 px-1.5 rounded bg-rose-950/80 hover:bg-rose-900 text-rose-300 text-xs transition border border-rose-500/30">🗑️</button>
             </div>
@@ -3522,6 +3633,128 @@ Ha quedado registrado en el panel oficial del docente.`);
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    function openClassRosterModal() {
+      const modal = document.getElementById('class-roster-modal');
+      if (modal) modal.classList.remove('hidden');
+      const grpInp = document.getElementById('roster-group-input');
+      if (grpInp) setTimeout(() => grpInp.focus(), 100);
+    }
+
+    function closeClassRosterModal() {
+      const modal = document.getElementById('class-roster-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function saveClassRosterStudents() {
+      const grpInp = document.getElementById('roster-group-input');
+      const txtArea = document.getElementById('roster-students-textarea');
+      const groupName = (grpInp ? grpInp.value : '').trim().toUpperCase();
+      const rawLines = (txtArea ? txtArea.value : '').split(/\r?\n/);
+
+      if (!groupName) {
+        alert('Por favor escribe el nombre del Grado o Grupo (ej. 10° Ciencias A).');
+        if (grpInp) grpInp.focus();
+        return;
+      }
+
+      const names = rawLines
+        .map(line => line.replace(/^\s*\d+[\.\)\-\s]+/, '').trim().toUpperCase())
+        .filter(line => line.length >= 2);
+
+      if (names.length === 0) {
+        alert('Por favor escribe o pega al menos el nombre de un estudiante (uno por línea).');
+        if (txtArea) txtArea.focus();
+        return;
+      }
+
+      const db = getStoredDatabase();
+      let addedCount = 0;
+      const backendStudents = [];
+
+      names.forEach((studentName, idx) => {
+        const alreadyExists = db.some(r =>
+          (r.name || '').trim().toUpperCase() === studentName &&
+          (r.group || '').trim().toUpperCase() === groupName
+        );
+        if (!alreadyExists) {
+          const pendingCode = 'PEND-' + Date.now().toString(36).toUpperCase() + '-' + idx;
+          db.push({
+            datetime: 'En lista',
+            name: studentName,
+            group: groupName,
+            correct: 0,
+            total: 50,
+            grade: '--',
+            status: 'PENDIENTE',
+            duration: '--',
+            switches: 0,
+            code: pendingCode
+          });
+          backendStudents.push({ nombre: studentName, grupo: groupName });
+          addedCount++;
+        }
+      });
+
+      saveStoredDatabase(db);
+      updateStudentDatalists();
+
+      // Sincronizar también con el backend Python (estudiantes.json) si está activo
+      if (backendStudents.length > 0) {
+        fetch('http://localhost:5050/api/estudiantes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ estudiantes: backendStudents })
+        }).catch(() => {});
+      }
+
+      if (txtArea) txtArea.value = '';
+      closeClassRosterModal();
+
+      // Filtrar automáticamente por el grado recién agregado para que el docente lo vea de inmediato
+      renderTeacherTable();
+      const groupFilter = document.getElementById('teacher-group-filter');
+      if (groupFilter) {
+        groupFilter.value = groupName;
+        renderTeacherTable();
+      }
+      renderDatabaseTable();
+
+      alert(`✅ ¡Grado "${groupName}" registrado con éxito!\n\nSe agregaron ${addedCount} estudiante(s) a la lista de evaluación.\n\n• Puedes tocar "▶️ Evaluar" junto a cualquier alumno para iniciar su prueba en este equipo, o compartirles el enlace web para que envíen su código #QZ-...`);
+    }
+
+    function startEvaluationForStudent(studentName, studentGroup) {
+      const nameInp = document.getElementById('student-name-input');
+      const groupInp = document.getElementById('student-group-input');
+      if (nameInp) nameInp.value = studentName || '';
+      if (groupInp) groupInp.value = studentGroup || '';
+      try {
+        sessionStorage.setItem('quimiquiz_active_student_name', studentName || '');
+        sessionStorage.setItem('quimiquiz_active_student_group', studentGroup || '');
+      } catch (e) {}
+
+      switchTab('play');
+      restartFullExam();
+      if (nameInp) nameInp.value = studentName || '';
+      if (groupInp) groupInp.value = studentGroup || '';
+    }
+
+    function updateStudentDatalists() {
+      const db = getStoredDatabase();
+      const sList = document.getElementById('roster-students-datalist');
+      const gList = document.getElementById('roster-groups-datalist');
+      if (!sList || !gList) return;
+
+      const names = new Set();
+      const groups = new Set();
+      db.forEach(item => {
+        if (item.name) names.add(item.name);
+        if (item.group && item.group !== 'S/G') groups.add(item.group);
+      });
+
+      sList.innerHTML = Array.from(names).map(n => `<option value="${n}"></option>`).join('');
+      gList.innerHTML = Array.from(groups).map(g => `<option value="${g}"></option>`).join('');
     }
 
     function editStudentRecord(code) {
@@ -6639,5 +6872,7 @@ Ha quedado registrado en el panel oficial del docente.`);
       initApp();
     }
   </script>
+  <datalist id="roster-students-datalist"></datalist>
+  <datalist id="roster-groups-datalist"></datalist>
 </body>
 </html>
