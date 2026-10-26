@@ -636,6 +636,7 @@
               <th class="p-2.5 text-center">Grado / Grupo</th>
               <th class="p-2.5 text-center" id="teacher-grade-header">Evaluación</th>
               <th class="p-2.5 text-center">Puntos (Ej. 8/10)</th>
+              <th class="p-2.5 text-center" title="Salidas o cambios de pestaña durante la prueba">Salidas de Página</th>
               <th class="p-2.5 text-center">Código</th>
               <th class="p-2.5 text-center">Estado</th>
               <th class="p-2.5 text-center bg-blue-950/80 text-cyan-300 font-black">▶️ Evaluar</th>
@@ -4146,7 +4147,7 @@ Ha quedado registrado en el panel oficial del docente.`);
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="p-6 text-center text-slate-400">
+        tbody.innerHTML = `<tr><td colspan="11" class="p-6 text-center text-slate-400">
           <div class="flex flex-col items-center gap-3">
             <span class="italic text-slate-400">No hay alumnos registrados en la tabla todavía. Elige una opción para comenzar:</span>
             <div class="flex flex-wrap items-center justify-center gap-2">
@@ -4199,6 +4200,7 @@ Ha quedado registrado en el panel oficial del docente.`);
           <td class="p-2 text-cyan-300 whitespace-nowrap font-semibold text-center">${item.group || 'S/G'}</td>
           <td class="p-2 text-center font-black ${isPending ? 'text-slate-500' : (isPass ? 'text-emerald-400' : 'text-rose-400')} text-xs sm:text-sm">${gradeFormatted}</td>
           <td class="p-2 text-center font-mono font-semibold">${isPending ? '--' : (c + '/' + t)}</td>
+          <td class="p-2 text-center font-mono ${item.switches > 0 ? 'text-rose-400 font-black' : 'text-slate-400'}" title="${item.switches || 0} salidas de página detectadas">${isPending ? '--' : (item.switches || 0)}</td>
           <td class="p-2 text-center font-mono text-[10px] text-amber-300 select-all cursor-pointer" title="Clic para copiar código" onclick="navigator.clipboard.writeText('${item.code}')">${isPending ? 'En espera' : (item.code || '--')}</td>
           <td class="p-2 text-center">${statusBadge}</td>
           <td class="p-2 text-center whitespace-nowrap">
