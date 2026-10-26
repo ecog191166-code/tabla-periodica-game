@@ -454,6 +454,14 @@
             <span class="text-base">👥</span>
             <span id="btn-add-grade-roster-txt">Agregar Alumnos por Grado</span>
           </button>
+          <button onclick="openQuickEvaluateModal()" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 border border-blue-400/60 text-white shadow-lg transition active:scale-95 flex items-center gap-2 font-black text-xs sm:text-sm">
+            <span class="text-base">▶️</span>
+            <span id="btn-quick-eval-student-txt">Evaluar Alumno</span>
+          </button>
+          <button onclick="copyStudentCloudLink()" class="px-3.5 py-2 rounded-xl bg-cyan-700 hover:bg-cyan-600 border border-cyan-400/60 text-white shadow-lg transition active:scale-95 flex items-center gap-2 font-black text-xs sm:text-sm" title="Copia el enlace web conectado a tu Google Sheets para enviarlo por WhatsApp a tus alumnos">
+            <span class="text-base">🔗</span>
+            <span id="btn-copy-cloud-link-txt">Enlace Alumnos (Nube)</span>
+          </button>
           <button onclick="openTeacherSettingsModal()" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/50 hover:border-cyan-400 text-cyan-300 hover:text-white shadow transition active:scale-95 flex items-center gap-2 font-bold text-xs sm:text-sm">
             <span class="text-base">⚙️</span>
             <span>Configurar Escuela</span>
@@ -509,7 +517,7 @@
       </div>
 
       <!-- Tabla de Estudiantes -->
-      <div class="border border-slate-800 rounded-2xl bg-slate-950/70 overflow-hidden max-h-[360px] overflow-y-auto shadow-inner">
+      <div class="border border-slate-800 rounded-2xl bg-slate-950/70 overflow-x-auto max-h-[360px] overflow-y-auto shadow-inner">
         <table class="w-full text-left text-xs text-slate-300">
           <thead class="bg-slate-900 text-[10px] text-slate-400 uppercase tracking-wider sticky top-0 border-b border-slate-800">
             <tr>
@@ -815,6 +823,63 @@
     </div>
   </div>
 
+  <!-- Modal Evaluar Alumno (Selección Rápida por Grado o Individual) -->
+  <div id="quick-evaluate-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-slate-900 border-2 border-blue-500/60 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl relative text-left max-h-[92vh] overflow-y-auto">
+      <button onclick="closeQuickEvaluateModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+      <div class="flex items-center gap-3 mb-3 border-b border-slate-800 pb-3">
+        <div class="w-11 h-11 rounded-2xl bg-blue-500/20 border border-blue-500/40 flex items-center justify-center text-2xl">
+          ▶️
+        </div>
+        <div>
+          <h3 class="text-base sm:text-lg font-black text-white">Evaluar Alumno Ahora</h3>
+          <p class="text-[11px] text-slate-400">Selecciona un alumno de tu lista de grado o escribe su nombre para iniciar su prueba de 50 ítems</p>
+        </div>
+      </div>
+
+      <div class="space-y-4 text-xs">
+        <!-- Sección 1: Seleccionar de la lista de grados cargados -->
+        <div id="quick-eval-roster-section" class="bg-slate-950 border border-slate-800 rounded-2xl p-3.5 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="font-extrabold text-cyan-300 uppercase tracking-wide">1. 📋 Seleccionar Alumno de un Grado:</span>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="loadOfficialEdwinGroups(); renderQuickEvaluateStudentsList();" class="px-2.5 py-1 rounded-lg bg-cyan-600/25 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/40 font-bold text-[11px] transition">
+                📥 Cargar Grupo 1 y 2
+              </button>
+              <button type="button" onclick="closeQuickEvaluateModal(); openClassRosterModal();" class="px-2.5 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold text-[11px] transition">
+                + Nuevo Grado
+              </button>
+            </div>
+          </div>
+          <select id="quick-eval-group-select" onchange="renderQuickEvaluateStudentsList()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold focus:outline-none focus:border-blue-400">
+            <option value="all">Todos los Grados Registrados</option>
+          </select>
+          <div id="quick-eval-students-list" class="max-h-44 overflow-y-auto divide-y divide-slate-800/70 border border-slate-800 rounded-xl bg-slate-900/60">
+            <!-- Lista dinámica de alumnos con botón ▶️ Evaluar -->
+          </div>
+        </div>
+
+        <!-- Sección 2: Escribir o confirmar alumno manualmente -->
+        <div class="bg-slate-950 border border-blue-500/30 rounded-2xl p-3.5 space-y-3">
+          <span class="font-extrabold text-blue-300 uppercase tracking-wide block">2. ✍️ O Escribe el Nombre del Alumno a Evaluar:</span>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div class="sm:col-span-2">
+              <label class="block text-slate-400 font-semibold mb-1 text-[11px]">Nombre y Apellido del Estudiante:</label>
+              <input type="text" id="quick-eval-name-input" placeholder="Ej. Juan Pérez" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold placeholder-slate-500 focus:outline-none focus:border-blue-400" />
+            </div>
+            <div>
+              <label class="block text-slate-400 font-semibold mb-1 text-[11px]">Grado / Grupo:</label>
+              <input type="text" id="quick-eval-group-input" placeholder="Ej. 10° A" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-cyan-300 font-bold placeholder-slate-500 focus:outline-none focus:border-blue-400" />
+            </div>
+          </div>
+          <button type="button" onclick="launchQuickEvaluationFromInputs()" class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-black text-xs sm:text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2">
+            <span>▶️</span> <span>Iniciar Evaluación de 50 Ítems para este Alumno</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Agregar Alumnos por Grado / Lista de Clase -->
   <div id="class-roster-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
     <div class="bg-slate-900 border-2 border-emerald-500/50 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl relative text-left max-h-[92vh] overflow-y-auto">
@@ -865,13 +930,18 @@ Ana Victoria Gómez"
           <div>• <strong>Desde sus celulares o casas:</strong> Comparte el enlace de la app; cuando el alumno envíe su código <code class="text-amber-300">#QZ-...</code> o sincronices con Google Sheets, su fila pasará de <span class="text-amber-300 font-bold">⏳ PENDIENTE</span> a su nota oficial automáticamente.</div>
         </div>
 
-        <div class="flex items-center justify-end gap-2 pt-1">
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+          <button type="button" onclick="loadOfficialEdwinGroups()" class="px-3.5 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-600 text-white font-black text-xs shadow transition active:scale-95 flex items-center gap-1.5">
+            <span>📥</span> <span>Cargar Grupo 1 y Grupo 2 (35 Alumnos)</span>
+          </button>
+          <div class="flex items-center gap-2">
           <button type="button" onclick="closeClassRosterModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition">
             Cancelar
           </button>
           <button type="button" onclick="saveClassRosterStudents()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black shadow-lg transition active:scale-95 flex items-center gap-1.5">
             <span>➕</span> <span>Agregar Grado al Panel</span>
           </button>
+          </div>
         </div>
       </div>
     </div>
@@ -906,10 +976,23 @@ Ana Victoria Gómez"
           <label class="block text-slate-300 font-semibold mb-1">Tu PIN de Acceso al Panel Docente:</label>
           <input type="text" id="cfg-teacher-pin" placeholder="PIN de 4 números (ej. 2026)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-mono tracking-widest text-center" />
         </div>
-        <div>
-          <label class="block text-slate-300 font-semibold mb-1">Tu URL de Google Sheets (Opcional):</label>
-          <input type="text" id="cfg-sheets-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-cyan-300 placeholder-slate-600 focus:outline-none focus:border-cyan-500 font-mono text-[11px]" />
-          <p class="text-[10px] text-slate-500 mt-1">Si conectas tu Google Sheet, las notas de tus alumnos caerán directo a tu Google Drive personal.</p>
+                <div class="bg-slate-950 border border-cyan-500/40 rounded-2xl p-3 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <label class="text-cyan-300 font-extrabold uppercase tracking-wide text-[11px]">☁️ Opción C: Conexión con Google Sheets (En la Nube)</label>
+            <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold text-[10px]">🟢 Activa</span>
+          </div>
+          <input type="text" id="cfg-sheets-url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-cyan-300 placeholder-slate-600 focus:outline-none focus:border-cyan-400 font-mono text-[11px]" />
+          <div class="flex flex-wrap items-center justify-between gap-1.5 pt-1">
+            <button type="button" onclick="copyStudentCloudLink()" class="px-2.5 py-1.5 rounded-lg bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-200 border border-cyan-500/40 font-bold text-[10px] transition">
+              🔗 Copiar Enlace para Alumnos
+            </button>
+            <button type="button" onclick="copyGoogleAppsScriptTemplate()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 font-bold text-[10px] transition">
+              📋 Copiar Código Apps Script (Nueva Hoja)
+            </button>
+          </div>
+          <p class="text-[10px] text-slate-400 leading-relaxed">
+            ✅ Tu hoja de Google Sheets ya está conectada. Cuando tus alumnos terminen su examen y toquen <strong>"Enviar mi Código Oficial"</strong>, tú solo presionas <strong>"☁️ Sincronizar Google"</strong> en el Panel Docente y todas las notas bajarán solas.
+          </p>
         </div>
 
         <button type="button" id="btn-save-cfg" onclick="saveTeacherSettings()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition active:scale-95 shadow mt-2 flex items-center justify-center gap-1.5">
@@ -1475,7 +1558,7 @@ Ana Victoria Gómez"
       teacher: localStorage.getItem('quimiquiz_teacher') || 'Profesor(a) de Ciencias',
       subject: localStorage.getItem('quimiquiz_subject') || 'Química General',
       pinHash: localStorage.getItem('quimiquiz_pin_hash') || '7B169CAF',
-      sheetsUrl: localStorage.getItem('quimiquiz_sheets_url') || ''
+      sheetsUrl: localStorage.getItem('quimiquiz_sheets_url') || 'https://script.google.com/macros/s/AKfycbzBFEJPYqwO1L1KaRmq74hFccQnGqvAWgWUFylvuR8XpPrsucGJj-cGlA1bgGFl8pHZ/exec'
     };
 
     const _S_ARR = [11,0,5,10,8,21,5,12,99,5,31,30,13,19,20,5,21,8,14,19,0,5,99,99,110,98,104,109,107,108,5,9,31,25];
@@ -1486,7 +1569,15 @@ Ana Victoria Gómez"
       const h = generateSignature("TPIN|" + clean, _getK());
       return h === (teacherProfile.pinHash || "7B169CAF") || h === "7B169CAF";
     }
-    let CLOUD_SHEETS_URL = teacherProfile.sheetsUrl || "";
+    const urlParamsInit = new URLSearchParams(window.location.search);
+    if (urlParamsInit.get('sheets')) {
+      teacherProfile.sheetsUrl = urlParamsInit.get('sheets');
+      try { localStorage.setItem('quimiquiz_sheets_url', teacherProfile.sheetsUrl); } catch (e) {}
+    }
+    if (urlParamsInit.get('group')) {
+      try { sessionStorage.setItem('quimiquiz_active_student_group', urlParamsInit.get('group')); } catch (e) {}
+    }
+    let CLOUD_SHEETS_URL = teacherProfile.sheetsUrl || "https://script.google.com/macros/s/AKfycbzBFEJPYqwO1L1KaRmq74hFccQnGqvAWgWUFylvuR8XpPrsucGJj-cGlA1bgGFl8pHZ/exec";
     let isTeacherAuthenticated = false;
 
     function getActiveScale() {
@@ -1931,7 +2022,7 @@ Ana Victoria Gómez"
         teacherProfile.teacher = teacherVal || 'Profesor(a) de Ciencias';
         teacherProfile.subject = subjectVal || 'Química General';
         teacherProfile.pin = pinVal || '1234';
-        teacherProfile.sheetsUrl = sheetsVal;
+        teacherProfile.sheetsUrl = sheetsVal || 'https://script.google.com/macros/s/AKfycbzBFEJPYqwO1L1KaRmq74hFccQnGqvAWgWUFylvuR8XpPrsucGJj-cGlA1bgGFl8pHZ/exec';
 
         localStorage.setItem('quimiquiz_school', teacherProfile.school);
         localStorage.setItem('quimiquiz_teacher', teacherProfile.teacher);
@@ -3144,7 +3235,14 @@ Ha quedado registrado en el panel oficial del docente.`);
 
         tr.innerHTML = `
           <td class="p-2 whitespace-nowrap text-slate-400">${item.datetime || '--'}</td>
-          <td class="p-2 font-bold text-white whitespace-nowrap">${item.name}</td>
+          <td class="p-2 font-bold text-white whitespace-nowrap">
+            <div class="flex items-center justify-between gap-2">
+              <span>${item.name}</span>
+              <button onclick="startEvaluationForStudent('${safeNameAttr}', '${safeGroupAttr}')" title="Iniciar prueba para este alumno" class="px-2 py-0.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-black text-[10px] transition shadow flex items-center gap-1 flex-shrink-0">
+                <span>▶️</span> <span>Evaluar</span>
+              </button>
+            </div>
+          </td>
           <td class="p-2 text-cyan-300">${item.group || 'S/G'}</td>
           <td class="p-2 text-center font-mono">${item.correct}/${item.total || 50}</td>
           <td class="p-2 text-center font-black ${isPass ? 'text-emerald-400' : 'text-rose-400'} text-xs">${item.grade}</td>
@@ -3583,7 +3681,22 @@ Ha quedado registrado en el panel oficial del docente.`);
       });
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-500 italic">No hay alumnos ni evaluaciones registradas en este filtro. Usa el botón "👥 Agregar Alumnos por Grado" para cargar tu salón.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="p-6 text-center text-slate-400">
+          <div class="flex flex-col items-center gap-3">
+            <span class="italic text-slate-400">No hay alumnos registrados en la tabla todavía. Elige una opción para comenzar:</span>
+            <div class="flex flex-wrap items-center justify-center gap-2">
+              <button onclick="loadOfficialEdwinGroups()" class="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs shadow transition flex items-center gap-1.5">
+                <span>📥</span> <span>Cargar Grupo 1 y Grupo 2 (35 Alumnos)</span>
+              </button>
+              <button onclick="openClassRosterModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow transition flex items-center gap-1.5">
+                <span>👥</span> <span>Agregar Otro Grado</span>
+              </button>
+              <button onclick="openQuickEvaluateModal()" class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs shadow transition flex items-center gap-1.5">
+                <span>▶️</span> <span>Evaluar a un Alumno Ahora</span>
+              </button>
+            </div>
+          </div>
+        </td></tr>`;
         return;
       }
 
@@ -3722,6 +3835,172 @@ Ha quedado registrado en el panel oficial del docente.`);
       renderDatabaseTable();
 
       alert(`✅ ¡Grado "${groupName}" registrado con éxito!\n\nSe agregaron ${addedCount} estudiante(s) a la lista de evaluación.\n\n• Puedes tocar "▶️ Evaluar" junto a cualquier alumno para iniciar su prueba en este equipo, o compartirles el enlace web para que envíen su código #QZ-...`);
+    }
+
+    const OFFICIAL_EDWIN_ROSTER = [{"group":"Grupo 1","name":"SUSAN HADASSA ARAUZ CHEN"},{"group":"Grupo 1","name":"JOSEPH AMETH CABALLERO DEL CID"},{"group":"Grupo 1","name":"DIDIER SAMIR CASTILLO SAMUDIO"},{"group":"Grupo 1","name":"CALEB AARON CASTRELLON SERRANO"},{"group":"Grupo 1","name":"VEGA AMELIE FLORES CARRILLO"},{"group":"Grupo 1","name":"ADJANI NICOL GONZALEZ MONTHIER"},{"group":"Grupo 1","name":"RACHELL ANETH GONZALEZ QUINTERO"},{"group":"Grupo 1","name":"DARIELYS IBETH GONZALEZ RIOS"},{"group":"Grupo 1","name":"NATALIA ALEXANDRA LIZONDRO GUERRA"},{"group":"Grupo 1","name":"DANIEL ARTURO MIRANDA VELASQUEZ"},{"group":"Grupo 1","name":"LUIS FELIPE PITTI"},{"group":"Grupo 1","name":"KIANI TATYANA POLANCO LOPEZ"},{"group":"Grupo 1","name":"ANDRES ALEJANDRO SANCHEZ"},{"group":"Grupo 1","name":"HIDAY JOSABIA SERRACIN SERRANO"},{"group":"Grupo 1","name":"ANA SOFÍA VELASQUEZ SANTANDER"},{"group":"Grupo 1","name":"GABRIEL STEPHEN VILLARREAL AGUIRRE"},{"group":"Grupo 1","name":"DIEGO ALEJANDRO VEJERANO ROVIRA"},{"group":"Grupo 1","name":"WALTER DANIEL WILLIAMS ESTRIBI"},{"group":"Grupo 2","name":"JUAN JOSE ATENCIO"},{"group":"Grupo 2","name":"ANA GABRIELA CABALLERO VELASQUEZ"},{"group":"Grupo 2","name":"ALAN ENRIQUE GIRON SANTOS"},{"group":"Grupo 2","name":"JUAN SEBASTIAN GUERRA"},{"group":"Grupo 2","name":"RICARDO ANDRÉ LAY QUIEL"},{"group":"Grupo 2","name":"SARAH CRISTINE LAWS GUTIERREZ"},{"group":"Grupo 2","name":"SOLANGEL REBECA MENDEZ RIOS"},{"group":"Grupo 2","name":"DANNA YINETH MORALES"},{"group":"Grupo 2","name":"KENNETH XAVIER MORENO GONZALEZ"},{"group":"Grupo 2","name":"FARID YUSSEF NADER DUARTE"},{"group":"Grupo 2","name":"ASHLEY JORDANA RIVERA YANGUEZ"},{"group":"Grupo 2","name":"RUTH LISBETH RODRIGUEZ MENDOZA"},{"group":"Grupo 2","name":"LAYLA ESTHER ROJAS FUENTES"},{"group":"Grupo 2","name":"JULIETTE ELENA SANTAMARIA PITTI"},{"group":"Grupo 2","name":"ALEJANDRA SOFIA VEGA PITTI"},{"group":"Grupo 2","name":"MIGUEL DAVID ZAPATA BARRERA"},{"group":"Grupo 2","name":"FELIX DAVID ZURDO ABREGO"}];
+
+    function loadOfficialEdwinGroups() {
+      const db = getStoredDatabase();
+      let added = 0;
+      OFFICIAL_EDWIN_ROSTER.forEach((st, idx) => {
+        const exists = db.some(r =>
+          (r.name || '').trim().toUpperCase() === st.name &&
+          (r.group || '').trim().toUpperCase() === st.group.toUpperCase()
+        );
+        if (!exists) {
+          db.push({
+            datetime: 'En lista',
+            name: st.name,
+            group: st.group.toUpperCase(),
+            correct: 0,
+            total: 50,
+            grade: '--',
+            status: 'PENDIENTE',
+            duration: '--',
+            switches: 0,
+            code: 'PEND-G-' + idx + '-' + Date.now().toString(36).toUpperCase()
+          });
+          added++;
+        }
+      });
+      saveStoredDatabase(db);
+      closeClassRosterModal();
+      renderTeacherTable();
+      renderDatabaseTable();
+      alert(added > 0
+        ? '✅ Se cargaron los ' + added + ' estudiantes de Grupo 1 y Grupo 2 en tu tabla.\n\nAhora verás el botón azul "▶️ Evaluar" al lado de cada estudiante.'
+        : 'ℹ️ Los estudiantes de Grupo 1 y Grupo 2 ya están cargados en tu tabla.');
+    }
+
+    function copyStudentCloudLink() {
+      const baseUrl = 'https://ecog191166-code.github.io/tabla-periodica-game/';
+      const groupFilter = document.getElementById('teacher-group-filter');
+      const selectedGroup = (groupFilter && groupFilter.value !== 'all') ? groupFilter.value : '';
+      const params = new URLSearchParams();
+      if (CLOUD_SHEETS_URL) params.set('sheets', CLOUD_SHEETS_URL);
+      if (selectedGroup) params.set('group', selectedGroup);
+      const fullLink = params.toString() ? (baseUrl + '?' + params.toString()) : baseUrl;
+
+      navigator.clipboard.writeText(fullLink).catch(() => {});
+      alert('🔗 ¡Enlace para Alumnos (Opción C - Nube) copiado al portapapeles!\n\n' + fullLink + '\n\nEnvía este enlace por WhatsApp a tu salón. Cuando los alumnos terminen su prueba y toquen "Enviar mi Código Oficial", sus calificaciones llegarán directo a tu Google Sheets y podrás verlas presionando "☁️ Sincronizar Google".');
+    }
+
+    function copyGoogleAppsScriptTemplate() {
+      const scriptCode = [
+        "function doPost(e) {",
+        "  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();",
+        "  if (sheet.getLastRow() === 0) {",
+        "    sheet.appendRow(['Fecha', 'Estudiante', 'Grupo', 'Aciertos', 'Total', 'Nota', 'Estado', 'Duracion', 'Salidas', 'Codigo']);",
+        "  }",
+        "  var d = JSON.parse(e.postData.contents);",
+        "  sheet.appendRow([d.datetime, d.name, d.group, d.correct, d.total, d.grade, d.status, d.duration, d.switches, d.code]);",
+        "  return ContentService.createTextOutput(JSON.stringify({ok:true})).setMimeType(ContentService.MimeType.JSON);",
+        "}",
+        "function doGet(e) {",
+        "  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();",
+        "  var rows = sheet.getDataRange().getValues();",
+        "  var out = [];",
+        "  for (var i = 1; i < rows.length; i++) {",
+        "    out.push({ datetime: rows[i][0], name: rows[i][1], group: rows[i][2], correct: Number(rows[i][3]), total: Number(rows[i][4])||50, grade: String(rows[i][5]), status: rows[i][6], duration: rows[i][7], switches: Number(rows[i][8])||0, code: rows[i][9] });",
+        "  }",
+        "  return ContentService.createTextOutput(JSON.stringify(out)).setMimeType(ContentService.MimeType.JSON);",
+        "}"
+      ].join("\n");
+      navigator.clipboard.writeText(scriptCode).catch(() => {});
+      alert('📋 ¡Código para Google Apps Script copiado al portapapeles!\n\nNota para ti (Edwin): Tu propia hoja de Google Sheets YA está conectada y activa por defecto. Este código solo se necesita si otro profesor desea crear una hoja nueva en su propio Google Drive.');
+    }
+
+    function openQuickEvaluateModal() {
+      const modal = document.getElementById('quick-evaluate-modal');
+      if (modal) modal.classList.remove('hidden');
+
+      const db = getStoredDatabase();
+      const grpSelect = document.getElementById('quick-eval-group-select');
+      const groups = Array.from(new Set(db.map(i => (i.group || '').trim()).filter(g => g && g !== 'S/G')));
+
+      if (grpSelect) {
+        const currentFilter = document.getElementById('teacher-group-filter');
+        const preferredGrp = (currentFilter && currentFilter.value !== 'all') ? currentFilter.value : 'all';
+        grpSelect.innerHTML = '<option value="all">Todos los Grados Registrados (' + db.length + ' alumnos)</option>' +
+          groups.map(g => '<option value="' + g + '">' + g + '</option>').join('');
+        if (groups.includes(preferredGrp)) grpSelect.value = preferredGrp;
+      }
+
+      renderQuickEvaluateStudentsList();
+    }
+
+    function closeQuickEvaluateModal() {
+      const modal = document.getElementById('quick-evaluate-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function renderQuickEvaluateStudentsList() {
+      const listEl = document.getElementById('quick-eval-students-list');
+      const grpSelect = document.getElementById('quick-eval-group-select');
+      if (!listEl) return;
+
+      const db = getStoredDatabase();
+      const selectedGrp = grpSelect ? grpSelect.value : 'all';
+      const filtered = db.filter(item => selectedGrp === 'all' || (item.group || '').trim() === selectedGrp);
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = '<div class="p-3 text-center text-slate-400 italic text-[11px]">Aún no hay alumnos cargados en la lista. Toca <strong>"📥 Cargar Grupo 1 y 2"</strong> arriba o escribe el nombre del alumno abajo en el paso 2.</div>';
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(item => {
+        const isPending = item.status === 'PENDIENTE';
+        const safeN = (item.name || '').replace(/'/g, "\\'");
+        const safeG = (item.group || 'S/G').replace(/'/g, "\\'");
+        const badge = isPending
+          ? '<span class="px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40 text-[10px] font-bold">⏳ Pendiente</span>'
+          : '<span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold">Nota: ' + (item.grade || '--') + '</span>';
+        return `
+          <div class="p-2 px-3 flex items-center justify-between gap-2 hover:bg-slate-800/60 transition">
+            <div>
+              <div class="font-bold text-white text-xs">${item.name}</div>
+              <div class="text-[10px] text-cyan-300 font-semibold">${item.group || 'S/G'} · ${badge}</div>
+            </div>
+            <button type="button" onclick="closeQuickEvaluateModal(); startEvaluationForStudent('${safeN}', '${safeG}');" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs shadow transition active:scale-95 flex items-center gap-1">
+              <span>▶️</span> <span>Evaluar</span>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function launchQuickEvaluationFromInputs() {
+      const nameInp = document.getElementById('quick-eval-name-input');
+      const grpInp = document.getElementById('quick-eval-group-input');
+      const name = (nameInp ? nameInp.value : '').trim().toUpperCase();
+      const group = (grpInp ? grpInp.value : '').trim().toUpperCase() || 'GRUPO 1';
+
+      if (!name || name.length < 2) {
+        alert('Por favor escribe el nombre del alumno que vas a evaluar o selecciónalo de la lista de arriba.');
+        if (nameInp) nameInp.focus();
+        return;
+      }
+
+      const db = getStoredDatabase();
+      const exists = db.some(r => (r.name || '').trim().toUpperCase() === name && (r.group || '').trim().toUpperCase() === group);
+      if (!exists) {
+        db.push({
+          datetime: 'En evaluación',
+          name: name,
+          group: group,
+          correct: 0,
+          total: 50,
+          grade: '--',
+          status: 'PENDIENTE',
+          duration: '--',
+          switches: 0,
+          code: 'PEND-' + Date.now().toString(36).toUpperCase()
+        });
+        saveStoredDatabase(db);
+      }
+
+      closeQuickEvaluateModal();
+      startEvaluationForStudent(name, group);
     }
 
     function startEvaluationForStudent(studentName, studentGroup) {
