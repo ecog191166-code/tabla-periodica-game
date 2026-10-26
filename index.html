@@ -192,6 +192,26 @@
     <!-- Panel de Juego Principal -->
     <main id="play-panel" class="p-3 sm:p-5 flex flex-col gap-3 sm:gap-4">
       
+      <!-- Cintillo de Prueba Rápida en el Aula (10 Ítems) para Alumno Enlistado -->
+      <div id="classroom-active-student-banner" class="hidden bg-gradient-to-r from-amber-500/20 via-blue-950 to-emerald-950 border-2 border-amber-400/70 rounded-2xl px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 shadow-lg">
+        <div class="flex items-center gap-2.5">
+          <span class="px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider shadow">⚡ Aula 10 Ítems</span>
+          <div class="text-xs">
+            <span class="text-slate-300 font-semibold">Evaluando a:</span>
+            <strong id="classroom-banner-student-name" class="text-white font-black text-xs sm:text-sm ml-1">--</strong>
+            <span id="classroom-banner-student-group" class="ml-1.5 px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold text-[10px]">--</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button type="button" onclick="evaluateNextPendingStudentInClass()" class="px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold text-[11px] transition flex items-center gap-1" title="Saltar al siguiente alumno pendiente">
+            <span>⏭️</span> <span>Saltar al Siguiente</span>
+          </button>
+          <button type="button" onclick="switchTab('teacher')" class="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 font-bold text-[11px] transition flex items-center gap-1">
+            <span>👨‍🏫</span> <span>Tabla Docente</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Marcadores de Evaluación: 4 campos limpios -->
       <div class="grid grid-cols-4 gap-1.5 sm:gap-2.5 text-center">
         <!-- 1. Puntos -->
@@ -312,7 +332,7 @@
             <span class="text-3xl">🎓</span>
             <div>
               <h3 class="text-sm sm:text-base font-black text-white uppercase tracking-wider">Certificado de Evaluación</h3>
-              <p class="text-[10px] text-blue-400 font-medium">Química - Tabla Periódica (50 Ítems)</p>
+              <p id="cert-subtitle-items" class="text-[10px] text-blue-400 font-medium">Química - Tabla Periódica (50 Ítems)</p>
             </div>
           </div>
           <span class="text-[10px] bg-blue-600/20 text-blue-300 border border-blue-500/40 px-2 py-0.5 rounded-full font-bold">
@@ -355,8 +375,8 @@
           </div>
 
           <div class="text-right text-xs space-y-1">
-            <p class="text-slate-300">Aciertos: <strong id="final-correct" class="text-emerald-400">0</strong> / 50</p>
-            <p class="text-slate-300">Desaciertos: <strong id="final-incorrect" class="text-rose-400">0</strong> / 50</p>
+            <p class="text-slate-300">Aciertos: <strong id="final-correct" class="text-emerald-400">0</strong> / <span id="final-total-1">50</span></p>
+            <p class="text-slate-300">Desaciertos: <strong id="final-incorrect" class="text-rose-400">0</strong> / <span id="final-total-2">50</span></p>
             <p class="text-slate-300">Efectividad: <strong id="final-percent" class="text-blue-400">0%</strong></p>
           </div>
         </div>
@@ -406,6 +426,32 @@
       </button>
 
       <!-- Mensaje de Confirmación de Envío Exitoso -->
+      <!-- Panel de Aula: Guardado Automático en Excel/Nube y Saltar al Siguiente Alumno (Prueba Rápida 10 Ítems) -->
+      <div id="classroom-next-student-box" class="hidden w-full max-w-lg p-4 rounded-2xl bg-gradient-to-r from-blue-950 via-slate-900 to-emerald-950 border-2 border-amber-400/80 text-xs space-y-3 shadow-2xl">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
+          <span class="font-black text-amber-300 uppercase tracking-wide flex items-center gap-1.5 text-xs sm:text-sm">
+            <span>⚡</span> <span>Prueba Rápida de 10 Ítems Completada</span>
+          </span>
+          <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold text-[10px]">
+            ✅ Guardada en Excel Local + Nube (Google Sheets)
+          </span>
+        </div>
+        <div id="classroom-next-student-info" class="text-slate-200 font-semibold text-center text-xs sm:text-sm py-1">
+          <!-- Nombre del siguiente alumno pendiente -->
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <button type="button" id="btn-next-pending-student" onclick="evaluateNextPendingStudentInClass()" class="sm:col-span-2 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-sm sm:text-base shadow-xl transition active:scale-95 flex items-center justify-center gap-2">
+            <span class="text-lg">⏭️</span> <span>Saltar al Siguiente Alumno de la Lista (10 Ítems)</span>
+          </button>
+          <button type="button" onclick="switchTab('teacher')" class="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 font-black text-xs shadow transition active:scale-95 flex items-center justify-center gap-1.5">
+            <span>👨‍🏫</span> <span>Ver Lista y Notas del Salón</span>
+          </button>
+          <button type="button" onclick="downloadDatabaseCSV()" class="py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black text-xs shadow transition active:scale-95 flex items-center justify-center gap-1.5">
+            <span>📥</span> <span>Descargar Lista Excel (.CSV)</span>
+          </button>
+        </div>
+      </div>
+
       <div id="submit-success-banner" class="hidden w-full max-w-lg p-3 rounded-2xl bg-emerald-950/90 border border-emerald-500/60 text-emerald-300 text-xs text-center flex flex-col items-center justify-center gap-1 shadow-lg">
         <div class="flex items-center gap-1.5 font-bold text-emerald-400">
           <span class="text-base">✅</span> ¡Evaluación Enviada Exitosamente!
@@ -551,8 +597,11 @@
           </div>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <button onclick="openQuickEvaluateModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-black text-xs sm:text-sm shadow-xl transition active:scale-95 flex items-center gap-1.5 border border-cyan-300/50">
-            <span class="text-base">▶️</span> <span>EVALUAR ALUMNO AHORA</span>
+          <button onclick="startClassroomQuickQuizQueue()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-xs sm:text-sm shadow-xl transition active:scale-95 flex items-center gap-1.5 border border-yellow-200">
+            <span class="text-base">⚡</span> <span>PRUEBA RÁPIDA EN AULA (10 ÍTEMS)</span>
+          </button>
+          <button onclick="openQuickEvaluateModal()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-black text-xs sm:text-sm shadow-xl transition active:scale-95 flex items-center gap-1.5 border border-cyan-300/50">
+            <span class="text-base">▶️</span> <span>Elegir Alumno</span>
           </button>
           <button onclick="loadOfficialEdwinGroups()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg transition active:scale-95 flex items-center gap-1.5">
             <span>📥</span> <span>Cargar Grupo 1 y 2 (35 Alumnos)</span>
@@ -919,9 +968,14 @@
               <input type="text" id="quick-eval-group-input" placeholder="Ej. 10° A" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-cyan-300 font-bold placeholder-slate-500 focus:outline-none focus:border-blue-400" />
             </div>
           </div>
-          <button type="button" onclick="launchQuickEvaluationFromInputs()" class="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-black text-xs sm:text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2">
-            <span>▶️</span> <span>Iniciar Evaluación de 50 Ítems para este Alumno</span>
-          </button>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button type="button" onclick="launchQuickEvaluationFromInputs(10)" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-xs shadow-xl transition active:scale-95 flex items-center justify-center gap-1.5">
+              <span>⚡</span> <span>Prueba Rápida Aula (10 Ítems)</span>
+            </button>
+            <button type="button" onclick="launchQuickEvaluationFromInputs(50)" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-black text-xs shadow-xl transition active:scale-95 flex items-center justify-center gap-1.5">
+              <span>▶️</span> <span>Examen Completo (50 Ítems)</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1837,7 +1891,7 @@ Ana Victoria Gómez"
     function closeLicenseModal() {
       const modal = document.getElementById('license-modal');
       if (modal) modal.classList.add('hidden');
-      if (!checkSubscriptionValidity() && (isTrialExhausted || currentItemIndex >= FREE_TRIAL_LIMIT)) {
+      if (!isClassroomQuickQuiz && !checkSubscriptionValidity() && (isTrialExhausted || currentItemIndex >= FREE_TRIAL_LIMIT)) {
         renderTrialPaywallOverlay();
       }
     }
@@ -2107,7 +2161,8 @@ Ana Victoria Gómez"
       }
     }
 
-    const TOTAL_ITEMS = 50;
+    let TOTAL_ITEMS = 50;
+    let isClassroomQuickQuiz = false;
     const PROF_SECRET_SALT = "QUIMICA_PANAMA_PROF_ORTIZ_2026"; // Clave secreta para firma criptográfica
 
     let currentMode = 'mixed';
@@ -2472,7 +2527,7 @@ Ana Victoria Gómez"
       if (isSimulating) return;
       autoNextSecondsLeft = 10;
       const ind = document.getElementById('auto-next-indicator');
-      const isTrialEnd = !isProLicenseActive && (currentItemIndex + 1) >= FREE_TRIAL_LIMIT;
+      const isTrialEnd = !isClassroomQuickQuiz && !isProLicenseActive && (currentItemIndex + 1) >= FREE_TRIAL_LIMIT;
       const isLast = currentItemIndex === TOTAL_ITEMS - 1;
       if (ind) {
         ind.textContent = (currentLang === 'en' ? (isTrialEnd ? 'Trial ends in ' : (isLast ? 'Certificate in ' : 'Next in ')) : (isTrialEnd ? 'Fin de prueba en ' : (isLast ? 'Certificado en ' : 'Siguiente en '))) + autoNextSecondsLeft + 's...';
@@ -2539,7 +2594,9 @@ Ana Victoria Gómez"
 
       const itemNum = currentItemIndex + 1;
       const percent = Math.round((itemNum / TOTAL_ITEMS) * 100);
-      document.getElementById('item-counter').textContent = currentLang === 'en' ? (`Item ${itemNum} of ${TOTAL_ITEMS}` + (!isProLicenseActive ? ` · Free Trial (${Math.min(itemNum, FREE_TRIAL_LIMIT)}/${FREE_TRIAL_LIMIT})` : '')) : (`Ítem ${itemNum} de ${TOTAL_ITEMS}` + (!isProLicenseActive ? ` · Prueba (${Math.min(itemNum, FREE_TRIAL_LIMIT)}/${FREE_TRIAL_LIMIT})` : ''));
+      document.getElementById('item-counter').textContent = isClassroomQuickQuiz
+        ? (currentLang === 'en' ? `⚡ Classroom Quiz: Item ${itemNum} of ${TOTAL_ITEMS}` : `⚡ Prueba Rápida Aula: Ítem ${itemNum} de ${TOTAL_ITEMS}`)
+        : (currentLang === 'en' ? (`Item ${itemNum} of ${TOTAL_ITEMS}` + (!isProLicenseActive ? ` · Free Trial (${Math.min(itemNum, FREE_TRIAL_LIMIT)}/${FREE_TRIAL_LIMIT})` : '')) : (`Ítem ${itemNum} de ${TOTAL_ITEMS}` + (!isProLicenseActive ? ` · Prueba (${Math.min(itemNum, FREE_TRIAL_LIMIT)}/${FREE_TRIAL_LIMIT})` : '')));
       document.getElementById('progress-bar').style.width = `${percent}%`;
       document.getElementById('progress-percent').textContent = `${percent}%`;
 
@@ -2667,7 +2724,7 @@ Ana Victoria Gómez"
       stopAutoNextCountdown();
       recordHistoryAction('Avance al Ítem ' + (currentItemIndex + 2));
       currentItemIndex++;
-      if (!checkSubscriptionValidity() && currentItemIndex >= FREE_TRIAL_LIMIT) {
+      if (!isClassroomQuickQuiz && !checkSubscriptionValidity() && currentItemIndex >= FREE_TRIAL_LIMIT) {
         isTrialExhausted = true;
         localStorage.setItem('quimiquiz_trial_exhausted_v2', 'true');
         playSound('error');
@@ -3283,8 +3340,11 @@ Ha quedado registrado en el panel oficial del docente.`);
         tr.innerHTML = `
           <td class="p-2 text-center whitespace-nowrap bg-slate-900/60">
             <div class="flex items-center justify-center gap-1.5">
-              <button onclick="startEvaluationForStudent('${safeNameAttr}', '${safeGroupAttr}')" title="Evaluar a este alumno ahora en este equipo" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-black text-xs transition shadow-md flex items-center gap-1 active:scale-95">
-                <span>▶️</span> <span>EVALUAR</span>
+              <button onclick="startEvaluationForStudent('${safeNameAttr}', '${safeGroupAttr}', 10)" title="Iniciar Prueba Rápida en el Aula de 10 Ítems para este alumno" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-[11px] transition shadow-md flex items-center gap-1 active:scale-95">
+                <span>⚡</span> <span>Evaluar (10 Ítems)</span>
+              </button>
+              <button onclick="startEvaluationForStudent('${safeNameAttr}', '${safeGroupAttr}', 50)" title="Iniciar Examen Completo de 50 Ítems para este alumno" class="px-2 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-[10px] transition shadow flex items-center gap-0.5 active:scale-95">
+                <span>▶️</span> <span>50</span>
               </button>
               <button onclick="editStudentRecord('${item.code}')" title="Editar este estudiante" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs transition border border-slate-700">✏️</button>
               <button onclick="deleteRecord('${item.code}')" title="Eliminar este estudiante" class="p-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-300 text-xs transition border border-rose-500/30">🗑️</button>
@@ -4007,15 +4067,20 @@ Ha quedado registrado en el panel oficial del docente.`);
               <div class="font-bold text-white text-xs">${item.name}</div>
               <div class="text-[10px] text-cyan-300 font-semibold">${item.group || 'S/G'} · ${badge}</div>
             </div>
-            <button type="button" onclick="closeQuickEvaluateModal(); startEvaluationForStudent('${safeN}', '${safeG}');" class="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs shadow transition active:scale-95 flex items-center gap-1">
-              <span>▶️</span> <span>Evaluar</span>
-            </button>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="closeQuickEvaluateModal(); startEvaluationForStudent('${safeN}', '${safeG}', 10);" class="px-2.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow transition active:scale-95 flex items-center gap-1">
+                <span>⚡</span> <span>10 Ítems</span>
+              </button>
+              <button type="button" onclick="closeQuickEvaluateModal(); startEvaluationForStudent('${safeN}', '${safeG}', 50);" class="px-2.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow transition active:scale-95 flex items-center gap-1">
+                <span>▶️</span> <span>50</span>
+              </button>
+            </div>
           </div>
         `;
       }).join('');
     }
 
-    function launchQuickEvaluationFromInputs() {
+    function launchQuickEvaluationFromInputs(itemsCount = 10) {
       const nameInp = document.getElementById('quick-eval-name-input');
       const grpInp = document.getElementById('quick-eval-group-input');
       const name = (nameInp ? nameInp.value : '').trim().toUpperCase();
@@ -4035,7 +4100,7 @@ Ha quedado registrado en el panel oficial del docente.`);
           name: name,
           group: group,
           correct: 0,
-          total: 50,
+          total: itemsCount,
           grade: '--',
           status: 'PENDIENTE',
           duration: '--',
@@ -4046,10 +4111,76 @@ Ha quedado registrado en el panel oficial del docente.`);
       }
 
       closeQuickEvaluateModal();
-      startEvaluationForStudent(name, group);
+      startEvaluationForStudent(name, group, itemsCount);
     }
 
-    function startEvaluationForStudent(studentName, studentGroup) {
+    function startClassroomQuickQuizQueue() {
+      let db = getStoredDatabase();
+      // Si la tabla está vacía, cargar automáticamente los 35 alumnos de Grupo 1 y Grupo 2
+      if (db.length === 0 && typeof OFFICIAL_EDWIN_ROSTER !== 'undefined') {
+        OFFICIAL_EDWIN_ROSTER.forEach((st, idx) => {
+          db.push({
+            datetime: 'En lista',
+            name: st.name,
+            group: st.group.toUpperCase(),
+            correct: 0,
+            total: 10,
+            grade: '--',
+            status: 'PENDIENTE',
+            duration: '--',
+            switches: 0,
+            code: 'PEND-G-' + idx + '-' + Date.now().toString(36).toUpperCase()
+          });
+        });
+        saveStoredDatabase(db);
+        renderTeacherTable();
+      }
+
+      const groupFilter = document.getElementById('teacher-group-filter');
+      const selectedGroup = (groupFilter && groupFilter.value !== 'all') ? groupFilter.value : 'all';
+
+      // Buscar el primer alumno pendiente de la lista (en orden de aparición en la lista del grado)
+      const nextStudent = db.find(r => r.status === 'PENDIENTE' && (selectedGroup === 'all' || (r.group || '').trim() === selectedGroup))
+        || db.find(r => r.status === 'PENDIENTE');
+
+      if (!nextStudent) {
+        openQuickEvaluateModal();
+        return;
+      }
+
+      startEvaluationForStudent(nextStudent.name, nextStudent.group || 'GRUPO 1', 10);
+    }
+
+    function evaluateNextPendingStudentInClass() {
+      const db = getStoredDatabase();
+      const currentName = (sessionStorage.getItem('quimiquiz_active_student_name') || '').trim().toUpperCase();
+      const currentGrp = (sessionStorage.getItem('quimiquiz_active_student_group') || '').trim().toUpperCase();
+
+      // Buscar los pendientes del mismo grupo (distinto al actual si no ha terminado)
+      const pendingInGroup = db.filter(r =>
+        r.status === 'PENDIENTE' &&
+        (!currentGrp || (r.group || '').trim().toUpperCase() === currentGrp)
+      );
+
+      let nextStudent = pendingInGroup.find(r => (r.name || '').trim().toUpperCase() !== currentName) || pendingInGroup[0];
+      if (!nextStudent) {
+        nextStudent = db.find(r => r.status === 'PENDIENTE' && (r.name || '').trim().toUpperCase() !== currentName) || db.find(r => r.status === 'PENDIENTE');
+      }
+
+      if (!nextStudent) {
+        alert('🎉 ¡Todos los alumnos pendientes en la lista ya fueron evaluados! Volviendo a la tabla del salón.');
+        switchTab('teacher');
+        return;
+      }
+
+      startEvaluationForStudent(nextStudent.name, nextStudent.group || 'GRUPO 1', 10);
+    }
+
+    function startEvaluationForStudent(studentName, studentGroup, itemsCount = 10) {
+      TOTAL_ITEMS = itemsCount === 10 ? 10 : 50;
+      isClassroomQuickQuiz = (TOTAL_ITEMS === 10);
+      isChallengeStarted = true;
+
       const nameInp = document.getElementById('student-name-input');
       const groupInp = document.getElementById('student-group-input');
       if (nameInp) nameInp.value = studentName || '';
@@ -4058,6 +4189,29 @@ Ha quedado registrado en el panel oficial del docente.`);
         sessionStorage.setItem('quimiquiz_active_student_name', studentName || '');
         sessionStorage.setItem('quimiquiz_active_student_group', studentGroup || '');
       } catch (e) {}
+
+      const banner = document.getElementById('classroom-active-student-banner');
+      const bName = document.getElementById('classroom-banner-student-name');
+      const bGrp = document.getElementById('classroom-banner-student-group');
+      if (banner) {
+        if (studentName) {
+          banner.classList.remove('hidden');
+          if (bName) bName.textContent = studentName;
+          if (bGrp) bGrp.textContent = (studentGroup || 'S/G') + ' · ' + TOTAL_ITEMS + ' Ítems';
+        } else {
+          banner.classList.add('hidden');
+        }
+      }
+
+      // Resetear el botón de enviar certificado para el nuevo alumno
+      const submitBtn = document.getElementById('btn-submit-code-lg');
+      const submitBanner = document.getElementById('submit-success-banner');
+      if (submitBtn) {
+        submitBtn.innerHTML = '<span class="text-lg">🚀</span> Enviar mi Código Oficial al Profesor';
+        submitBtn.className = 'w-full max-w-lg px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl transition flex items-center justify-center gap-2 active:scale-95';
+        submitBtn.onclick = () => sendOfficialCodeToTeacherDatabase(false);
+      }
+      if (submitBanner) submitBanner.classList.add('hidden');
 
       switchTab('play');
       restartFullExam();
