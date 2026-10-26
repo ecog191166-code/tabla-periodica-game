@@ -84,12 +84,37 @@
     .comic-boom-anim {
       animation: comicBoomPop 1.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
+
+    /* Barras de desplazamiento horizontales y verticales siempre visibles y fáciles de usar */
+    .custom-table-scroll {
+      overflow-x: auto !important;
+      overflow-y: auto !important;
+      scrollbar-width: auto;
+      scrollbar-color: #38bdf8 #0f172a;
+    }
+    .custom-table-scroll::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
+      display: block !important;
+    }
+    .custom-table-scroll::-webkit-scrollbar-track {
+      background: #0f172a;
+      border-radius: 8px;
+    }
+    .custom-table-scroll::-webkit-scrollbar-thumb {
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      border-radius: 8px;
+      border: 2px solid #0f172a;
+    }
+    .custom-table-scroll::-webkit-scrollbar-thumb:hover {
+      background: #fbbf24;
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col items-center justify-start sm:justify-center p-2 sm:p-4">
 
   <!-- Contenedor Principal -->
-  <div id="game-container" class="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden flex flex-col my-auto">
+  <div id="game-container" class="w-full max-w-5xl bg-slate-900 border border-slate-800 rounded-2xl shadow-xl flex flex-col my-auto transition-all duration-200">
     
     <!-- Encabezado Compacto -->
     <header class="bg-slate-900/95 backdrop-blur border-b border-slate-800 px-3.5 sm:px-5 py-2.5 sm:py-3 flex items-center justify-between gap-2">
@@ -516,23 +541,45 @@
         </button>
       </div>
 
-      <!-- Tabla de Estudiantes -->
-      <div class="border border-slate-800 rounded-2xl bg-slate-950/70 overflow-x-auto max-h-[360px] overflow-y-auto shadow-inner">
-        <table class="w-full text-left text-xs text-slate-300">
-          <thead class="bg-slate-900 text-[10px] text-slate-400 uppercase tracking-wider sticky top-0 border-b border-slate-800">
+      <!-- Barra Destacada de Evaluación Directa por Grado / Alumno -->
+      <div class="bg-gradient-to-r from-blue-950/90 via-slate-900 to-emerald-950/90 border-2 border-blue-500/50 rounded-2xl p-2.5 sm:p-3 flex flex-wrap items-center justify-between gap-2 shadow-lg">
+        <div class="flex items-center gap-2 text-xs">
+          <span class="text-xl">🎯</span>
+          <div>
+            <strong class="text-white block text-xs sm:text-sm">Evaluación de Alumnos por Grado</strong>
+            <span class="text-cyan-300 text-[11px]">Carga tu grado y presiona el botón azul <strong>"▶️ EVALUAR"</strong> junto al alumno</span>
+          </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="openQuickEvaluateModal()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-black text-xs sm:text-sm shadow-xl transition active:scale-95 flex items-center gap-1.5 border border-cyan-300/50">
+            <span class="text-base">▶️</span> <span>EVALUAR ALUMNO AHORA</span>
+          </button>
+          <button onclick="loadOfficialEdwinGroups()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg transition active:scale-95 flex items-center gap-1.5">
+            <span>📥</span> <span>Cargar Grupo 1 y 2 (35 Alumnos)</span>
+          </button>
+          <button onclick="openClassRosterModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs sm:text-sm shadow-lg transition active:scale-95 flex items-center gap-1.5">
+            <span>👥</span> <span>Agregar Otro Grado</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabla de Estudiantes con Barra de Desplazamiento Horizontal y Vertical Visible -->
+      <div class="border-2 border-slate-700 rounded-2xl bg-slate-950/90 custom-table-scroll max-h-[380px] shadow-inner">
+        <table class="w-full min-w-[780px] text-left text-xs text-slate-300">
+          <thead class="bg-slate-900 text-[10px] text-slate-300 uppercase tracking-wider sticky top-0 z-10 border-b border-slate-700">
             <tr>
-              <th class="p-2">Fecha</th>
-              <th class="p-2">Estudiante</th>
-              <th class="p-2">Grupo</th>
-              <th class="p-2 text-center">Aciertos</th>
-              <th class="p-2 text-center" id="teacher-grade-header">Nota</th>
-              <th class="p-2 text-center">Salidas</th>
-              <th class="p-2 text-center">Código Oficial</th>
-              <th class="p-2 text-center">Estado</th>
-              <th class="p-2 text-center">Acción</th>
+              <th class="p-2.5 text-center bg-blue-950/80 text-cyan-300 font-black">▶️ Evaluar / Acción</th>
+              <th class="p-2.5">Estudiante</th>
+              <th class="p-2.5">Grupo / Grado</th>
+              <th class="p-2.5 text-center" id="teacher-grade-header">Nota</th>
+              <th class="p-2.5 text-center">Estado</th>
+              <th class="p-2.5 text-center">Aciertos</th>
+              <th class="p-2.5 text-center">Salidas</th>
+              <th class="p-2.5 text-center">Fecha</th>
+              <th class="p-2.5 text-center">Código Oficial</th>
             </tr>
           </thead>
-          <tbody id="teacher-table-body" class="divide-y divide-slate-800/60 text-[11px]">
+          <tbody id="teacher-table-body" class="divide-y divide-slate-800/80 text-xs">
             <!-- Filas generadas dinámicamente -->
           </tbody>
         </table>
@@ -627,7 +674,7 @@
 
   <!-- Modal Banco de Datos Docente -->
   <div id="database-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-5">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl relative flex flex-col max-h-[90vh]">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-5xl w-full p-4 sm:p-6 shadow-2xl relative flex flex-col max-h-[90vh]">
       <button onclick="closeDatabaseModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
       
       <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-3">
@@ -674,7 +721,7 @@
       </div>
 
       <!-- Tabla de Registros -->
-      <div class="flex-1 overflow-y-auto border border-slate-800 rounded-2xl bg-slate-950/60 p-1">
+      <div class="flex-1 custom-table-scroll border border-slate-800 rounded-2xl bg-slate-950/60 p-1">
         <table class="w-full text-left text-xs text-slate-300">
           <thead class="bg-slate-900 text-[11px] text-slate-400 uppercase tracking-wider sticky top-0">
             <tr>
@@ -3234,24 +3281,23 @@ Ha quedado registrado en el panel oficial del docente.`);
           : `<span class="px-1.5 py-0.5 rounded bg-rose-950 text-rose-400 border border-rose-500/40 font-bold">REPROBADO</span>`;
 
         tr.innerHTML = `
-          <td class="p-2 whitespace-nowrap text-slate-400">${item.datetime || '--'}</td>
-          <td class="p-2 font-bold text-white whitespace-nowrap">
-            <div class="flex items-center justify-between gap-2">
-              <span>${item.name}</span>
-              <button onclick="startEvaluationForStudent('${safeNameAttr}', '${safeGroupAttr}')" title="Iniciar prueba para este alumno" class="px-2 py-0.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-black text-[10px] transition shadow flex items-center gap-1 flex-shrink-0">
-                <span>▶️</span> <span>Evaluar</span>
+          <td class="p-2 text-center whitespace-nowrap bg-slate-900/60">
+            <div class="flex items-center justify-center gap-1.5">
+              <button onclick="startEvaluationForStudent('${safeNameAttr}', '${safeGroupAttr}')" title="Evaluar a este alumno ahora en este equipo" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-black text-xs transition shadow-md flex items-center gap-1 active:scale-95">
+                <span>▶️</span> <span>EVALUAR</span>
               </button>
+              <button onclick="editStudentRecord('${item.code}')" title="Editar este estudiante" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs transition border border-slate-700">✏️</button>
+              <button onclick="deleteRecord('${item.code}')" title="Eliminar este estudiante" class="p-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-300 text-xs transition border border-rose-500/30">🗑️</button>
             </div>
           </td>
-          <td class="p-2 text-cyan-300">${item.group || 'S/G'}</td>
-          <td class="p-2 text-center font-mono">${item.correct}/${item.total || 50}</td>
-          <td class="p-2 text-center font-black ${isPass ? 'text-emerald-400' : 'text-rose-400'} text-xs">${item.grade}</td>
-          <td class="p-2 text-center font-mono ${item.switches > 0 ? 'text-rose-400 font-bold' : 'text-slate-400'}">${item.switches || 0}</td>
-          <td class="p-2 text-center font-mono text-[10px] text-amber-300">${item.code || '--'}</td>
-          <td class="p-2 text-center">${statusBadge}</td>
-          <td class="p-2 text-center">
-            <button onclick="deleteRecord('${item.code}')" title="Eliminar registro" class="px-2 py-0.5 rounded bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-500/40 text-[10px] font-bold transition">🗑️</button>
-          </td>
+          <td class="p-2 font-black text-white whitespace-nowrap text-xs sm:text-sm">${item.name}</td>
+          <td class="p-2 text-cyan-300 whitespace-nowrap font-bold">${item.group || 'S/G'}</td>
+          <td class="p-2 text-center font-black ${isPending ? 'text-slate-500' : (isPass ? 'text-emerald-400' : 'text-rose-400')} text-xs sm:text-sm">${gradeFormatted}</td>
+          <td class="p-2 text-center whitespace-nowrap">${statusBadge}</td>
+          <td class="p-2 text-center font-mono font-semibold">${isPending ? '--' : (c + '/' + t)}</td>
+          <td class="p-2 text-center font-mono ${item.switches > 0 ? 'text-rose-400 font-bold' : 'text-slate-400'}">${isPending ? '--' : (item.switches || 0)}</td>
+          <td class="p-2 whitespace-nowrap text-slate-400 text-[11px]">${item.datetime || '--'}</td>
+          <td class="p-2 text-center font-mono text-[10px] text-amber-300 select-all cursor-pointer whitespace-nowrap" title="Clic para copiar código" onclick="navigator.clipboard.writeText('${item.code}')">${isPending ? 'En espera' : (item.code || '--')}</td>
         `;
         tbody.appendChild(tr);
       });
