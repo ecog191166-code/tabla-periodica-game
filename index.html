@@ -1001,7 +1001,7 @@
           <input
             type="text"
             id="roster-group-input"
-            placeholder="Ej. 10° Ciencias A / 11° B / 9° Grado"
+            placeholder="Ej. 10° A / 10° Ciencias A / 11° B"
             class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-bold placeholder-slate-500 focus:outline-none focus:border-emerald-400"
           />
         </div>
@@ -1020,8 +1020,15 @@ Carlos Mendoza
 Ana Victoria Gómez"
             class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-emerald-400 font-medium leading-relaxed"
           ></textarea>
+          <div class="mt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-950 p-2.5 rounded-xl border border-emerald-500/30">
+            <label class="text-[11px] font-bold text-emerald-300">🔤 Orden Alfabético por Apellido (A ➔ Z):</label>
+            <select id="roster-name-order-select" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-[11px] text-white font-semibold focus:outline-none focus:border-emerald-400">
+              <option value="auto">Convertir "Nombre Apellido" ➔ "APELLIDO, NOMBRE" (A-Z)</option>
+              <option value="lastname_already_first">Mi lista ya empieza por Apellido ("APELLIDO, NOMBRE")</option>
+            </select>
+          </div>
           <p class="text-[11px] text-slate-400 mt-1">
-            💡 Puedes copiar toda la columna de nombres de tu listado de Excel o Word y pegarla directamente aquí.
+            💡 El sistema ordenará automáticamente a todos los alumnos del grado (ej. <strong>10° A</strong>) en orden alfabético por su <strong>Apellido</strong>.
           </p>
         </div>
 
@@ -3327,7 +3334,7 @@ Ha quedado registrado en el panel oficial del docente.`);
         return;
       }
 
-      const sorted = [...db].reverse();
+      const sorted = typeof sortStudentsByGroupAndLastName === 'function' ? sortStudentsByGroupAndLastName(db) : [...db];
 
       sorted.forEach((item) => {
         const tr = document.createElement('tr');
@@ -3350,7 +3357,10 @@ Ha quedado registrado en el panel oficial del docente.`);
               <button onclick="deleteRecord('${item.code}')" title="Eliminar este estudiante" class="p-1.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-300 text-xs transition border border-rose-500/30">🗑️</button>
             </div>
           </td>
-          <td class="p-2 font-black text-white whitespace-nowrap text-xs sm:text-sm">${item.name}</td>
+          <td class="p-2 font-black text-white whitespace-nowrap text-xs sm:text-sm">
+            <span class="inline-block w-6 text-amber-400 font-mono text-xs">${(groupCounters[item.group || 'S/G'] = (groupCounters[item.group || 'S/G'] || 0) + 1)}.</span>
+            <span>${item.name}</span>
+          </td>
           <td class="p-2 text-cyan-300 whitespace-nowrap font-bold">${item.group || 'S/G'}</td>
           <td class="p-2 text-center font-black ${isPending ? 'text-slate-500' : (isPass ? 'text-emerald-400' : 'text-rose-400')} text-xs sm:text-sm">${gradeFormatted}</td>
           <td class="p-2 text-center whitespace-nowrap">${statusBadge}</td>
@@ -3372,11 +3382,19 @@ Ha quedado registrado en el panel oficial del docente.`);
 
       // Si el alumno estaba en lista como PENDIENTE, actualizar su fila en lugar de duplicarlo
       if (record.status !== 'PENDIENTE') {
+        const normKey = getStudentLastNameSortKey(normName);
         const pendingIdx = db.findIndex(r =>
           r.status === 'PENDIENTE' &&
-          (r.name || '').trim().toUpperCase() === normName &&
+          ((r.name || '').trim().toUpperCase() === normName || getStudentLastNameSortKey(r.name) === normKey) &&
           ((r.group || '').trim().toUpperCase() === normGroup || !normGroup || normGroup === 'S/G')
         );
+        if (pendingIdx >= 0) {
+          // Mantener el formato oficial "APELLIDO, NOMBRE" de la lista del grado
+          record.name = db[pendingIdx].name;
+          if (!record.group || record.group === 'S/G') record.group = db[pendingIdx].group;
+        } else {
+          record.name = formatStudentNameLastNameFirst(record.name, 'auto');
+        }
         if (pendingIdx >= 0) {
           db.splice(pendingIdx, 1);
         }
@@ -3763,7 +3781,7 @@ Ha quedado registrado en el panel oficial del docente.`);
       if (groupFilter) {
         const currentSelected = groupFilter.value;
         groupFilter.innerHTML = '<option value="all">Todos los Grupos</option>';
-        groupsSet.forEach(grp => {
+        Array.from(groupsSet).sort((a, b) => a.localeCompare(b, 'es', { numeric: true, sensitivity: 'base' })).forEach(grp => {
           const opt = document.createElement('option');
           opt.value = grp;
           opt.textContent = grp;
@@ -3806,7 +3824,8 @@ Ha quedado registrado en el panel oficial del docente.`);
         return;
       }
 
-      const sorted = [...filtered].reverse();
+      const sorted = typeof sortStudentsByGroupAndLastName === 'function' ? sortStudentsByGroupAndLastName(filtered) : [...filtered];
+      const groupCounters = {};
 
       sorted.forEach(item => {
         const tr = document.createElement('tr');
@@ -3878,9 +3897,12 @@ Ha quedado registrado en el panel oficial del docente.`);
         return;
       }
 
+      const nameOrderSelect = document.getElementById('roster-name-order-select');
+      const orderMode = nameOrderSelect ? nameOrderSelect.value : 'auto';
       const names = rawLines
-        .map(line => line.replace(/^\s*\d+[\.\)\-\s]+/, '').trim().toUpperCase())
-        .filter(line => line.length >= 2);
+        .map(line => formatStudentNameLastNameFirst(line, orderMode))
+        .filter(line => line.length >= 2)
+        .sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
 
       if (names.length === 0) {
         alert('Por favor escribe o pega al menos el nombre de un estudiante (uno por línea).');
@@ -3943,7 +3965,64 @@ Ha quedado registrado en el panel oficial del docente.`);
       alert(`✅ ¡Grado "${groupName}" registrado con éxito!\n\nSe agregaron ${addedCount} estudiante(s) a la lista de evaluación.\n\n• Puedes tocar "▶️ Evaluar" junto a cualquier alumno para iniciar su prueba en este equipo, o compartirles el enlace web para que envíen su código #QZ-...`);
     }
 
-    const OFFICIAL_EDWIN_ROSTER = [{"group":"Grupo 1","name":"SUSAN HADASSA ARAUZ CHEN"},{"group":"Grupo 1","name":"JOSEPH AMETH CABALLERO DEL CID"},{"group":"Grupo 1","name":"DIDIER SAMIR CASTILLO SAMUDIO"},{"group":"Grupo 1","name":"CALEB AARON CASTRELLON SERRANO"},{"group":"Grupo 1","name":"VEGA AMELIE FLORES CARRILLO"},{"group":"Grupo 1","name":"ADJANI NICOL GONZALEZ MONTHIER"},{"group":"Grupo 1","name":"RACHELL ANETH GONZALEZ QUINTERO"},{"group":"Grupo 1","name":"DARIELYS IBETH GONZALEZ RIOS"},{"group":"Grupo 1","name":"NATALIA ALEXANDRA LIZONDRO GUERRA"},{"group":"Grupo 1","name":"DANIEL ARTURO MIRANDA VELASQUEZ"},{"group":"Grupo 1","name":"LUIS FELIPE PITTI"},{"group":"Grupo 1","name":"KIANI TATYANA POLANCO LOPEZ"},{"group":"Grupo 1","name":"ANDRES ALEJANDRO SANCHEZ"},{"group":"Grupo 1","name":"HIDAY JOSABIA SERRACIN SERRANO"},{"group":"Grupo 1","name":"ANA SOFÍA VELASQUEZ SANTANDER"},{"group":"Grupo 1","name":"GABRIEL STEPHEN VILLARREAL AGUIRRE"},{"group":"Grupo 1","name":"DIEGO ALEJANDRO VEJERANO ROVIRA"},{"group":"Grupo 1","name":"WALTER DANIEL WILLIAMS ESTRIBI"},{"group":"Grupo 2","name":"JUAN JOSE ATENCIO"},{"group":"Grupo 2","name":"ANA GABRIELA CABALLERO VELASQUEZ"},{"group":"Grupo 2","name":"ALAN ENRIQUE GIRON SANTOS"},{"group":"Grupo 2","name":"JUAN SEBASTIAN GUERRA"},{"group":"Grupo 2","name":"RICARDO ANDRÉ LAY QUIEL"},{"group":"Grupo 2","name":"SARAH CRISTINE LAWS GUTIERREZ"},{"group":"Grupo 2","name":"SOLANGEL REBECA MENDEZ RIOS"},{"group":"Grupo 2","name":"DANNA YINETH MORALES"},{"group":"Grupo 2","name":"KENNETH XAVIER MORENO GONZALEZ"},{"group":"Grupo 2","name":"FARID YUSSEF NADER DUARTE"},{"group":"Grupo 2","name":"ASHLEY JORDANA RIVERA YANGUEZ"},{"group":"Grupo 2","name":"RUTH LISBETH RODRIGUEZ MENDOZA"},{"group":"Grupo 2","name":"LAYLA ESTHER ROJAS FUENTES"},{"group":"Grupo 2","name":"JULIETTE ELENA SANTAMARIA PITTI"},{"group":"Grupo 2","name":"ALEJANDRA SOFIA VEGA PITTI"},{"group":"Grupo 2","name":"MIGUEL DAVID ZAPATA BARRERA"},{"group":"Grupo 2","name":"FELIX DAVID ZURDO ABREGO"}];
+    const OFFICIAL_EDWIN_ROSTER = [{"group":"GRUPO 1","name":"ARAUZ CHEN, SUSAN HADASSA","originalName":"SUSAN HADASSA ARAUZ CHEN"},{"group":"GRUPO 1","name":"CABALLERO DEL CID, JOSEPH AMETH","originalName":"JOSEPH AMETH CABALLERO DEL CID"},{"group":"GRUPO 1","name":"CASTILLO SAMUDIO, DIDIER SAMIR","originalName":"DIDIER SAMIR CASTILLO SAMUDIO"},{"group":"GRUPO 1","name":"CASTRELLON SERRANO, CALEB AARON","originalName":"CALEB AARON CASTRELLON SERRANO"},{"group":"GRUPO 1","name":"FLORES CARRILLO, VEGA AMELIE","originalName":"VEGA AMELIE FLORES CARRILLO"},{"group":"GRUPO 1","name":"GONZALEZ MONTHIER, ADJANI NICOL","originalName":"ADJANI NICOL GONZALEZ MONTHIER"},{"group":"GRUPO 1","name":"GONZALEZ QUINTERO, RACHELL ANETH","originalName":"RACHELL ANETH GONZALEZ QUINTERO"},{"group":"GRUPO 1","name":"GONZALEZ RIOS, DARIELYS IBETH","originalName":"DARIELYS IBETH GONZALEZ RIOS"},{"group":"GRUPO 1","name":"LIZONDRO GUERRA, NATALIA ALEXANDRA","originalName":"NATALIA ALEXANDRA LIZONDRO GUERRA"},{"group":"GRUPO 1","name":"MIRANDA VELASQUEZ, DANIEL ARTURO","originalName":"DANIEL ARTURO MIRANDA VELASQUEZ"},{"group":"GRUPO 1","name":"PITTI, LUIS FELIPE","originalName":"LUIS FELIPE PITTI"},{"group":"GRUPO 1","name":"POLANCO LOPEZ, KIANI TATYANA","originalName":"KIANI TATYANA POLANCO LOPEZ"},{"group":"GRUPO 1","name":"SANCHEZ, ANDRES ALEJANDRO","originalName":"ANDRES ALEJANDRO SANCHEZ"},{"group":"GRUPO 1","name":"SERRACIN SERRANO, HIDAY JOSABIA","originalName":"HIDAY JOSABIA SERRACIN SERRANO"},{"group":"GRUPO 1","name":"VEJERANO ROVIRA, DIEGO ALEJANDRO","originalName":"DIEGO ALEJANDRO VEJERANO ROVIRA"},{"group":"GRUPO 1","name":"VELASQUEZ SANTANDER, ANA SOFÍA","originalName":"ANA SOFÍA VELASQUEZ SANTANDER"},{"group":"GRUPO 1","name":"VILLARREAL AGUIRRE, GABRIEL STEPHEN","originalName":"GABRIEL STEPHEN VILLARREAL AGUIRRE"},{"group":"GRUPO 1","name":"WILLIAMS ESTRIBI, WALTER DANIEL","originalName":"WALTER DANIEL WILLIAMS ESTRIBI"},{"group":"GRUPO 2","name":"ATENCIO, JUAN JOSE","originalName":"JUAN JOSE ATENCIO"},{"group":"GRUPO 2","name":"CABALLERO VELASQUEZ, ANA GABRIELA","originalName":"ANA GABRIELA CABALLERO VELASQUEZ"},{"group":"GRUPO 2","name":"GIRON SANTOS, ALAN ENRIQUE","originalName":"ALAN ENRIQUE GIRON SANTOS"},{"group":"GRUPO 2","name":"GUERRA, JUAN SEBASTIAN","originalName":"JUAN SEBASTIAN GUERRA"},{"group":"GRUPO 2","name":"LAWS GUTIERREZ, SARAH CRISTINE","originalName":"SARAH CRISTINE LAWS GUTIERREZ"},{"group":"GRUPO 2","name":"LAY QUIEL, RICARDO ANDRÉ","originalName":"RICARDO ANDRÉ LAY QUIEL"},{"group":"GRUPO 2","name":"MENDEZ RIOS, SOLANGEL REBECA","originalName":"SOLANGEL REBECA MENDEZ RIOS"},{"group":"GRUPO 2","name":"MORALES, DANNA YINETH","originalName":"DANNA YINETH MORALES"},{"group":"GRUPO 2","name":"MORENO GONZALEZ, KENNETH XAVIER","originalName":"KENNETH XAVIER MORENO GONZALEZ"},{"group":"GRUPO 2","name":"NADER DUARTE, FARID YUSSEF","originalName":"FARID YUSSEF NADER DUARTE"},{"group":"GRUPO 2","name":"RIVERA YANGUEZ, ASHLEY JORDANA","originalName":"ASHLEY JORDANA RIVERA YANGUEZ"},{"group":"GRUPO 2","name":"RODRIGUEZ MENDOZA, RUTH LISBETH","originalName":"RUTH LISBETH RODRIGUEZ MENDOZA"},{"group":"GRUPO 2","name":"ROJAS FUENTES, LAYLA ESTHER","originalName":"LAYLA ESTHER ROJAS FUENTES"},{"group":"GRUPO 2","name":"SANTAMARIA PITTI, JULIETTE ELENA","originalName":"JULIETTE ELENA SANTAMARIA PITTI"},{"group":"GRUPO 2","name":"VEGA PITTI, ALEJANDRA SOFIA","originalName":"ALEJANDRA SOFIA VEGA PITTI"},{"group":"GRUPO 2","name":"ZAPATA BARRERA, MIGUEL DAVID","originalName":"MIGUEL DAVID ZAPATA BARRERA"},{"group":"GRUPO 2","name":"ZURDO ABREGO, FELIX DAVID","originalName":"FELIX DAVID ZURDO ABREGO"}];
+
+    // Mapa para actualizar automáticamente nombres antiguos ("Nombre Apellido" -> "APELLIDO, NOMBRE")
+    const LEGACY_NAME_TO_LASTNAME_FIRST = {};
+    OFFICIAL_EDWIN_ROSTER.forEach(st => {
+      LEGACY_NAME_TO_LASTNAME_FIRST[st.originalName] = st.name;
+      LEGACY_NAME_TO_LASTNAME_FIRST[st.name] = st.name;
+    });
+
+    // Convierte un nombre escrito como "Juan Pérez" o "Juan Carlos Pérez Gómez" a "PÉREZ GÓMEZ, JUAN CARLOS"
+    function formatStudentNameLastNameFirst(rawName, mode = 'auto') {
+      const clean = (rawName || '').replace(/^\s*\d+[\.\)\-\s]+/, '').trim().toUpperCase();
+      if (!clean) return '';
+      if (LEGACY_NAME_TO_LASTNAME_FIRST[clean]) return LEGACY_NAME_TO_LASTNAME_FIRST[clean];
+      // Si ya tiene coma ("APELLIDO, NOMBRE") o el modo es 'as_is', mantener
+      if (clean.includes(',') || mode === 'lastname_already_first') return clean;
+
+      const words = clean.split(/\s+/);
+      if (words.length === 1) return words[0];
+      if (words.length === 2) {
+        // "Juan Pérez" -> "PÉREZ, JUAN"
+        return words[1] + ', ' + words[0];
+      }
+      if (words.length === 3) {
+        // Detectar si el segundo término es un segundo nombre común o parte del apellido
+        const commonSecondNames = ['JOSE', 'JOSÉ', 'MARIA', 'MARÍA', 'FELIPE', 'ALEJANDRO', 'SOFIA', 'SOFÍA', 'DAVID', 'DANIEL', 'GABRIEL', 'GABRIELA', 'ANDRES', 'ANDRÉS', 'CARLOS', 'LUIS', 'ANA', 'VICTORIA', 'ELENA', 'ESTHER', 'REBECA', 'YINETH', 'XAVIER', 'YUSSEF', 'JORDANA', 'LISBETH', 'ENRIQUE', 'SEBASTIAN', 'SEBASTIÁN', 'ANDRE', 'ANDRÉ', 'CRISTINE', 'HADASSA', 'AMETH', 'SAMIR', 'AARON', 'AMELIE', 'NICOL', 'ANETH', 'IBETH', 'ALEXANDRA', 'ARTURO', 'TATYANA', 'JOSABIA', 'STEPHEN'];
+        if (commonSecondNames.includes(words[1])) {
+          // 2 nombres + 1 apellido: "LUIS FELIPE PITTI" -> "PITTI, LUIS FELIPE"
+          return words[2] + ', ' + words[0] + ' ' + words[1];
+        }
+        // 1 nombre + 2 apellidos: "JUAN PÉREZ GÓMEZ" -> "PÉREZ GÓMEZ, JUAN"
+        return words.slice(1).join(' ') + ', ' + words[0];
+      }
+      // 4 o más palabras: asumir 2 nombres + apellidos (ej. "JUAN CARLOS PÉREZ GÓMEZ" -> "PÉREZ GÓMEZ, JUAN CARLOS")
+      const splitAt = words.length - 2;
+      return words.slice(splitAt).join(' ') + ', ' + words.slice(0, splitAt).join(' ');
+    }
+
+    function getStudentLastNameSortKey(nameStr) {
+      const clean = (nameStr || '').trim().toUpperCase();
+      if (!clean) return '';
+      if (LEGACY_NAME_TO_LASTNAME_FIRST[clean]) return LEGACY_NAME_TO_LASTNAME_FIRST[clean];
+      if (clean.includes(',')) return clean;
+      return formatStudentNameLastNameFirst(clean, 'auto');
+    }
+
+    function sortStudentsByGroupAndLastName(list) {
+      if (!Array.isArray(list)) return [];
+      return [...list].sort((a, b) => {
+        const grpA = ((a && a.group) || 'S/G').trim().toUpperCase();
+        const grpB = ((b && b.group) || 'S/G').trim().toUpperCase();
+        const grpCmp = grpA.localeCompare(grpB, 'es', { numeric: true, sensitivity: 'base' });
+        if (grpCmp !== 0) return grpCmp;
+        const keyA = getStudentLastNameSortKey(a && a.name);
+        const keyB = getStudentLastNameSortKey(b && b.name);
+        return keyA.localeCompare(keyB, 'es', { sensitivity: 'base' });
+      });
+    }
 
     function loadOfficialEdwinGroups() {
       const db = getStoredDatabase();
@@ -4047,14 +4126,18 @@ Ha quedado registrado en el panel oficial del docente.`);
 
       const db = getStoredDatabase();
       const selectedGrp = grpSelect ? grpSelect.value : 'all';
-      const filtered = db.filter(item => selectedGrp === 'all' || (item.group || '').trim() === selectedGrp);
+      const filtered = sortStudentsByGroupAndLastName(
+        db.filter(item => selectedGrp === 'all' || (item.group || '').trim() === selectedGrp)
+      );
 
       if (filtered.length === 0) {
         listEl.innerHTML = '<div class="p-3 text-center text-slate-400 italic text-[11px]">Aún no hay alumnos cargados en la lista. Toca <strong>"📥 Cargar Grupo 1 y 2"</strong> arriba o escribe el nombre del alumno abajo en el paso 2.</div>';
         return;
       }
 
+      const qCounters = {};
       listEl.innerHTML = filtered.map(item => {
+        const numInGrp = (qCounters[item.group || 'S/G'] = (qCounters[item.group || 'S/G'] || 0) + 1);
         const isPending = item.status === 'PENDIENTE';
         const safeN = (item.name || '').replace(/'/g, "\\'");
         const safeG = (item.group || 'S/G').replace(/'/g, "\\'");
@@ -4064,7 +4147,7 @@ Ha quedado registrado en el panel oficial del docente.`);
         return `
           <div class="p-2 px-3 flex items-center justify-between gap-2 hover:bg-slate-800/60 transition">
             <div>
-              <div class="font-bold text-white text-xs">${item.name}</div>
+              <div class="font-bold text-white text-xs"><span class="text-amber-400 font-mono mr-1">${numInGrp}.</span>${item.name}</div>
               <div class="text-[10px] text-cyan-300 font-semibold">${item.group || 'S/G'} · ${badge}</div>
             </div>
             <div class="flex items-center gap-1.5">
