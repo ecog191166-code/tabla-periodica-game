@@ -418,6 +418,19 @@
         <p class="text-[10px] text-slate-500 italic text-center mt-2">
           * Este código valida matemáticamente tu nombre, fecha y aciertos ante el profesor.
         </p>
+
+        <!-- Botón Siguiente Estudiante Directo dentro de la ventana del Certificado de Evaluación -->
+        <div class="mt-3.5 pt-3 border-t border-blue-500/30 flex flex-col gap-2">
+          <div id="cert-next-student-preview" class="text-xs text-center text-amber-300 font-extrabold"></div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button type="button" onclick="handleNextStudentFromCertificate()" class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-xs sm:text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2">
+              <span class="text-base">⏭️</span> <span id="btn-cert-next-student-txt">Siguiente Estudiante</span>
+            </button>
+            <button type="button" onclick="switchTab('teacher')" class="w-full py-3 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 font-black text-xs sm:text-sm shadow transition active:scale-95 flex items-center justify-center gap-2">
+              <span class="text-base">👨‍🏫</span> <span>Ver Lista del Grado</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Botón Enviar Código Oficial al Profesor -->
@@ -440,7 +453,7 @@
           <!-- Nombre del siguiente alumno pendiente -->
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <button type="button" id="btn-next-pending-student" onclick="evaluateNextPendingStudentInClass()" class="sm:col-span-2 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-sm sm:text-base shadow-xl transition active:scale-95 flex items-center justify-center gap-2">
+          <button type="button" id="btn-next-pending-student" onclick="handleNextStudentFromCertificate()" class="sm:col-span-2 py-3.5 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black text-sm sm:text-base shadow-xl transition active:scale-95 flex items-center justify-center gap-2">
             <span class="text-lg">⏭️</span> <span>Saltar al Siguiente Alumno de la Lista (10 Ítems)</span>
           </button>
           <button type="button" onclick="switchTab('teacher')" class="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 font-black text-xs shadow transition active:scale-95 flex items-center justify-center gap-1.5">
@@ -604,7 +617,7 @@
             <span class="text-base">▶️</span> <span>Elegir Alumno</span>
           </button>
           <button onclick="loadOfficialEdwinGroups()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg transition active:scale-95 flex items-center gap-1.5">
-            <span>📥</span> <span>Cargar Grupo 1 y 2 (35 Alumnos)</span>
+            <span>📥</span> <span>Cargar 10° A y 10° B (35 Alumnos)</span>
           </button>
           <button onclick="openClassRosterModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs sm:text-sm shadow-lg transition active:scale-95 flex items-center gap-1.5">
             <span>👥</span> <span>Agregar Otro Grado</span>
@@ -940,7 +953,7 @@
             <span class="font-extrabold text-cyan-300 uppercase tracking-wide">1. 📋 Seleccionar Alumno de un Grado:</span>
             <div class="flex items-center gap-1.5">
               <button type="button" onclick="loadOfficialEdwinGroups(); renderQuickEvaluateStudentsList();" class="px-2.5 py-1 rounded-lg bg-cyan-600/25 hover:bg-cyan-600/40 text-cyan-300 border border-cyan-500/40 font-bold text-[11px] transition">
-                📥 Cargar Grupo 1 y 2
+                📥 Cargar 10° A y 10° B
               </button>
               <button type="button" onclick="closeQuickEvaluateModal(); openClassRosterModal();" class="px-2.5 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 font-bold text-[11px] transition">
                 + Nuevo Grado
@@ -965,7 +978,7 @@
             </div>
             <div>
               <label class="block text-slate-400 font-semibold mb-1 text-[11px]">Grado / Grupo:</label>
-              <input type="text" id="quick-eval-group-input" placeholder="Ej. 10° A" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-cyan-300 font-bold placeholder-slate-500 focus:outline-none focus:border-blue-400" />
+              <input type="text" id="quick-eval-group-input" value="10° A" placeholder="Ej. 10° A" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-cyan-300 font-bold placeholder-slate-500 focus:outline-none focus:border-blue-400" />
             </div>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1000,7 +1013,7 @@
           <label class="block text-emerald-300 font-extrabold uppercase tracking-wide mb-1">1. 🏫 Grado / Grupo / Salón:</label>
           <input
             type="text"
-            id="roster-group-input"
+            id="roster-group-input" value="10° A"
             placeholder="Ej. 10° A / 10° Ciencias A / 11° B"
             class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-bold placeholder-slate-500 focus:outline-none focus:border-emerald-400"
           />
@@ -1040,7 +1053,7 @@ Ana Victoria Gómez"
 
         <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
           <button type="button" onclick="loadOfficialEdwinGroups()" class="px-3.5 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-600 text-white font-black text-xs shadow transition active:scale-95 flex items-center gap-1.5">
-            <span>📥</span> <span>Cargar Grupo 1 y Grupo 2 (35 Alumnos)</span>
+            <span>📥</span> <span>Cargar 10° A y 10° B (35 Alumnos)</span>
           </button>
           <div class="flex items-center gap-2">
           <button type="button" onclick="closeClassRosterModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold transition">
@@ -3810,7 +3823,7 @@ Ha quedado registrado en el panel oficial del docente.`);
             <span class="italic text-slate-400">No hay alumnos registrados en la tabla todavía. Elige una opción para comenzar:</span>
             <div class="flex flex-wrap items-center justify-center gap-2">
               <button onclick="loadOfficialEdwinGroups()" class="px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-black text-xs shadow transition flex items-center gap-1.5">
-                <span>📥</span> <span>Cargar Grupo 1 y Grupo 2 (35 Alumnos)</span>
+                <span>📥</span> <span>Cargar 10° A y 10° B (35 Alumnos)</span>
               </button>
               <button onclick="openClassRosterModal()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow transition flex items-center gap-1.5">
                 <span>👥</span> <span>Agregar Otro Grado</span>
@@ -3965,7 +3978,7 @@ Ha quedado registrado en el panel oficial del docente.`);
       alert(`✅ ¡Grado "${groupName}" registrado con éxito!\n\nSe agregaron ${addedCount} estudiante(s) a la lista de evaluación.\n\n• Puedes tocar "▶️ Evaluar" junto a cualquier alumno para iniciar su prueba en este equipo, o compartirles el enlace web para que envíen su código #QZ-...`);
     }
 
-    const OFFICIAL_EDWIN_ROSTER = [{"group":"GRUPO 1","name":"ARAUZ CHEN, SUSAN HADASSA","originalName":"SUSAN HADASSA ARAUZ CHEN"},{"group":"GRUPO 1","name":"CABALLERO DEL CID, JOSEPH AMETH","originalName":"JOSEPH AMETH CABALLERO DEL CID"},{"group":"GRUPO 1","name":"CASTILLO SAMUDIO, DIDIER SAMIR","originalName":"DIDIER SAMIR CASTILLO SAMUDIO"},{"group":"GRUPO 1","name":"CASTRELLON SERRANO, CALEB AARON","originalName":"CALEB AARON CASTRELLON SERRANO"},{"group":"GRUPO 1","name":"FLORES CARRILLO, VEGA AMELIE","originalName":"VEGA AMELIE FLORES CARRILLO"},{"group":"GRUPO 1","name":"GONZALEZ MONTHIER, ADJANI NICOL","originalName":"ADJANI NICOL GONZALEZ MONTHIER"},{"group":"GRUPO 1","name":"GONZALEZ QUINTERO, RACHELL ANETH","originalName":"RACHELL ANETH GONZALEZ QUINTERO"},{"group":"GRUPO 1","name":"GONZALEZ RIOS, DARIELYS IBETH","originalName":"DARIELYS IBETH GONZALEZ RIOS"},{"group":"GRUPO 1","name":"LIZONDRO GUERRA, NATALIA ALEXANDRA","originalName":"NATALIA ALEXANDRA LIZONDRO GUERRA"},{"group":"GRUPO 1","name":"MIRANDA VELASQUEZ, DANIEL ARTURO","originalName":"DANIEL ARTURO MIRANDA VELASQUEZ"},{"group":"GRUPO 1","name":"PITTI, LUIS FELIPE","originalName":"LUIS FELIPE PITTI"},{"group":"GRUPO 1","name":"POLANCO LOPEZ, KIANI TATYANA","originalName":"KIANI TATYANA POLANCO LOPEZ"},{"group":"GRUPO 1","name":"SANCHEZ, ANDRES ALEJANDRO","originalName":"ANDRES ALEJANDRO SANCHEZ"},{"group":"GRUPO 1","name":"SERRACIN SERRANO, HIDAY JOSABIA","originalName":"HIDAY JOSABIA SERRACIN SERRANO"},{"group":"GRUPO 1","name":"VEJERANO ROVIRA, DIEGO ALEJANDRO","originalName":"DIEGO ALEJANDRO VEJERANO ROVIRA"},{"group":"GRUPO 1","name":"VELASQUEZ SANTANDER, ANA SOFÍA","originalName":"ANA SOFÍA VELASQUEZ SANTANDER"},{"group":"GRUPO 1","name":"VILLARREAL AGUIRRE, GABRIEL STEPHEN","originalName":"GABRIEL STEPHEN VILLARREAL AGUIRRE"},{"group":"GRUPO 1","name":"WILLIAMS ESTRIBI, WALTER DANIEL","originalName":"WALTER DANIEL WILLIAMS ESTRIBI"},{"group":"GRUPO 2","name":"ATENCIO, JUAN JOSE","originalName":"JUAN JOSE ATENCIO"},{"group":"GRUPO 2","name":"CABALLERO VELASQUEZ, ANA GABRIELA","originalName":"ANA GABRIELA CABALLERO VELASQUEZ"},{"group":"GRUPO 2","name":"GIRON SANTOS, ALAN ENRIQUE","originalName":"ALAN ENRIQUE GIRON SANTOS"},{"group":"GRUPO 2","name":"GUERRA, JUAN SEBASTIAN","originalName":"JUAN SEBASTIAN GUERRA"},{"group":"GRUPO 2","name":"LAWS GUTIERREZ, SARAH CRISTINE","originalName":"SARAH CRISTINE LAWS GUTIERREZ"},{"group":"GRUPO 2","name":"LAY QUIEL, RICARDO ANDRÉ","originalName":"RICARDO ANDRÉ LAY QUIEL"},{"group":"GRUPO 2","name":"MENDEZ RIOS, SOLANGEL REBECA","originalName":"SOLANGEL REBECA MENDEZ RIOS"},{"group":"GRUPO 2","name":"MORALES, DANNA YINETH","originalName":"DANNA YINETH MORALES"},{"group":"GRUPO 2","name":"MORENO GONZALEZ, KENNETH XAVIER","originalName":"KENNETH XAVIER MORENO GONZALEZ"},{"group":"GRUPO 2","name":"NADER DUARTE, FARID YUSSEF","originalName":"FARID YUSSEF NADER DUARTE"},{"group":"GRUPO 2","name":"RIVERA YANGUEZ, ASHLEY JORDANA","originalName":"ASHLEY JORDANA RIVERA YANGUEZ"},{"group":"GRUPO 2","name":"RODRIGUEZ MENDOZA, RUTH LISBETH","originalName":"RUTH LISBETH RODRIGUEZ MENDOZA"},{"group":"GRUPO 2","name":"ROJAS FUENTES, LAYLA ESTHER","originalName":"LAYLA ESTHER ROJAS FUENTES"},{"group":"GRUPO 2","name":"SANTAMARIA PITTI, JULIETTE ELENA","originalName":"JULIETTE ELENA SANTAMARIA PITTI"},{"group":"GRUPO 2","name":"VEGA PITTI, ALEJANDRA SOFIA","originalName":"ALEJANDRA SOFIA VEGA PITTI"},{"group":"GRUPO 2","name":"ZAPATA BARRERA, MIGUEL DAVID","originalName":"MIGUEL DAVID ZAPATA BARRERA"},{"group":"GRUPO 2","name":"ZURDO ABREGO, FELIX DAVID","originalName":"FELIX DAVID ZURDO ABREGO"}];
+    const OFFICIAL_EDWIN_ROSTER = [{"group":"10° A","name":"ARAUZ CHEN, SUSAN HADASSA","originalName":"SUSAN HADASSA ARAUZ CHEN"},{"group":"10° A","name":"CABALLERO DEL CID, JOSEPH AMETH","originalName":"JOSEPH AMETH CABALLERO DEL CID"},{"group":"10° A","name":"CASTILLO SAMUDIO, DIDIER SAMIR","originalName":"DIDIER SAMIR CASTILLO SAMUDIO"},{"group":"10° A","name":"CASTRELLON SERRANO, CALEB AARON","originalName":"CALEB AARON CASTRELLON SERRANO"},{"group":"10° A","name":"FLORES CARRILLO, VEGA AMELIE","originalName":"VEGA AMELIE FLORES CARRILLO"},{"group":"10° A","name":"GONZALEZ MONTHIER, ADJANI NICOL","originalName":"ADJANI NICOL GONZALEZ MONTHIER"},{"group":"10° A","name":"GONZALEZ QUINTERO, RACHELL ANETH","originalName":"RACHELL ANETH GONZALEZ QUINTERO"},{"group":"10° A","name":"GONZALEZ RIOS, DARIELYS IBETH","originalName":"DARIELYS IBETH GONZALEZ RIOS"},{"group":"10° A","name":"LIZONDRO GUERRA, NATALIA ALEXANDRA","originalName":"NATALIA ALEXANDRA LIZONDRO GUERRA"},{"group":"10° A","name":"MIRANDA VELASQUEZ, DANIEL ARTURO","originalName":"DANIEL ARTURO MIRANDA VELASQUEZ"},{"group":"10° A","name":"PITTI, LUIS FELIPE","originalName":"LUIS FELIPE PITTI"},{"group":"10° A","name":"POLANCO LOPEZ, KIANI TATYANA","originalName":"KIANI TATYANA POLANCO LOPEZ"},{"group":"10° A","name":"SANCHEZ, ANDRES ALEJANDRO","originalName":"ANDRES ALEJANDRO SANCHEZ"},{"group":"10° A","name":"SERRACIN SERRANO, HIDAY JOSABIA","originalName":"HIDAY JOSABIA SERRACIN SERRANO"},{"group":"10° A","name":"VEJERANO ROVIRA, DIEGO ALEJANDRO","originalName":"DIEGO ALEJANDRO VEJERANO ROVIRA"},{"group":"10° A","name":"VELASQUEZ SANTANDER, ANA SOFÍA","originalName":"ANA SOFÍA VELASQUEZ SANTANDER"},{"group":"10° A","name":"VILLARREAL AGUIRRE, GABRIEL STEPHEN","originalName":"GABRIEL STEPHEN VILLARREAL AGUIRRE"},{"group":"10° A","name":"WILLIAMS ESTRIBI, WALTER DANIEL","originalName":"WALTER DANIEL WILLIAMS ESTRIBI"},{"group":"10° B","name":"ATENCIO, JUAN JOSE","originalName":"JUAN JOSE ATENCIO"},{"group":"10° B","name":"CABALLERO VELASQUEZ, ANA GABRIELA","originalName":"ANA GABRIELA CABALLERO VELASQUEZ"},{"group":"10° B","name":"GIRON SANTOS, ALAN ENRIQUE","originalName":"ALAN ENRIQUE GIRON SANTOS"},{"group":"10° B","name":"GUERRA, JUAN SEBASTIAN","originalName":"JUAN SEBASTIAN GUERRA"},{"group":"10° B","name":"LAWS GUTIERREZ, SARAH CRISTINE","originalName":"SARAH CRISTINE LAWS GUTIERREZ"},{"group":"10° B","name":"LAY QUIEL, RICARDO ANDRÉ","originalName":"RICARDO ANDRÉ LAY QUIEL"},{"group":"10° B","name":"MENDEZ RIOS, SOLANGEL REBECA","originalName":"SOLANGEL REBECA MENDEZ RIOS"},{"group":"10° B","name":"MORALES, DANNA YINETH","originalName":"DANNA YINETH MORALES"},{"group":"10° B","name":"MORENO GONZALEZ, KENNETH XAVIER","originalName":"KENNETH XAVIER MORENO GONZALEZ"},{"group":"10° B","name":"NADER DUARTE, FARID YUSSEF","originalName":"FARID YUSSEF NADER DUARTE"},{"group":"10° B","name":"RIVERA YANGUEZ, ASHLEY JORDANA","originalName":"ASHLEY JORDANA RIVERA YANGUEZ"},{"group":"10° B","name":"RODRIGUEZ MENDOZA, RUTH LISBETH","originalName":"RUTH LISBETH RODRIGUEZ MENDOZA"},{"group":"10° B","name":"ROJAS FUENTES, LAYLA ESTHER","originalName":"LAYLA ESTHER ROJAS FUENTES"},{"group":"10° B","name":"SANTAMARIA PITTI, JULIETTE ELENA","originalName":"JULIETTE ELENA SANTAMARIA PITTI"},{"group":"10° B","name":"VEGA PITTI, ALEJANDRA SOFIA","originalName":"ALEJANDRA SOFIA VEGA PITTI"},{"group":"10° B","name":"ZAPATA BARRERA, MIGUEL DAVID","originalName":"MIGUEL DAVID ZAPATA BARRERA"},{"group":"10° B","name":"ZURDO ABREGO, FELIX DAVID","originalName":"FELIX DAVID ZURDO ABREGO"}];
 
     // Mapa para actualizar automáticamente nombres antiguos ("Nombre Apellido" -> "APELLIDO, NOMBRE")
     const LEGACY_NAME_TO_LASTNAME_FIRST = {};
@@ -4053,8 +4066,8 @@ Ha quedado registrado en el panel oficial del docente.`);
       renderTeacherTable();
       renderDatabaseTable();
       alert(added > 0
-        ? '✅ Se cargaron los ' + added + ' estudiantes de Grupo 1 y Grupo 2 en tu tabla.\n\nAhora verás el botón azul "▶️ Evaluar" al lado de cada estudiante.'
-        : 'ℹ️ Los estudiantes de Grupo 1 y Grupo 2 ya están cargados en tu tabla.');
+        ? '✅ Se cargaron los ' + added + ' estudiantes de 10° A y 10° B en tu tabla.\n\nAhora verás el botón azul "▶️ Evaluar" al lado de cada estudiante.'
+        : 'ℹ️ Los estudiantes de 10° A y 10° B ya están cargados en tu tabla.');
     }
 
     function copyStudentCloudLink() {
@@ -4131,7 +4144,7 @@ Ha quedado registrado en el panel oficial del docente.`);
       );
 
       if (filtered.length === 0) {
-        listEl.innerHTML = '<div class="p-3 text-center text-slate-400 italic text-[11px]">Aún no hay alumnos cargados en la lista. Toca <strong>"📥 Cargar Grupo 1 y 2"</strong> arriba o escribe el nombre del alumno abajo en el paso 2.</div>';
+        listEl.innerHTML = '<div class="p-3 text-center text-slate-400 italic text-[11px]">Aún no hay alumnos cargados en la lista. Toca <strong>"📥 Cargar 10° A y 10° B"</strong> arriba o escribe el nombre del alumno abajo en el paso 2.</div>';
         return;
       }
 
@@ -4167,7 +4180,7 @@ Ha quedado registrado en el panel oficial del docente.`);
       const nameInp = document.getElementById('quick-eval-name-input');
       const grpInp = document.getElementById('quick-eval-group-input');
       const name = (nameInp ? nameInp.value : '').trim().toUpperCase();
-      const group = (grpInp ? grpInp.value : '').trim().toUpperCase() || 'GRUPO 1';
+      const group = (grpInp ? grpInp.value : '').trim().toUpperCase() || '10° A';
 
       if (!name || name.length < 2) {
         alert('Por favor escribe el nombre del alumno que vas a evaluar o selecciónalo de la lista de arriba.');
@@ -4199,7 +4212,7 @@ Ha quedado registrado en el panel oficial del docente.`);
 
     function startClassroomQuickQuizQueue() {
       let db = getStoredDatabase();
-      // Si la tabla está vacía, cargar automáticamente los 35 alumnos de Grupo 1 y Grupo 2
+      // Si la tabla está vacía, cargar automáticamente los 35 alumnos de 10° A y 10° B
       if (db.length === 0 && typeof OFFICIAL_EDWIN_ROSTER !== 'undefined') {
         OFFICIAL_EDWIN_ROSTER.forEach((st, idx) => {
           db.push({
@@ -4231,7 +4244,91 @@ Ha quedado registrado en el panel oficial del docente.`);
         return;
       }
 
-      startEvaluationForStudent(nextStudent.name, nextStudent.group || 'GRUPO 1', 10);
+      startEvaluationForStudent(nextStudent.name, nextStudent.group || '10° A', 10);
+    }
+
+    function updateNextStudentPreviewInCertificate() {
+      const previewEl = document.getElementById('cert-next-student-preview');
+      const nextBox = document.getElementById('classroom-next-student-box');
+      const nextInfo = document.getElementById('classroom-next-student-info');
+      const sGroupInp = document.getElementById('student-group-input');
+      const sNameInp = document.getElementById('student-name-input');
+
+      const db = getStoredDatabase();
+      const currentName = (sNameInp ? sNameInp.value : '').trim().toUpperCase();
+      const currentGrp = (sGroupInp ? sGroupInp.value : '10° A').trim().toUpperCase();
+
+      const pendingInGroup = db.filter(r =>
+        r.status === 'PENDIENTE' &&
+        (r.name || '').trim().toUpperCase() !== currentName &&
+        (!currentGrp || (r.group || '').trim().toUpperCase() === currentGrp)
+      );
+      const nextPending = pendingInGroup[0] || db.find(r => r.status === 'PENDIENTE' && (r.name || '').trim().toUpperCase() !== currentName);
+
+      if (nextPending) {
+        const msg = '🎯 Siguiente en lista (' + (nextPending.group || '10° A') + '): ' + nextPending.name;
+        if (previewEl) previewEl.textContent = msg;
+        if (nextInfo) nextInfo.innerHTML = '🎯 Siguiente alumno en orden alfabético: <strong class="text-amber-300">' + nextPending.name + '</strong> <span class="text-cyan-300">(' + (nextPending.group || '10° A') + ')</span> · <span class="text-slate-400">Quedan ' + (pendingInGroup.length || 1) + ' pendientes</span>';
+        if (nextBox) nextBox.classList.remove('hidden');
+      } else {
+        if (previewEl) previewEl.textContent = '✅ Calificación guardada · Toca "Siguiente Estudiante" para evaluar al próximo alumno';
+        if (nextBox) nextBox.classList.remove('hidden');
+        if (nextInfo) nextInfo.innerHTML = '🎉 <strong class="text-emerald-400">Calificación guardada en Excel y Nube.</strong> Presiona "Siguiente Estudiante" para continuar.';
+      }
+    }
+
+    function handleNextStudentFromCertificate() {
+      const sNameInp = document.getElementById('student-name-input');
+      const sGroupInp = document.getElementById('student-group-input');
+      const currentName = (sNameInp ? sNameInp.value : '').trim();
+      const currentGrp = (sGroupInp ? sGroupInp.value : '10° A').trim().toUpperCase() || '10° A';
+
+      // 1. Si el alumno actual tiene nombre escrito, asegurar que quede guardado en Tabla, Excel y Nube
+      if (currentName.length >= 2) {
+        sendOfficialCodeToTeacherDatabase(true);
+      }
+
+      // 2. Si la base de datos aún estaba vacía, cargar la lista oficial por orden alfabético de apellido (10° A y 10° B)
+      let db = getStoredDatabase();
+      if (db.length === 0 && typeof OFFICIAL_EDWIN_ROSTER !== 'undefined') {
+        OFFICIAL_EDWIN_ROSTER.forEach((st, idx) => {
+          db.push({
+            datetime: 'En lista',
+            name: st.name,
+            group: st.group.toUpperCase(),
+            correct: 0,
+            total: 10,
+            grade: '--',
+            status: 'PENDIENTE',
+            duration: '--',
+            switches: 0,
+            code: 'PEND-G-' + idx + '-' + Date.now().toString(36).toUpperCase()
+          });
+        });
+        saveStoredDatabase(db);
+        db = getStoredDatabase();
+      }
+
+      // 3. Buscar el siguiente alumno pendiente en orden alfabético de apellido dentro de su grado (ej. 10° A)
+      const pendingInGroup = db.filter(r =>
+        r.status === 'PENDIENTE' &&
+        (r.name || '').trim().toUpperCase() !== currentName.toUpperCase() &&
+        (!currentGrp || (r.group || '').trim().toUpperCase() === currentGrp)
+      );
+
+      let nextStudent = pendingInGroup[0] || db.find(r => r.status === 'PENDIENTE' && (r.name || '').trim().toUpperCase() !== currentName.toUpperCase());
+
+      if (nextStudent) {
+        startEvaluationForStudent(nextStudent.name, nextStudent.group || currentGrp || '10° A', isClassroomQuickQuiz ? 10 : TOTAL_ITEMS);
+        return;
+      }
+
+      // Si todos los de la lista ya fueron evaluados, abrir el selector para elegir o agregar otro alumno/grado
+      try {
+        sessionStorage.removeItem('quimiquiz_active_student_name');
+      } catch (e) {}
+      if (sNameInp) sNameInp.value = '';
+      openQuickEvaluateModal();
     }
 
     function evaluateNextPendingStudentInClass() {
@@ -4256,7 +4353,7 @@ Ha quedado registrado en el panel oficial del docente.`);
         return;
       }
 
-      startEvaluationForStudent(nextStudent.name, nextStudent.group || 'GRUPO 1', 10);
+      startEvaluationForStudent(nextStudent.name, nextStudent.group || '10° A', 10);
     }
 
     function startEvaluationForStudent(studentName, studentGroup, itemsCount = 10) {
