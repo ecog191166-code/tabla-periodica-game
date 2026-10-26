@@ -2525,7 +2525,7 @@ Ana Victoria Gómez"
     function startAutoNextCountdown() {
       stopAutoNextCountdown();
       if (isSimulating) return;
-      autoNextSecondsLeft = 10;
+      autoNextSecondsLeft = isClassroomQuickQuiz ? 5 : 10;
       const ind = document.getElementById('auto-next-indicator');
       const isTrialEnd = !isClassroomQuickQuiz && !isProLicenseActive && (currentItemIndex + 1) >= FREE_TRIAL_LIMIT;
       const isLast = currentItemIndex === TOTAL_ITEMS - 1;
