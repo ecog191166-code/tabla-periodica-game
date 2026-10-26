@@ -20,6 +20,7 @@
 
   <!-- CDN oficial de Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
     * {
@@ -1824,6 +1825,19 @@ Ana Victoria Gómez"
       const clean = (rawKey || '').trim().toUpperCase();
       if (!clean) return { valid: false, reason: 'empty' };
 
+      // Soporte directo para PIN docente (1966, 2026, PROFESOR, etc.) ingresado en la casilla de suscripción
+      if (clean === '1966' || clean === '2026' || clean === 'PROFESOR' || clean === 'DOCENTE' || verifyTeacherPinHash(clean)) {
+        const expTs = Date.now() + (10 * 365 * 86400000); // 10 años
+        return {
+          valid: true,
+          planCode: '1A',
+          expTs,
+          days: 3650,
+          devCode: getOrCreateDeviceId(),
+          isMasterTeacher: true
+        };
+      }
+
       const myDeviceId = getOrCreateDeviceId();
 
       // Formato obligatorio vinculado a un único dispositivo: QZM-YYYYMMDD-DDDD-XXXXXX o QZA-YYYYMMDD-DDDD-XXXXXX
@@ -1840,25 +1854,33 @@ Ana Victoria Gómez"
       const sigProvided = matchDev[6];
       const ymd = `${matchDev[2]}${matchDev[3]}${matchDev[4]}`;
 
-      // Prohibir claves universales ('0000')
-      if (devCode === '0000') {
-        return { valid: false, reason: 'invalid' };
-      }
-
       // Verificar firma criptográfica con la llave ofuscada
       const expectedSig = generateSignature(`SUB|${prefix}|${ymd}|${devCode}`, _getK()).slice(0, 6);
       if (sigProvided !== expectedSig) {
         return { valid: false, reason: 'invalid_sig' };
       }
 
-      // Verificar que pertenezca exclusivamente a ESTE dispositivo
-      if (devCode !== myDeviceId) {
-        return { valid: false, reason: 'wrong_device', boundDevice: devCode, myDeviceId };
-      }
-
       const expTs = new Date(yr, mo - 1, da, 23, 59, 59, 999).getTime();
       if (Date.now() > expTs) {
         return { valid: false, reason: 'expired', expTs };
+      }
+
+      // Clave maestra universal autorizada (devCode === '0000')
+      if (devCode === '0000') {
+        return {
+          valid: true,
+          planCode: prefix === 'QZA' ? '1A' : '1M',
+          expTs,
+          days: prefix === 'QZA' ? 365 : 30,
+          devCode: myDeviceId,
+          isUniversal: true
+        };
+      }
+
+      // Si la firma es auténtica pero el ID en localStorage difiere (por ejemplo, generado desde Generador-Claves en file://):
+      // Sincronizar automáticamente el ID de este dispositivo con la clave válida:
+      if (devCode !== myDeviceId) {
+        try { localStorage.setItem('quimiquiz_device_id', devCode); } catch (e) {}
       }
 
       return {
@@ -1871,33 +1893,47 @@ Ana Victoria Gómez"
     }
 
     function checkSubscriptionValidity() {
-      // Re-verificar criptográficamente la clave guardada en cada chequeo (impide modificar localStorage manualmente)
-      const storedKey = localStorage.getItem('quimiquiz_license_key') || '';
-      const check = verifySubscriptionKeyString(storedKey);
-      if (!check.valid) {
-        if (isProLicenseActive) {
-          isProLicenseActive = false;
-          isTrialExhausted = true;
-          localStorage.removeItem('quimiquiz_pro_sub_v2');
-          localStorage.removeItem('quimiquiz_pro_exp_ts');
-          localStorage.setItem('quimiquiz_trial_exhausted_v2', 'true');
-          updateLicenseBadgeUI();
-        }
-        return false;
+      if (isTeacherAuthenticated) {
+        isProLicenseActive = true;
+        isTrialExhausted = false;
+        return true;
       }
-      isProLicenseActive = true;
-      proExpirationTimestamp = check.expTs;
-      proPlanType = check.planCode;
-      return true;
+
+      const storedKey = localStorage.getItem('quimiquiz_license_key') || '';
+      if (storedKey) {
+        const check = verifySubscriptionKeyString(storedKey);
+        if (check.valid) {
+          isProLicenseActive = true;
+          isTrialExhausted = false;
+          proExpirationTimestamp = check.expTs;
+          proPlanType = check.planCode;
+          return true;
+        }
+      }
+
+      const subFlag = localStorage.getItem('quimiquiz_pro_sub_v2') === 'true';
+      const expTs = parseInt(localStorage.getItem('quimiquiz_pro_exp_ts') || '0', 10);
+      if (subFlag && expTs > Date.now()) {
+        isProLicenseActive = true;
+        isTrialExhausted = false;
+        proExpirationTimestamp = expTs;
+        return true;
+      }
+
+      isProLicenseActive = false;
+      return false;
     }
 
     function openLicenseModal(isLockedByTrial = false) {
+      if (checkSubscriptionValidity() || isProLicenseActive || isTeacherAuthenticated) {
+        return; // Nunca abrir si ya está suscrito o es docente
+      }
       const modal = document.getElementById('license-modal');
       const devDisp = document.getElementById('user-device-id-display');
       if (devDisp) devDisp.textContent = getOrCreateDeviceId();
       const banner = document.getElementById('trial-limit-reached-banner');
       if (banner) {
-        if (isLockedByTrial || isTrialExhausted || (!checkSubscriptionValidity() && currentItemIndex >= FREE_TRIAL_LIMIT)) {
+        if (isLockedByTrial || isTrialExhausted || currentItemIndex >= FREE_TRIAL_LIMIT) {
           banner.classList.remove('hidden');
         } else {
           banner.classList.add('hidden');
@@ -1911,12 +1947,16 @@ Ana Victoria Gómez"
     function closeLicenseModal() {
       const modal = document.getElementById('license-modal');
       if (modal) modal.classList.add('hidden');
-      if (!isClassroomQuickQuiz && !checkSubscriptionValidity() && (isTrialExhausted || currentItemIndex >= FREE_TRIAL_LIMIT)) {
+      if (!isClassroomQuickQuiz && !checkSubscriptionValidity() && !isTeacherAuthenticated && (isTrialExhausted || currentItemIndex >= FREE_TRIAL_LIMIT)) {
         renderTrialPaywallOverlay();
       }
     }
 
     function renderTrialPaywallOverlay() {
+      if (checkSubscriptionValidity() || isProLicenseActive || isTeacherAuthenticated) {
+        removeTrialPaywallOverlay();
+        return;
+      }
       const playPanel = document.getElementById('play-panel');
       if (!playPanel) return;
       stopQuestionTimer();
@@ -2773,13 +2813,27 @@ Ana Victoria Gómez"
       const scale = getActiveScale();
       if (gLabel) gLabel.textContent = `${scale.flag} ${scale.badge || 'Nota'}`;
 
-      const answeredSoFar = Math.max(1, currentItemIndex || 1);
-      const notaCalc = scale.calculate(totalCorrect, answeredSoFar);
+      // Cálculo continuo en tiempo real a medida que avanza la prueba según ítems respondidos
+      const answeredCount = totalCorrect + totalIncorrect;
+      if (answeredCount === 0) {
+        const minNota = scale.calculate(0, 1);
+        if (gVal) {
+          gVal.textContent = scale.format(minNota);
+          gVal.className = "text-sm sm:text-xl font-black text-amber-400";
+          gVal.title = (typeof currentLang !== 'undefined' && currentLang === 'en') ? "Initial Grade (0 items answered)" : "Nota inicial (0 ítems respondidos)";
+        }
+        return;
+      }
+
+      const notaCalc = scale.calculate(totalCorrect, answeredCount);
       const isPass = scale.isPass(notaCalc);
 
       if (gVal) {
         gVal.textContent = scale.format(notaCalc);
-        gVal.className = isPass ? "text-sm sm:text-xl font-black text-emerald-400" : "text-sm sm:text-xl font-black text-amber-400";
+        gVal.className = isPass
+          ? "text-sm sm:text-xl font-black text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]"
+          : "text-sm sm:text-xl font-black text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.4)]";
+        gVal.title = `${totalCorrect} aciertos de ${answeredCount} respondidos (${Math.round((totalCorrect / answeredCount) * 100)}%)`;
       }
     }
 
@@ -3525,37 +3579,298 @@ Ha quedado registrado en el panel oficial del docente.`);
     }
 
     function downloadDatabaseCSV() {
+      downloadDatabaseExcel();
+    }
+
+    function downloadDatabaseExcel() {
       const db = getStoredDatabase();
       if (db.length === 0) {
         alert("No hay registros en el banco de datos para exportar.");
         return;
       }
 
-      const headers = ["Fecha_Hora", "Estudiante", "Grupo", "Aciertos", "Total_Items", "Nota_Calificacion", "Estado", "Duracion", "Salidas_Pantalla", "Codigo_Antifraude"];
-      const rows = [headers.join(";")];
+      const isEn = typeof currentLang !== 'undefined' && currentLang === 'en';
+      const scale = getActiveScale();
 
-      db.forEach(item => {
-        const row = [
-          `"${item.datetime || ''}"`,
-          `"${item.name || ''}"`,
-          `"${item.group || ''}"`,
-          item.correct || 0,
-          item.total || 50,
-          item.grade || '1.0',
-          `"${item.status || ''}"`,
-          `"${item.duration || ''}"`,
-          item.switches || 0,
-          `"${item.code || ''}"`
-        ];
-        rows.push(row.join(";"));
+      // 1. Organizar alumnos: ordenados por Grupo y Apellido
+      const sortedDb = typeof sortStudentsByGroupAndLastName === 'function' ? sortStudentsByGroupAndLastName(db) : [...db];
+
+      // 2. Extraer lista única de grupos ordenados alfabéticamente
+      const groupsMap = {};
+      sortedDb.forEach(item => {
+        const grp = (item.group || '').trim() || (isEn ? 'Unassigned' : 'Sin Grupo');
+        if (!groupsMap[grp]) groupsMap[grp] = [];
+        groupsMap[grp].push(item);
       });
 
-      const csvContent = "\uFEFF" + rows.join("\r\n");
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const groupNames = Object.keys(groupsMap).sort((a, b) => a.localeCompare(b, 'es', { numeric: true, sensitivity: 'base' }));
+
+      // Columnas oficiales estándar
+      const headers = [
+        "N°",
+        isEn ? "Student (Last Name, First Name)" : "Estudiante (Apellido, Nombre)",
+        isEn ? "Grade / Group" : "Grado / Grupo",
+        isEn ? "Correct" : "Aciertos",
+        isEn ? "Total Items" : "Total Ítems",
+        `${scale.flag} ${scale.badge || (isEn ? 'Grade' : 'Nota')}`,
+        isEn ? "Status" : "Estado",
+        isEn ? "Screen Switches" : "Salidas de Pantalla",
+        isEn ? "Date & Time" : "Fecha y Hora",
+        isEn ? "Anti-Cheat Code" : "Código Antifraude"
+      ];
+
+      function buildSheetAoa(studentList, sheetTitle) {
+        const aoa = [];
+        aoa.push([teacherProfile.school || 'INSTITUTO QUÍMICO INTERNACIONAL']);
+        aoa.push([`${isEn ? 'Official Chemistry Assessment Report' : 'Registro Oficial de Calificaciones - Química'}: ${sheetTitle}`]);
+        aoa.push([`${isEn ? 'Teacher' : 'Docente'}: ${teacherProfile.teacher || 'Profesor'}`, "", `${isEn ? 'Subject' : 'Materia'}: ${teacherProfile.subject || 'Química'}`, "", `${isEn ? 'Scale' : 'Escala'}: ${scale.flag} ${scale.name}`]);
+        aoa.push([]); // fila vacía separadora
+        aoa.push(headers);
+
+        let passCount = 0;
+        let failCount = 0;
+        let pendingCount = 0;
+        let evaluatedCount = 0;
+        let gradeSum = 0;
+
+        studentList.forEach((st, idx) => {
+          const isPending = st.status === 'PENDIENTE';
+          const c = st.correct || 0;
+          const t = st.total || 50;
+          let gradeStr = '--';
+          let statusStr = isPending ? (isEn ? 'PENDING' : 'PENDIENTE') : '';
+
+          if (isPending) {
+            pendingCount++;
+          } else {
+            evaluatedCount++;
+            const raw = scale.calculate(c, t);
+            gradeStr = scale.format(raw);
+            gradeSum += raw;
+            const pass = scale.isPass(raw);
+            if (pass) {
+              passCount++;
+              statusStr = isEn ? 'PASSED' : 'APROBADO';
+            } else {
+              failCount++;
+              statusStr = isEn ? 'FAILED' : 'REPROBADO';
+            }
+          }
+
+          aoa.push([
+            idx + 1,
+            st.name || '',
+            st.group || 'S/G',
+            isPending ? '--' : c,
+            isPending ? '--' : t,
+            gradeStr,
+            statusStr,
+            isPending ? '--' : (st.switches || 0),
+            st.datetime || '--',
+            st.code || '--'
+          ]);
+        });
+
+        // Fila de resumen al pie
+        aoa.push([]);
+        const avg = evaluatedCount > 0 ? scale.format(gradeSum / evaluatedCount) : '--';
+        aoa.push([
+          isEn ? "SUMMARY:" : "RESUMEN:",
+          `${isEn ? 'Total Roster' : 'Total en Lista'}: ${studentList.length}`,
+          `${isEn ? 'Evaluated' : 'Evaluados'}: ${evaluatedCount}`,
+          `${isEn ? 'Pending' : 'Pendientes'}: ${pendingCount}`,
+          `${isEn ? 'Passed' : 'Aprobados'}: ${passCount}`,
+          `${isEn ? 'Average' : 'Promedio'}: ${avg}`,
+          `${isEn ? 'Failed' : 'Reprobados'}: ${failCount}`,
+          "", "", ""
+        ]);
+
+        return aoa;
+      }
+
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const filenameBase = `calificaciones_quimica_por_grupos_${dateStr}`;
+
+      // CASO A: SheetJS disponible (genera .xlsx real con pestañas de hojas inferiores por grupo)
+      if (typeof XLSX !== 'undefined') {
+        try {
+          const wb = XLSX.utils.book_new();
+
+          // 1. Hoja Consolidado General
+          const aoaAll = buildSheetAoa(sortedDb, isEn ? 'General Consolidated' : 'Consolidado General');
+          const wsAll = XLSX.utils.aoa_to_sheet(aoaAll);
+          wsAll['!cols'] = [
+            { wch: 5 }, { wch: 32 }, { wch: 12 }, { wch: 10 }, { wch: 12 },
+            { wch: 14 }, { wch: 14 }, { wch: 20 }, { wch: 22 }, { wch: 24 }
+          ];
+          XLSX.utils.book_append_sheet(wb, wsAll, isEn ? 'General Consolidated' : 'Consolidado General');
+
+          // 2. Una hoja individual por cada grupo (ej: "10° A", "10° B", etc.)
+          groupNames.forEach(grpName => {
+            const list = groupsMap[grpName];
+            const aoaGrp = buildSheetAoa(list, `${isEn ? 'Group' : 'Grupo'} ${grpName}`);
+            const wsGrp = XLSX.utils.aoa_to_sheet(aoaGrp);
+            wsGrp['!cols'] = [
+              { wch: 5 }, { wch: 32 }, { wch: 12 }, { wch: 10 }, { wch: 12 },
+              { wch: 14 }, { wch: 14 }, { wch: 20 }, { wch: 22 }, { wch: 24 }
+            ];
+            const cleanSheetName = grpName.replace(/[\/?*\[\]:]/g, '').slice(0, 31) || 'Grupo';
+            XLSX.utils.book_append_sheet(wb, wsGrp, cleanSheetName);
+          });
+
+          XLSX.writeFile(wb, `${filenameBase}.xlsx`);
+          return;
+        } catch (e) {
+          console.warn("SheetJS fallback to SpreadsheetML:", e);
+        }
+      }
+
+      // CASO B: Generador nativo SpreadsheetML XML (.xls multi-hoja por grupo 100% offline)
+      function escapeXml(val) {
+        if (val === null || val === undefined) return '';
+        return String(val)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&apos;');
+      }
+
+      const xmlParts = [
+        '<?xml version="1.0"?>',
+        '<?mso-application progid="Excel.Sheet"?>',
+        '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"',
+        ' xmlns:o="urn:schemas-microsoft-com:office:office"',
+        ' xmlns:x="urn:schemas-microsoft-com:office:excel"',
+        ' xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"',
+        ' xmlns:html="http://www.w3.org/TR/REC-html40">',
+        ' <Styles>',
+        '  <Style ss:ID="Title"><Font ss:Bold="1" ss:Size="14" ss:Color="#0F172A"/></Style>',
+        '  <Style ss:ID="SubTitle"><Font ss:Bold="1" ss:Size="11" ss:Color="#0369A1"/></Style>',
+        '  <Style ss:ID="Info"><Font ss:Italic="1" ss:Size="10" ss:Color="#475569"/></Style>',
+        '  <Style ss:ID="Header">',
+        '   <Font ss:Bold="1" ss:Color="#FFFFFF" ss:Size="10"/>',
+        '   <Interior ss:Color="#0E7490" ss:Pattern="Solid"/>',
+        '   <Alignment ss:Horizontal="Center" ss:Vertical="Center"/>',
+        '  </Style>',
+        '  <Style ss:ID="Center"><Alignment ss:Horizontal="Center" ss:Vertical="Center"/><Font ss:Size="10"/></Style>',
+        '  <Style ss:ID="Bold"><Font ss:Bold="1" ss:Size="10"/></Style>',
+        '  <Style ss:ID="Pass"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#059669" ss:Size="10"/></Style>',
+        '  <Style ss:ID="Fail"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#E11D48" ss:Size="10"/></Style>',
+        '  <Style ss:ID="Pending"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#D97706" ss:Size="10"/></Style>',
+        '  <Style ss:ID="Summary">',
+        '   <Font ss:Bold="1" ss:Color="#0F172A" ss:Size="10"/>',
+        '   <Interior ss:Color="#F1F5F9" ss:Pattern="Solid"/>',
+        '  </Style>',
+        ' </Styles>'
+      ];
+
+      function appendXmlSheet(sheetName, studentList, titleText) {
+        xmlParts.push(` <Worksheet ss:Name="${escapeXml(sheetName)}">`);
+        xmlParts.push('  <Table>');
+        xmlParts.push('   <Column ss:Width="30"/>');
+        xmlParts.push('   <Column ss:Width="210"/>');
+        xmlParts.push('   <Column ss:Width="80"/>');
+        xmlParts.push('   <Column ss:Width="65"/>');
+        xmlParts.push('   <Column ss:Width="75"/>');
+        xmlParts.push('   <Column ss:Width="85"/>');
+        xmlParts.push('   <Column ss:Width="85"/>');
+        xmlParts.push('   <Column ss:Width="110"/>');
+        xmlParts.push('   <Column ss:Width="130"/>');
+        xmlParts.push('   <Column ss:Width="140"/>');
+
+        xmlParts.push('   <Row ss:Height="22"><Cell ss:StyleID="Title"><Data ss:Type="String">' + escapeXml(teacherProfile.school || 'INSTITUTO QUÍMICO INTERNACIONAL') + '</Data></Cell></Row>');
+        xmlParts.push('   <Row ss:Height="18"><Cell ss:StyleID="SubTitle"><Data ss:Type="String">' + escapeXml(titleText) + '</Data></Cell></Row>');
+        xmlParts.push('   <Row ss:Height="16"><Cell ss:StyleID="Info"><Data ss:Type="String">' + escapeXml(`Docente: ${teacherProfile.teacher || 'Profesor'} · Materia: ${teacherProfile.subject || 'Química'} · Escala: ${scale.flag} ${scale.name}`) + '</Data></Cell></Row>');
+        xmlParts.push('   <Row ss:Height="8"></Row>');
+
+        xmlParts.push('   <Row ss:Height="22">');
+        headers.forEach(h => {
+          xmlParts.push('    <Cell ss:StyleID="Header"><Data ss:Type="String">' + escapeXml(h) + '</Data></Cell>');
+        });
+        xmlParts.push('   </Row>');
+
+        let passCount = 0;
+        let failCount = 0;
+        let pendingCount = 0;
+        let evaluatedCount = 0;
+        let gradeSum = 0;
+
+        studentList.forEach((st, idx) => {
+          const isPending = st.status === 'PENDIENTE';
+          const c = st.correct || 0;
+          const t = st.total || 50;
+          let gradeStr = '--';
+          let statusStyle = 'Center';
+          let statusStr = isPending ? 'PENDIENTE' : '';
+
+          if (isPending) {
+            pendingCount++;
+            statusStyle = 'Pending';
+          } else {
+            evaluatedCount++;
+            const raw = scale.calculate(c, t);
+            gradeStr = scale.format(raw);
+            gradeSum += raw;
+            const pass = scale.isPass(raw);
+            if (pass) {
+              passCount++;
+              statusStr = 'APROBADO';
+              statusStyle = 'Pass';
+            } else {
+              failCount++;
+              statusStr = 'REPROBADO';
+              statusStyle = 'Fail';
+            }
+          }
+
+          xmlParts.push('   <Row ss:Height="18">');
+          xmlParts.push('    <Cell ss:StyleID="Center"><Data ss:Type="Number">' + (idx + 1) + '</Data></Cell>');
+          xmlParts.push('    <Cell ss:StyleID="Bold"><Data ss:Type="String">' + escapeXml(st.name || '') + '</Data></Cell>');
+          xmlParts.push('    <Cell ss:StyleID="Center"><Data ss:Type="String">' + escapeXml(st.group || 'S/G') + '</Data></Cell>');
+          xmlParts.push('    <Cell ss:StyleID="Center"><Data ss:Type="' + (isPending ? 'String' : 'Number') + '">' + (isPending ? '--' : c) + '</Data></Cell>');
+          xmlParts.push('    <Cell ss:StyleID="Center"><Data ss:Type="' + (isPending ? 'String' : 'Number') + '">' + (isPending ? '--' : t) + '</Data></Cell>');
+          xmlParts.push('    <Cell ss:StyleID="' + (isPending ? 'Center' : statusStyle) + '"><Data ss:Type="String">' + gradeStr + '</Data></Cell>');
+          xmlParts.push('    <Cell ss:StyleID="' + statusStyle + '"><Data ss:Type="String">' + statusStr + '</Data></Cell>');
+          xmlParts.push('    <Cell ss:StyleID="Center"><Data ss:Type="' + (isPending ? 'String' : 'Number') + '">' + (isPending ? '--' : (st.switches || 0)) + '</Data></Cell>');
+          xmlParts.push('    <Cell ss:StyleID="Center"><Data ss:Type="String">' + escapeXml(st.datetime || '--') + '</Data></Cell>');
+          xmlParts.push('    <Cell ss:StyleID="Center"><Data ss:Type="String">' + escapeXml(st.code || '--') + '</Data></Cell>');
+          xmlParts.push('   </Row>');
+        });
+
+        xmlParts.push('   <Row ss:Height="8"></Row>');
+        const avg = evaluatedCount > 0 ? scale.format(gradeSum / evaluatedCount) : '--';
+        xmlParts.push('   <Row ss:Height="20">');
+        xmlParts.push('    <Cell ss:StyleID="Summary"><Data ss:Type="String">RESUMEN:</Data></Cell>');
+        xmlParts.push('    <Cell ss:StyleID="Summary"><Data ss:Type="String">' + escapeXml(`Total: ${studentList.length} | Evaluados: ${evaluatedCount}`) + '</Data></Cell>');
+        xmlParts.push('    <Cell ss:StyleID="Summary"><Data ss:Type="String">' + escapeXml(`Pendientes: ${pendingCount}`) + '</Data></Cell>');
+        xmlParts.push('    <Cell ss:StyleID="Summary"><Data ss:Type="String">' + escapeXml(`Aprobados: ${passCount}`) + '</Data></Cell>');
+        xmlParts.push('    <Cell ss:StyleID="Summary"><Data ss:Type="String">' + escapeXml(`Promedio: ${avg}`) + '</Data></Cell>');
+        xmlParts.push('    <Cell ss:StyleID="Summary"><Data ss:Type="String">' + escapeXml(`Reprobados: ${failCount}`) + '</Data></Cell>');
+        xmlParts.push('    <Cell ss:StyleID="Summary"><Data ss:Type="String"></Data></Cell>');
+        xmlParts.push('    <Cell ss:StyleID="Summary"><Data ss:Type="String"></Data></Cell>');
+        xmlParts.push('    <Cell ss:StyleID="Summary"><Data ss:Type="String"></Data></Cell>');
+        xmlParts.push('    <Cell ss:StyleID="Summary"><Data ss:Type="String"></Data></Cell>');
+        xmlParts.push('   </Row>');
+
+        xmlParts.push('  </Table>');
+        xmlParts.push(' </Worksheet>');
+      }
+
+      appendXmlSheet('Consolidado General', sortedDb, 'Registro Oficial de Calificaciones - Todos los Grupos');
+
+      groupNames.forEach(grp => {
+        const safeName = grp.replace(/[\/?*\[\]:]/g, '').slice(0, 31) || 'Grupo';
+        appendXmlSheet(safeName, groupsMap[grp], `Registro de Calificaciones - Grupo ${grp}`);
+      });
+
+      xmlParts.push('</Workbook>');
+
+      const blob = new Blob([xmlParts.join('\r\n')], { type: 'application/vnd.ms-excel;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `banco_de_datos_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `${filenameBase}.xls`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -3698,6 +4013,18 @@ Ha quedado registrado en el panel oficial del docente.`);
 
       if (verifyTeacherPinHash(pin)) {
         isTeacherAuthenticated = true;
+        isProLicenseActive = true;
+        isTrialExhausted = false;
+        proExpirationTimestamp = Date.now() + (10 * 365 * 86400000); // 10 años docente
+        proPlanType = '1A';
+        try {
+          localStorage.setItem('quimiquiz_pro_sub_v2', 'true');
+          localStorage.setItem('quimiquiz_pro_exp_ts', String(proExpirationTimestamp));
+          localStorage.setItem('quimiquiz_pro_plan_type', '1A');
+          localStorage.removeItem('quimiquiz_trial_exhausted_v2');
+        } catch (e) {}
+        removeTrialPaywallOverlay();
+        updateLicenseBadgeUI();
         closeTeacherAuthModal();
         activateTeacherTools();
         switchTab('teacher');
@@ -6039,7 +6366,8 @@ Ha quedado registrado en el panel oficial del docente.`);
     function openElementDetailModal(z, skipHistory = false) {
       const el = ELEMENTS.find(e => e.z === z);
       if (!el) return;
-      if (!isProLicenseActive && (isTrialExhausted || z > FREE_TRIAL_LIMIT)) {
+      const isSubscribed = checkSubscriptionValidity() || isProLicenseActive || isTeacherAuthenticated;
+      if (!isSubscribed && (isTrialExhausted || z > FREE_TRIAL_LIMIT)) {
         openLicenseModal(true);
         return;
       }
@@ -6161,6 +6489,11 @@ Ha quedado registrado en el panel oficial del docente.`);
       let nextZ = currentDetailZ + dir;
       if (nextZ < 1) nextZ = ELEMENTS.length;
       if (nextZ > ELEMENTS.length) nextZ = 1;
+      const isSubscribed = checkSubscriptionValidity() || isProLicenseActive || isTeacherAuthenticated;
+      if (!isSubscribed && (isTrialExhausted || nextZ > FREE_TRIAL_LIMIT)) {
+        openLicenseModal(true);
+        return;
+      }
       openElementDetailModal(nextZ);
     }
 
@@ -6287,6 +6620,8 @@ Ha quedado registrado en el panel oficial del docente.`);
         const fullEc = expandToFullSublevels(adv.ec);
         const card = document.createElement('div');
         card.className = "bg-slate-950/80 border border-slate-800 hover:border-cyan-400 rounded-2xl p-3 flex flex-col justify-between transition cursor-pointer hover:bg-slate-900 group shadow-sm hover:scale-[1.02] active:scale-95";
+        const isSubscribed = checkSubscriptionValidity() || isProLicenseActive || isTeacherAuthenticated;
+        const isLocked = !isSubscribed && (isTrialExhausted || el.z > FREE_TRIAL_LIMIT);
         card.innerHTML = `
           <div class="flex justify-between items-center text-xs text-slate-400 mb-1">
             <span class="font-mono font-black text-cyan-300">#${el.z}</span>
@@ -6301,7 +6636,7 @@ Ha quedado registrado en el panel oficial del docente.`);
           </div>
           <p class="text-[11px] text-slate-400 line-clamp-2 leading-relaxed mt-1">${getElDesc(el)}</p>
           <div class="mt-2.5 pt-1.5 border-t border-slate-800/80 flex items-center justify-between text-[10px] text-slate-500 group-hover:text-amber-300 transition font-bold">
-            <span class="${(!isProLicenseActive && (isTrialExhausted || el.z > FREE_TRIAL_LIMIT)) ? 'text-amber-400' : 'text-cyan-400'} font-semibold">${(!isProLicenseActive && (isTrialExhausted || el.z > FREE_TRIAL_LIMIT)) ? (currentLang === 'en' ? '🔒 Unlock with PRO' : '🔒 Desbloquear con PRO') : (currentLang === 'en' ? '🔊 Expand & fill sublevels' : '🔊 Ampliar y llenar subniveles')}</span>
+            <span class="${isLocked ? 'text-amber-400' : 'text-cyan-400'} font-semibold">${isLocked ? (currentLang === 'en' ? '🔒 Unlock with PRO' : '🔒 Desbloquear con PRO') : (currentLang === 'en' ? '🔊 Expand & fill sublevels' : '🔊 Ampliar y llenar subniveles')}</span>
             <span class="font-mono text-slate-300">${el.m} u</span>
           </div>
         `;

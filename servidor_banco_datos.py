@@ -29,6 +29,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # Archivos de Base de Datos
 CSV_FILE = os.path.join(BASE_DIR, "banco_de_datos.csv")
 JSON_FILE = os.path.join(BASE_DIR, "banco_de_datos.json")
+XLSX_FILE = os.path.join(BASE_DIR, "banco_de_datos.xlsx")
 SUBS_CSV_FILE = os.path.join(BASE_DIR, "suscriptores_pro.csv")
 SUBS_JSON_FILE = os.path.join(BASE_DIR, "suscriptores_pro.json")
 STUDENTS_JSON_FILE = os.path.join(BASE_DIR, "estudiantes.json")
@@ -140,6 +141,110 @@ def load_json_file(path):
     return []
 
 
+
+def export_records_to_multisheet_excel(records):
+    """Genera banco_de_datos.xlsx dividido en hojas por grupo y consolidado general."""
+    try:
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        from openpyxl.utils import get_column_letter
+
+        wb = openpyxl.Workbook()
+        wb.remove(wb.active)
+
+        header_fill = PatternFill(start_color="0E7490", end_color="0E7490", fill_type="solid")
+        header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+        center_align = Alignment(horizontal="center", vertical="center")
+        pass_font = Font(name="Calibri", size=10, bold=True, color="059669")
+        fail_font = Font(name="Calibri", size=10, bold=True, color="E11D48")
+        bold_font = Font(name="Calibri", size=10, bold=True)
+
+        headers = [
+            "N°", "Estudiante (Apellido, Nombre)", "Grado / Grupo", "Aciertos",
+            "Total Ítems", "Nota", "Estado", "Salidas Pantalla", "Fecha y Hora", "Código Antifraude"
+        ]
+
+        groups_map = {}
+        for r in records:
+            grp = str(r.get("group", "S/G")).strip() or "Sin Grupo"
+            groups_map.setdefault(grp, []).append(r)
+
+        for grp in groups_map:
+            groups_map[grp].sort(key=lambda x: str(x.get("name", "")).upper())
+
+        sorted_all = []
+        for grp in sorted(groups_map.keys()):
+            sorted_all.extend(groups_map[grp])
+
+        def populate_sheet(ws, title_text, data_list):
+            ws.append([title_text])
+            ws.append([])
+            ws.append(headers)
+
+            ws.row_dimensions[1].height = 24
+            ws.row_dimensions[3].height = 22
+            ws.cell(row=1, column=1).font = Font(name="Calibri", size=14, bold=True, color="0F172A")
+
+            for col_idx in range(1, len(headers) + 1):
+                cell = ws.cell(row=3, column=col_idx)
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = center_align
+
+            for idx, item in enumerate(data_list, start=1):
+                row_num = idx + 3
+                status = str(item.get("status", "")).upper()
+                row_vals = [
+                    idx,
+                    str(item.get("name", "")),
+                    str(item.get("group", "S/G")),
+                    item.get("correct", 0),
+                    item.get("total", 50),
+                    str(item.get("grade", "--")),
+                    status,
+                    item.get("switches", 0),
+                    str(item.get("datetime", "--")),
+                    str(item.get("code", "--"))
+                ]
+                ws.append(row_vals)
+                ws.row_dimensions[row_num].height = 20
+
+                ws.cell(row=row_num, column=1).alignment = center_align
+                ws.cell(row=row_num, column=2).font = bold_font
+                ws.cell(row=row_num, column=3).alignment = center_align
+                ws.cell(row=row_num, column=4).alignment = center_align
+                ws.cell(row=row_num, column=5).alignment = center_align
+                ws.cell(row=row_num, column=6).alignment = center_align
+
+                status_cell = ws.cell(row=row_num, column=7)
+                status_cell.alignment = center_align
+                if "APROBADO" in status:
+                    status_cell.font = pass_font
+                elif "REPROBADO" in status:
+                    status_cell.font = fail_font
+
+                ws.cell(row=row_num, column=8).alignment = center_align
+                ws.cell(row=row_num, column=9).alignment = center_align
+                ws.cell(row=row_num, column=10).alignment = center_align
+
+            for col in ws.columns:
+                max_len = max(len(str(cell.value or '')) for cell in col)
+                col_letter = get_column_letter(col[0].column)
+                ws.column_dimensions[col_letter].width = max(max_len + 3, 11)
+
+        ws_all = wb.create_sheet(title="Consolidado General")
+        populate_sheet(ws_all, "REGISTRO GENERAL CONSOLIDADO DE CALIFICACIONES - QUÍMICA", sorted_all)
+
+        for grp in sorted(groups_map.keys()):
+            clean_title = re.sub(r'[\\/*?:[\]]', '', grp)[:31] or "Grupo"
+            ws_grp = wb.create_sheet(title=clean_title)
+            populate_sheet(ws_grp, f"CALIFICACIONES OFICIALES - GRUPO {grp}", groups_map[grp])
+
+        wb.save(XLSX_FILE)
+    except Exception as e:
+        print(f"Aviso generando XLSX multi-hoja: {e}")
+
+
 def save_json_file(path, data):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
@@ -239,7 +344,8 @@ class DatabaseRequestHandler(BaseHTTPRequestHandler):
                 "code": code,
                 "authenticity": es_autentico
             })
-            save_json_file(JSON_FILE, records)
+                        save_json_file(JSON_FILE, records)
+            export_records_to_multisheet_excel(records)
 
             print(f"[{datetime.now().strftime('%H:%M:%S')}] [NOTA] {name} ({group}) | Nota: {grade} | {correct}/{total}")
             self._set_cors_headers(200)
